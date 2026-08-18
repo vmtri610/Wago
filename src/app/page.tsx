@@ -462,7 +462,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
-      {/* MOBILE TOP BAR - CHUYỂN NÚT HAMBURGER SANG BÊN TRÁI CHUẨN UI */}
+      {/* MOBILE TOP BAR */}
       <div className="md:hidden bg-[#FFFDF9] border-b border-[var(--card-border)] px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-xs">
         <div className="flex items-center gap-3">
           <button
@@ -588,7 +588,6 @@ export default function Home() {
                   type="text"
                   value={inJp}
                   onChange={(e) => handleJpChange(e.target.value)}
-                  placeholder="Ví dụ: いぬ, 日本語, ねこ"
                   className="w-full px-3.5 py-2.5 border border-[var(--card-border)] rounded-lg text-base font-jp focus:outline-none focus:border-[var(--indigo)] bg-white"
                 />
                 {inJp.trim() && (
@@ -622,7 +621,6 @@ export default function Home() {
                 type="text"
                 value={inRomaji}
                 onChange={(e) => setInRomaji(e.target.value)}
-                placeholder="inu"
                 className="w-full px-3.5 py-2.5 border border-[var(--card-border)] rounded-lg text-base font-jetbrains focus:outline-none focus:border-[var(--indigo)] bg-white"
               />
             </div>
@@ -635,7 +633,6 @@ export default function Home() {
                 type="text"
                 value={inVi}
                 onChange={(e) => setInVi(e.target.value)}
-                placeholder="Con chó"
                 className="w-full px-3.5 py-2.5 border border-[var(--card-border)] rounded-lg text-base focus:outline-none focus:border-[var(--indigo)] bg-white"
               />
             </div>
@@ -668,17 +665,17 @@ export default function Home() {
         {/* TAB 2: DANH SÁCH & QUẢN LÝ */}
         {activeTab === 'list' && (
           <section className="space-y-4">
-            <div className="flex gap-2 bg-[#FFFDF9] p-2 rounded-lg border border-[var(--card-border)]">
+            <div className="flex gap-2">
               <input
                 type="text"
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
                 placeholder="Tên thư mục mới..."
-                className="flex-1 px-3 py-1.5 border border-[var(--card-border)] rounded-md text-xs bg-white focus:outline-none"
+                className="flex-1 px-3.5 py-2 border border-[var(--card-border)] rounded-lg text-xs bg-white focus:outline-none focus:border-[var(--indigo)]"
               />
               <button
                 onClick={handleAddFolder}
-                className="px-3 py-1.5 bg-[var(--indigo)] text-white rounded-md text-xs font-semibold hover:bg-[var(--indigo-deep)] transition flex items-center gap-1"
+                className="px-4 py-2 bg-[var(--indigo)] text-white rounded-lg text-xs font-semibold hover:bg-[var(--indigo-deep)] transition flex items-center gap-1.5 shrink-0 shadow-xs"
               >
                 <FolderPlus className="w-3.5 h-3.5" /> Tạo thư mục
               </button>
@@ -913,7 +910,7 @@ export default function Home() {
                           value={quizInput}
                           onChange={(e) => setQuizInput(e.target.value)}
                           onKeyDown={(e) => e.key === 'Enter' && handleGrade(quizInput.trim().toLowerCase() === currentQuizCard.romaji.toLowerCase())}
-                          placeholder="Gõ Romaji đáp án..."
+                          placeholder=""
                           className="w-full text-center py-2.5 border border-[var(--card-border)] rounded-lg text-base font-jetbrains focus:outline-none focus:border-[var(--indigo)] bg-white"
                           autoFocus
                         />
@@ -1088,7 +1085,7 @@ export default function Home() {
                   </button>
                   <button
                     onClick={() => setKanaScript('both')}
-                    className={`px-3 py-1.5 rounded-md transition ${kanaScript === 'both' ? 'bg-[var(--indigo)] text-white' : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'}`}
+                    className={`px-3 py-1.5 rounded-md transition ${kanaScript === 'both' ? 'bg-[var(--indigo)] text-white' : 'text-[var(--indigo)] hover:text-[var(--indigo)]'}`}
                   >
                     Cả 2 (あ / ア)
                   </button>
