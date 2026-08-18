@@ -3,11 +3,49 @@ export function speakJapanese(text: string) {
 
   const cleanText = text.trim();
 
-  // 1. Dùng Google Neural TTS Endpoint (giọng đọc người thật tiếng Nhật chất lượng cao)
+  // 1. Ưu tiên sử dụng Web Speech API sẵn có trên hệ điều hành iOS/Android (Native, phát âm chuẩn tiếng Nhật & không bị chặn CORS)
+  if ('speechSynthesis' in window) {
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = 'ja-JP';
+      utterance.rate = 0.88;
+
+      const voices = window.speechSynthesis.getVoices();
+      const naturalVoice = voices.find(v => 
+        (v.lang.toLowerCase().includes('ja') || v.lang.toLowerCase().includes('jp')) && (
+          v.name.includes('Kyoko') || 
+          v.name.includes('Otoya') || 
+          v.name.includes('Hattori') ||
+          v.name.includes('Natural') || 
+          v.name.includes('Enhanced') || 
+          v.name.includes('Google')
+        )
+      ) || voices.find(v => v.lang.toLowerCase().includes('ja') || v.lang.toLowerCase().includes('jp'));
+
+      if (naturalVoice) {
+        utterance.voice = naturalVoice;
+      }
+
+      utterance.onerror = () => {
+        playGoogleAudioFallback(cleanText);
+      };
+
+      window.speechSynthesis.speak(utterance);
+      return;
+    } catch (e) {
+      console.warn('WebSpeech error, falling back to Google TTS:', e);
+    }
+  }
+
+  // 2. Fallback sang Google Neural TTS
+  playGoogleAudioFallback(cleanText);
+}
+
+function playGoogleAudioFallback(cleanText: string) {
   const gTranslateUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=gtx&tl=ja&q=${encodeURIComponent(cleanText)}`;
   
   try {
-    // Dừng âm thanh đang phát trước đó
     if ((window as any)._wagoAudio) {
       (window as any)._wagoAudio.pause();
       (window as any)._wagoAudio = null;
@@ -16,42 +54,10 @@ export function speakJapanese(text: string) {
     const audio = new Audio(gTranslateUrl);
     audio.playbackRate = 0.92;
     (window as any)._wagoAudio = audio;
-
-    const playPromise = audio.play();
-    if (playPromise !== undefined) {
-      playPromise.catch((err) => {
-        console.warn('Google Audio playback blocked, fallback to Web Speech API:', err);
-        useWebSpeechFallback(cleanText);
-      });
-    }
-  } catch (e) {
-    useWebSpeechFallback(cleanText);
+    audio.play().catch(err => {
+      console.warn('Google Audio playback error on mobile:', err);
+    });
+  } catch (err) {
+    console.error('Audio fallback error:', err);
   }
-}
-
-function useWebSpeechFallback(text: string) {
-  if (!('speechSynthesis' in window)) return;
-
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'ja-JP';
-  utterance.rate = 0.88;
-
-  const voices = window.speechSynthesis.getVoices();
-  // Lọc tìm giọng đọc tự nhiên (Natural/Enhanced/Google)
-  const naturalVoice = voices.find(v => 
-    v.lang.toLowerCase().includes('ja') && (
-      v.name.includes('Natural') || 
-      v.name.includes('Enhanced') || 
-      v.name.includes('Google') || 
-      v.name.includes('Kyoko') || 
-      v.name.includes('Otoya')
-    )
-  ) || voices.find(v => v.lang.toLowerCase().includes('ja'));
-
-  if (naturalVoice) {
-    utterance.voice = naturalVoice;
-  }
-
-  window.speechSynthesis.speak(utterance);
 }
