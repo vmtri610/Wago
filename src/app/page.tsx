@@ -462,18 +462,21 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
-      {/* MOBILE TOP BAR */}
+      {/* MOBILE TOP BAR - CHUYỂN NÚT HAMBURGER SANG BÊN TRÁI CHUẨN UI */}
       <div className="md:hidden bg-[#FFFDF9] border-b border-[var(--card-border)] px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-        <h1 className="font-shippori font-bold text-xl text-[var(--indigo-deep)] tracking-wide flex items-center gap-2">
-          和語ノート
-          <span className="text-[10px] font-sans px-2 py-0.5 rounded-full bg-[var(--indigo)] text-white font-medium">v2.0</span>
-        </h1>
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-lg text-[var(--indigo)] hover:bg-gray-100 transition"
-        >
-          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-1.5 -ml-1 rounded-lg text-[var(--indigo)] hover:bg-black/5 transition"
+            aria-label="Mở menu"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+          <h1 className="font-shippori font-bold text-xl text-[var(--indigo-deep)] tracking-wide flex items-center gap-2">
+            和語ノート
+            <span className="text-[10px] font-sans px-2 py-0.5 rounded-full bg-[var(--indigo)] text-white font-medium">v2.0</span>
+          </h1>
+        </div>
       </div>
 
       {/* SIDEBAR NAVIGATION (Desktop Collapsible & Mobile Drawer) */}
