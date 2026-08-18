@@ -373,13 +373,9 @@ export default function Home() {
     setQuizFeedback({
       type: ok ? 'ok' : 'no',
       msg: ok 
-        ? `○ Chính xác — ${currentQuizCard.jp} (${currentQuizCard.romaji})`
-        : `✕ Chưa đúng — Đáp án: ${currentQuizCard.jp} (${currentQuizCard.romaji})`
+        ? `Chính xác — ${currentQuizCard.jp} (${currentQuizCard.romaji})`
+        : `Chưa đúng — ${currentQuizCard.jp} (${currentQuizCard.romaji})`
     });
-
-    setTimeout(() => {
-      advanceCard();
-    }, 1300);
   };
 
   // Match Game Deck Logic
@@ -909,7 +905,15 @@ export default function Home() {
                           type="text"
                           value={quizInput}
                           onChange={(e) => setQuizInput(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && handleGrade(quizInput.trim().toLowerCase() === currentQuizCard.romaji.toLowerCase())}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              if (quizFeedback) {
+                                advanceCard();
+                              } else {
+                                handleGrade(quizInput.trim().toLowerCase() === currentQuizCard.romaji.toLowerCase());
+                              }
+                            }
+                          }}
                           placeholder=""
                           className="w-full text-center py-2.5 border border-[var(--card-border)] rounded-lg text-base font-jetbrains focus:outline-none focus:border-[var(--indigo)] bg-white"
                           autoFocus
@@ -961,34 +965,46 @@ export default function Home() {
                       </>
                     )}
 
-                    <div className="flex gap-2 pt-2">
-                      <button
-                        onClick={advanceCard}
-                        className="px-4 py-2.5 border border-gray-300 text-[var(--ink-soft)] rounded-lg text-xs font-semibold hover:bg-gray-100"
-                      >
-                        Bỏ qua
-                      </button>
-                      <button
-                        onClick={() => {
-                          const isOk = quizMode === 'jp2romaji'
-                            ? quizInput.trim().toLowerCase() === currentQuizCard.romaji.toLowerCase()
-                            : romaji2JpBuilt === currentQuizCard.jp;
-                          handleGrade(isOk);
-                        }}
-                        className="flex-1 py-2.5 bg-[var(--indigo)] text-white rounded-lg text-xs font-bold hover:bg-[var(--indigo-deep)] transition"
-                      >
-                        Kiểm tra
-                      </button>
-                    </div>
+                    {quizFeedback && (
+                      <div className={`text-sm font-semibold mt-1 transition ${quizFeedback.type === 'ok' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {quizFeedback.msg}
+                      </div>
+                    )}
+
+                    {quizFeedback ? (
+                      <div className="pt-2">
+                        <button
+                          onClick={advanceCard}
+                          autoFocus
+                          className="w-full py-2.5 bg-[var(--indigo)] text-white rounded-lg text-xs font-bold hover:bg-[var(--indigo-deep)] transition flex items-center justify-center gap-1.5 shadow-xs"
+                        >
+                          Tiếp tục <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2 pt-2">
+                        <button
+                          onClick={advanceCard}
+                          className="px-4 py-2.5 border border-gray-300 text-[var(--ink-soft)] rounded-lg text-xs font-semibold hover:bg-gray-100"
+                        >
+                          Bỏ qua
+                        </button>
+                        <button
+                          onClick={() => {
+                            const isOk = quizMode === 'jp2romaji'
+                              ? quizInput.trim().toLowerCase() === currentQuizCard.romaji.toLowerCase()
+                              : romaji2JpBuilt === currentQuizCard.jp;
+                            handleGrade(isOk);
+                          }}
+                          className="flex-1 py-2.5 bg-[var(--indigo)] text-white rounded-lg text-xs font-bold hover:bg-[var(--indigo-deep)] transition"
+                        >
+                          Kiểm tra
+                        </button>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <p className="text-sm text-[var(--ink-soft)] py-8">Chưa có từ vựng phù hợp trong thư mục này.</p>
-                )}
-
-                {quizFeedback && (
-                  <div className={`text-sm font-bold ${quizFeedback.type === 'ok' ? 'text-emerald-700' : 'text-rose-700'}`}>
-                    {quizFeedback.msg}
-                  </div>
                 )}
               </div>
             )}
