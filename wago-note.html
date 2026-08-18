@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>和語ノート — Sổ tay từ vựng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F2E7;
+    --paper-deep:#EFE8D8;
+    --ink:#24303D;
+    --ink-soft:#5A6472;
+    --indigo:#2B4570;
+    --indigo-deep:#1B2E4B;
+    --red:#B23A2E;
+    --grid:rgba(178,58,46,0.16);
+    --card-border:rgba(36,48,61,0.14);
+    --ok:#3E7A4C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+      var(--paper);
+    background-size:26px 26px, 26px 26px, auto;
+    color:var(--ink);
+    font-family:'Noto Sans JP',sans-serif;
+    min-height:100vh;
+    padding:18px 14px 60px;
+  }
+  .wrap{max-width:640px;margin:0 auto;}
+  header{margin-bottom:18px;}
+  h1{
+    font-family:'Shippori Mincho',serif;
+    font-weight:700;
+    font-size:28px;
+    margin:0 0 2px;
+    color:var(--indigo-deep);
+    letter-spacing:.02em;
+  }
+  .sub{font-size:13px;color:var(--ink-soft);}
+  nav{display:flex;gap:8px;margin:18px 0;border-bottom:2px solid var(--card-border);}
+  nav button{
+    flex:1;
+    background:none;border:none;
+    font-family:'Shippori Mincho',serif;
+    font-size:15px;font-weight:700;
+    padding:10px 4px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    border-bottom:3px solid transparent;
+    transition:.15s;
+  }
+  nav button.active{color:var(--indigo-deep);border-bottom-color:var(--red);}
+  section{display:none;}
+  section.active{display:block;animation:fade .2s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  label{display:block;font-size:12px;color:var(--ink-soft);margin:14px 0 5px;font-weight:600;letter-spacing:.03em;}
+  input[type=text]{
+    width:100%;
+    padding:11px 12px;
+    border:1.5px solid var(--card-border);
+    border-radius:6px;
+    background:#fff;
+    font-family:'Noto Sans JP',sans-serif;
+    font-size:16px;
+    color:var(--ink);
+  }
+  input[type=text]:focus{outline:none;border-color:var(--indigo);}
+  .romaji-input{font-family:'JetBrains Mono',monospace;}
+  .hint{font-size:11px;color:var(--ink-soft);margin-top:5px;}
+  .btn{
+    display:inline-block;
+    padding:10px 18px;
+    border-radius:6px;
+    border:none;
+    font-family:'Shippori Mincho',serif;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    background:var(--indigo);
+    color:#fff;
+  }
+  .btn:active{background:var(--indigo-deep);}
+  .btn-ghost{background:transparent;color:var(--indigo);border:1.5px solid var(--indigo);}
+  .row{display:flex;gap:10px;margin-top:16px;}
+
+  select{
+    width:100%;
+    padding:11px 36px 11px 12px;
+    border:1.5px solid var(--card-border);
+    border-radius:6px;
+    background:#fff;
+    font-family:'Noto Sans JP',sans-serif;
+    font-size:15px;
+    color:var(--ink);
+    appearance:none;-webkit-appearance:none;-moz-appearance:none;
+    cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232B4570' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 10px center;
+    background-size:16px;
+  }
+  .io-row{display:flex;gap:8px;margin-bottom:6px;}
+  .io-row .btn{flex:1;text-align:center;font-size:13px;padding:9px;}
+  #io-status{margin-bottom:14px;min-height:14px;}
+  .folder-manage{display:flex;gap:8px;margin-bottom:14px;}
+  .folder-manage input{
+    flex:1;
+    padding:9px 10px;
+    border:1.5px solid var(--card-border);
+    border-radius:6px;
+    font-size:14px;
+    background:#fff;
+  }
+  .folder-manage .btn{padding:9px 14px;font-size:13px;white-space:nowrap;}
+  .folder-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .folder-item{position:relative;}
+  .folder-chip{display:flex;align-items:stretch;border-radius:20px;border:1.5px solid var(--card-border);overflow:hidden;}
+  .folder-chip.active{border-color:var(--indigo);}
+  .folder-tabs button{
+    padding:6px 12px;border:none;
+    background:#fff;font-size:12px;cursor:pointer;color:var(--ink-soft);font-weight:600;
+  }
+  .folder-chip.active button{color:var(--indigo);background:#eef2f7;}
+  .folder-dots{
+    height:auto;padding:6px 10px;border:none;background:#fff;color:var(--ink-soft);
+    cursor:pointer;font-size:14px;letter-spacing:1px;
+  }
+  .folder-chip.active .folder-dots{background:#eef2f7;color:var(--indigo);}
+  .folder-dots:hover{color:var(--indigo);}
+  .folder-menu{
+    position:absolute;top:calc(100% + 4px);right:0;z-index:20;
+    background:#fff;border:1.5px solid var(--card-border);border-radius:10px;
+    box-shadow:0 6px 16px rgba(36,48,61,.12);
+    display:flex;flex-direction:row;gap:2px;padding:4px;overflow:hidden;
+  }
+  .folder-menu button{
+    border:none;background:none;cursor:pointer;color:var(--ink);
+    padding:8px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  }
+  .folder-menu button svg{width:15px;height:15px;}
+  .folder-menu button:hover{background:var(--paper-deep);}
+  .folder-menu button:last-child{color:var(--red);}
+  input.folder-rename-input{
+    border:none;outline:none;padding:6px 10px;font-size:12px;font-weight:600;
+    color:var(--indigo);background:#eef2f7;width:110px;font-family:'Noto Sans JP',sans-serif;
+    border-radius:20px;
+  }
+  .card .folder-tag{font-size:11px;color:var(--indigo);margin-top:4px;font-weight:600;}
+  select.card-folder-select{
+    margin-top:8px;padding:5px 26px 5px 9px;font-size:11px;font-weight:600;
+    color:var(--indigo);background-color:#eef2f7;border:1px solid var(--card-border);
+    border-radius:14px;max-width:calc(100% - 40px);
+    background-position:right 8px center;background-size:13px;
+  }
+
+  .card{
+    background:#fffdf9;
+    border:1.5px solid var(--card-border);
+    border-radius:8px;
+    padding:14px;
+    margin-bottom:10px;
+    position:relative;
+  }
+  .card .jp{font-size:22px;font-weight:500;}
+  .card .romaji{font-family:'JetBrains Mono',monospace;color:var(--indigo);font-size:13px;margin-top:2px;}
+  .card .vi{font-size:13px;color:var(--ink-soft);margin-top:4px;}
+  .stamp{
+    position:absolute;top:10px;right:12px;
+    width:34px;height:34px;border-radius:50%;
+    border:2px solid var(--red);color:var(--red);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Shippori Mincho',serif;font-weight:700;font-size:12px;
+    opacity:.15;transform:rotate(-8deg);
+    transition:opacity .2s;
+  }
+  .stamp.earned{opacity:.9;}
+  .del{
+    position:absolute;bottom:10px;right:12px;
+    background:none;border:none;color:var(--ink-soft);
+    cursor:pointer;padding:4px;display:flex;
+  }
+  .del:hover{color:var(--red);}
+  .del svg{width:17px;height:17px;}
+  .empty{color:var(--ink-soft);font-size:14px;padding:20px 0;text-align:center;}
+
+  .quiz-modes{display:flex;gap:8px;margin-bottom:16px;}
+  .quiz-modes button{flex:1;padding:9px;border-radius:6px;border:1.5px solid var(--card-border);background:#fff;font-size:13px;cursor:pointer;font-weight:600;color:var(--ink-soft);}
+  .quiz-modes button.active{border-color:var(--indigo);color:var(--indigo);background:#eef2f7;}
+
+  .flash{
+    background:#fffdf9;border:1.5px solid var(--card-border);border-radius:10px;
+    padding:36px 20px;text-align:center;margin-bottom:14px;
+  }
+  .flash .prompt{font-size:38px;font-weight:500;letter-spacing:.02em;}
+  .flash .vi-meaning{font-size:13px;color:var(--ink-soft);margin-top:8px;}
+  .feedback{font-family:'Shippori Mincho',serif;font-weight:700;font-size:14px;margin-top:10px;min-height:20px;}
+  .feedback.ok{color:var(--ok);}
+  .feedback.no{color:var(--red);}
+
+  .kgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:14px;}
+  .kgrid button{
+    padding:9px 0;border-radius:5px;border:1px solid var(--card-border);
+    background:#fff;font-size:15px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;
+  }
+  .kgrid button:active{background:var(--paper-deep);}
+  .answer-box{
+    min-height:44px;border:1.5px dashed var(--card-border);border-radius:6px;
+    padding:8px 10px;font-size:20px;margin-top:10px;background:#fff;
+    letter-spacing:.05em;
+  }
+  .score{font-size:12px;color:var(--ink-soft);text-align:right;margin-bottom:6px;}
+
+  .match-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+  .match-tile{
+    padding:16px 10px;border:1.5px solid var(--card-border);border-radius:8px;
+    background:#fffdf9;font-size:15px;text-align:center;cursor:pointer;
+    min-height:52px;display:flex;align-items:center;justify-content:center;
+    transition:.15s;
+  }
+  .match-tile.jp{font-size:19px;}
+  .match-tile.selected{border-color:var(--indigo);background:#eef2f7;color:var(--indigo);}
+  .match-tile.solved{border-color:var(--ok);color:var(--ok);background:#eef7ee;opacity:.7;cursor:default;}
+  .match-tile.wrong{border-color:var(--red);background:#fbeceb;color:var(--red);}
+  .match-status{text-align:center;font-family:'Shippori Mincho',serif;font-weight:700;color:var(--indigo-deep);margin:14px 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>和語ノート</h1>
+    <div class="sub">Sổ tay học chữ cái tiếng Nhật qua từ vựng</div>
+  </header>
+
+  <nav>
+    <button data-tab="add" class="active">Thêm từ</button>
+    <button data-tab="list">Danh sách</button>
+    <button data-tab="quiz">Luyện tập</button>
+  </nav>
+
+  <section id="add" class="active">
+    <label>Hiragana / Katakana / Kanji</label>
+    <input type="text" id="in-jp" placeholder="">
+    <div class="hint" id="jp-hint"></div>
+
+    <label>Romaji</label>
+    <input type="text" id="in-romaji" class="romaji-input" placeholder="">
+
+    <label>Nghĩa tiếng Việt</label>
+    <input type="text" id="in-vi" placeholder="">
+
+    <label>Thư mục</label>
+    <select id="in-folder"><option value="">Không phân loại</option></select>
+
+    <div class="row">
+      <button class="btn" id="save-btn">Lưu từ</button>
+    </div>
+  </section>
+
+  <section id="list">
+    <div class="io-row">
+      <button class="btn btn-ghost" id="export-btn">Xuất dữ liệu</button>
+      <button class="btn btn-ghost" id="import-btn" type="button">Nhập dữ liệu</button>
+      <input type="file" id="import-file" accept="application/json" hidden>
+    </div>
+    <div class="hint" id="io-status"></div>
+    <div class="folder-manage">
+      <input type="text" id="new-folder-name" placeholder="Tên thư mục mới">
+      <button class="btn btn-ghost" id="add-folder-btn">Tạo thư mục</button>
+    </div>
+    <div class="folder-tabs" id="folder-tabs"></div>
+    <div id="list-body"></div>
+  </section>
+
+  <section id="quiz">
+    <div class="quiz-modes">
+      <button data-mode="jp2romaji" class="active">Từ → Romaji</button>
+      <button data-mode="romaji2jp">Romaji → Chữ</button>
+      <button data-mode="match">Ghép cặp</button>
+    </div>
+    <label>Luyện theo thư mục</label>
+    <select id="quiz-folder"><option value="all">Tất cả</option></select>
+    <div id="quiz-body"></div>
+  </section>
+</div>
+
+<script>
+/* ---------- Kana → romaji table (Hepburn) ---------- */
+const K = {
+ "あ":"a","い":"i","う":"u","え":"e","お":"o",
+ "か":"ka","き":"ki","く":"ku","け":"ke","こ":"ko",
+ "が":"ga","ぎ":"gi","ぐ":"gu","げ":"ge","ご":"go",
+ "さ":"sa","し":"shi","す":"su","せ":"se","そ":"so",
+ "ざ":"za","じ":"ji","ず":"zu","ぜ":"ze","ぞ":"zo",
+ "た":"ta","ち":"chi","つ":"tsu","て":"te","と":"to",
+ "だ":"da","ぢ":"ji","づ":"zu","で":"de","ど":"do",
+ "な":"na","に":"ni","ぬ":"nu","ね":"ne","の":"no",
+ "は":"ha","ひ":"hi","ふ":"fu","へ":"he","ほ":"ho",
+ "ば":"ba","び":"bi","ぶ":"bu","べ":"be","ぼ":"bo",
+ "ぱ":"pa","ぴ":"pi","ぷ":"pu","ぺ":"pe","ぽ":"po",
+ "ま":"ma","み":"mi","む":"mu","め":"me","も":"mo",
+ "や":"ya","ゆ":"yu","よ":"yo",
+ "ら":"ra","り":"ri","る":"ru","れ":"re","ろ":"ro",
+ "わ":"wa","を":"wo","ん":"n",
+ "きゃ":"kya","きゅ":"kyu","きょ":"kyo",
+ "しゃ":"sha","しゅ":"shu","しょ":"sho",
+ "ちゃ":"cha","ちゅ":"chu","ちょ":"cho",
+ "にゃ":"nya","にゅ":"nyu","にょ":"nyo",
+ "ひゃ":"hya","ひゅ":"hyu","ひょ":"hyo",
+ "みゃ":"mya","みゅ":"myu","みょ":"myo",
+ "りゃ":"rya","りゅ":"ryu","りょ":"ryo",
+ "ぎゃ":"gya","ぎゅ":"gyu","ぎょ":"gyo",
+ "じゃ":"ja","じゅ":"ju","じょ":"jo",
+ "びゃ":"bya","びゅ":"byu","びょ":"byo",
+ "ぴゃ":"pya","ぴゅ":"pyu","ぴょ":"pyo",
+ "ア":"a","イ":"i","ウ":"u","エ":"e","オ":"o",
+ "カ":"ka","キ":"ki","ク":"ku","ケ":"ke","コ":"ko",
+ "ガ":"ga","ギ":"gi","グ":"gu","ゲ":"ge","ゴ":"go",
+ "サ":"sa","シ":"shi","ス":"su","セ":"se","ソ":"so",
+ "ザ":"za","ジ":"ji","ズ":"zu","ゼ":"ze","ゾ":"zo",
+ "タ":"ta","チ":"chi","ツ":"tsu","テ":"te","ト":"to",
+ "ダ":"da","ヂ":"ji","ヅ":"zu","デ":"de","ド":"do",
+ "ナ":"na","ニ":"ni","ヌ":"nu","ネ":"ne","ノ":"no",
+ "ハ":"ha","ヒ":"hi","フ":"fu","ヘ":"he","ホ":"ho",
+ "バ":"ba","ビ":"bi","ブ":"bu","ベ":"be","ボ":"bo",
+ "パ":"pa","ピ":"pi","プ":"pu","ペ":"pe","ポ":"po",
+ "マ":"ma","ミ":"mi","ム":"mu","メ":"me","モ":"mo",
+ "ヤ":"ya","ユ":"yu","ヨ":"yo",
+ "ラ":"ra","リ":"ri","ル":"ru","レ":"re","ロ":"ro",
+ "ワ":"wa","ヲ":"wo","ン":"n","ヴ":"vu",
+ "キャ":"kya","キュ":"kyu","キョ":"kyo",
+ "シャ":"sha","シュ":"shu","ショ":"sho",
+ "チャ":"cha","チュ":"chu","チョ":"cho",
+ "ニャ":"nya","ニュ":"nyu","ニョ":"nyo",
+ "ヒャ":"hya","ヒュ":"hyu","ヒョ":"hyo",
+ "ミャ":"mya","ミュ":"myu","ミョ":"myo",
+ "リャ":"rya","リュ":"ryu","リョ":"ryo",
+ "ギャ":"gya","ギュ":"gyu","ギョ":"gyo",
+ "ジャ":"ja","ジュ":"ju","ジョ":"jo",
+ "ビャ":"bya","ビュ":"byu","ビョ":"byo",
+ "ピャ":"pya","ピュ":"pyu","ピョ":"pyo",
+ "ファ":"fa","フィ":"fi","フェ":"fe","フォ":"fo",
+ "ティ":"ti","ディ":"di","トゥ":"tu","ドゥ":"du",
+ "チェ":"che","ジェ":"je","ウィ":"wi","ウェ":"we","ウォ":"wo"
+};
+const VOWEL = {a:"a",i:"i",u:"u",e:"e",o:"o"};
+
+function kanaToRomaji(str){
+  let out = "", i = 0, unknown = false;
+  while(i < str.length){
+    const two = str.slice(i,i+2);
+    const one = str[i];
+    if(one === "っ" || one === "ッ"){
+      // small tsu doubles the next consonant
+      const nextTwo = str.slice(i+1,i+3);
+      const nextOne = str[i+1];
+      let nextRomaji = K[nextTwo] || K[nextOne];
+      if(nextRomaji){
+        out += nextRomaji[0];
+        i += 1;
+        continue;
+      }
+    }
+    if(one === "ー"){
+      const last = out.slice(-1);
+      if(VOWEL[last]) out += last;
+      i += 1;
+      continue;
+    }
+    if(K[two]){ out += K[two]; i += 2; continue; }
+    if(K[one]){ out += K[one]; i += 1; continue; }
+    // unknown character (kanji, punctuation, etc.)
+    unknown = true;
+    i += 1;
+  }
+  return {romaji: out, unknown};
+}
+
+/* meaning is entered manually — no built-in dictionary */
+
+/* ---------- storage ---------- */
+let words = [];
+let folders = [];
+let activeFolder = 'all'; // 'all' | folder name
+
+async function loadWords(){
+  try{
+    const r = await window.storage.get('vocab-data', false);
+    const data = r ? JSON.parse(r.value) : {};
+    words = data.words || [];
+    folders = data.folders || [];
+  }catch(e){ words = []; folders = []; }
+  renderList();
+  renderFolderOptions();
+}
+async function persist(){
+  try{ await window.storage.set('vocab-data', JSON.stringify({words, folders}), false); }
+  catch(e){ console.error('storage failed', e); }
+}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('nav button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('section').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById(b.dataset.tab).classList.add('active');
+    if(b.dataset.tab==='quiz') startQuiz();
+    if(b.dataset.tab==='list') renderList();
+  });
+});
+
+/* ---------- add form ---------- */
+const inJp = document.getElementById('in-jp');
+const inRomaji = document.getElementById('in-romaji');
+const inVi = document.getElementById('in-vi');
+const jpHint = document.getElementById('jp-hint');
+
+inJp.addEventListener('input', ()=>{
+  const val = inJp.value.trim();
+  if(!val){ jpHint.textContent=''; return; }
+  const {romaji, unknown} = kanaToRomaji(val);
+  inRomaji.value = romaji;
+  if(unknown){
+    jpHint.textContent = 'Từ chứa kanji — hệ thống không tự sinh chính xác romaji cho kanji, vui lòng kiểm tra và chỉnh sửa thủ công.';
+  } else {
+    jpHint.textContent = '';
+  }
+});
+
+document.getElementById('save-btn').addEventListener('click', async ()=>{
+  const jp = inJp.value.trim();
+  const romaji = inRomaji.value.trim();
+  const vi = inVi.value.trim();
+  const folder = document.getElementById('in-folder').value;
+  if(!jp || !romaji || !vi){
+    jpHint.textContent = 'Vui lòng nhập đầy đủ: từ tiếng Nhật, romaji và nghĩa tiếng Việt.';
+    return;
+  }
+  words.push({id: Date.now(), jp, romaji, vi, folder: folder || null});
+  await persist();
+  inJp.value=''; inRomaji.value=''; inVi.value=''; jpHint.textContent='';
+  renderList();
+});
+
+document.getElementById('add-folder-btn').addEventListener('click', async ()=>{
+  const nameInput = document.getElementById('new-folder-name');
+  const name = nameInput.value.trim();
+  if(!name || folders.includes(name)) { nameInput.value=''; return; }
+  folders.push(name);
+  await persist();
+  nameInput.value='';
+  renderFolderOptions();
+  renderList();
+});
+
+/* ---------- export / import ---------- */
+document.getElementById('import-btn').addEventListener('click', ()=>{
+  document.getElementById('import-file').click();
+});
+document.getElementById('export-btn').addEventListener('click', ()=>{
+  const status = document.getElementById('io-status');
+  if(words.length===0 && folders.length===0){
+    status.textContent = 'Chưa có dữ liệu để xuất.';
+    return;
+  }
+  const payload = JSON.stringify({words, folders}, null, 2);
+  const blob = new Blob([payload], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'wago-note-vocab.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  status.textContent = `Đã xuất ${words.length} từ, ${folders.length} thư mục.`;
+});
+
+document.getElementById('import-file').addEventListener('change', async (e)=>{
+  const status = document.getElementById('io-status');
+  const file = e.target.files[0];
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const data = JSON.parse(text);
+    const importedFolders = Array.isArray(data.folders) ? data.folders : [];
+    const importedWords = Array.isArray(data.words) ? data.words : [];
+
+    importedFolders.forEach(f=>{
+      if(typeof f === 'string' && f.trim() && !folders.includes(f.trim())) folders.push(f.trim());
+    });
+
+    let addedCount = 0;
+    importedWords.forEach((w, i)=>{
+      if(w && typeof w.jp==='string' && typeof w.romaji==='string' && typeof w.vi==='string' && w.jp && w.romaji && w.vi){
+        words.push({
+          id: Date.now() + i,
+          jp: w.jp, romaji: w.romaji, vi: w.vi,
+          folder: (typeof w.folder==='string' && folders.includes(w.folder)) ? w.folder : null
+        });
+        addedCount++;
+      }
+    });
+
+    await persist();
+    renderFolderOptions();
+    renderList();
+    status.textContent = addedCount>0
+      ? `Đã nhập thêm ${addedCount} từ vựng.`
+      : 'Không tìm thấy từ vựng hợp lệ trong file.';
+  }catch(err){
+    status.textContent = 'File không đúng định dạng JSON đã xuất từ app này.';
+  }
+  e.target.value = '';
+});
+
+let renamingFolder = null;
+let openMenuFolder = null;
+
+function renderFolderOptions(){
+  const sel = document.getElementById('in-folder');
+  sel.innerHTML = '<option value="">Không phân loại</option>' +
+    folders.map(f=>`<option value="${f}">${f}</option>`).join('');
+  renderQuizFolderOptions();
+
+  const tabs = document.getElementById('folder-tabs');
+  tabs.innerHTML =
+    `<div class="folder-item"><div class="folder-chip ${activeFolder==='all'?'active':''}"><button data-f="all">Tất cả</button></div></div>` +
+    folders.map(f=>{
+      if(renamingFolder === f){
+        return `<div class="folder-item"><div class="folder-chip active">
+          <input type="text" class="folder-rename-input" data-old="${f}" value="${f}">
+        </div></div>`;
+      }
+      return `
+      <div class="folder-item">
+        <div class="folder-chip ${activeFolder===f?'active':''}">
+          <button data-f="${f}">${f}</button>
+          <button class="folder-dots" data-menu="${f}" aria-label="Tùy chọn thư mục">⋮</button>
+        </div>
+        ${openMenuFolder===f ? `<div class="folder-menu">
+          <button data-edit="${f}" aria-label="Đổi tên">${EDIT_ICON}</button>
+          <button data-del="${f}" aria-label="Xóa">${TRASH_ICON}</button>
+        </div>` : ''}
+      </div>`;
+    }).join('');
+
+  tabs.querySelectorAll('button[data-f]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      activeFolder = btn.dataset.f;
+      renderFolderOptions();
+      renderList();
+    });
+  });
+  tabs.querySelectorAll('.folder-dots').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      openMenuFolder = openMenuFolder === btn.dataset.menu ? null : btn.dataset.menu;
+      renderFolderOptions();
+    });
+  });
+  tabs.querySelectorAll('button[data-del]').forEach(btn=>{
+    btn.addEventListener('click', async (e)=>{
+      e.stopPropagation();
+      const name = btn.dataset.del;
+      folders = folders.filter(f=>f!==name);
+      words.forEach(w=>{ if(w.folder===name) w.folder=null; });
+      openMenuFolder = null;
+      await persist();
+      if(activeFolder===name) activeFolder='all';
+      renderFolderOptions();
+      renderList();
+    });
+  });
+  tabs.querySelectorAll('button[data-edit]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      renamingFolder = btn.dataset.edit;
+      openMenuFolder = null;
+      renderFolderOptions();
+    });
+  });
+  const renameInput = tabs.querySelector('.folder-rename-input');
+  if(renameInput){
+    renameInput.focus();
+    renameInput.select();
+    const commit = async ()=>{
+      const oldName = renameInput.dataset.old;
+      const newName = renameInput.value.trim();
+      renamingFolder = null;
+      if(!newName || newName === oldName || folders.includes(newName)){
+        renderFolderOptions();
+        return;
+      }
+      folders = folders.map(f=>f===oldName?newName:f);
+      words.forEach(w=>{ if(w.folder===oldName) w.folder=newName; });
+      await persist();
+      if(activeFolder===oldName) activeFolder=newName;
+      renderFolderOptions();
+      renderList();
+    };
+    renameInput.addEventListener('blur', commit);
+    renameInput.addEventListener('keydown', e=>{
+      if(e.key==='Enter') renameInput.blur();
+      if(e.key==='Escape'){ renamingFolder=null; renderFolderOptions(); }
+    });
+  }
+}
+
+document.addEventListener('click', (e)=>{
+  if(openMenuFolder && !e.target.closest('.folder-item')){
+    openMenuFolder = null;
+    renderFolderOptions();
+  }
+});
+
+/* ---------- list ---------- */
+const TRASH_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+const EDIT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+
+function renderList(){
+  const body = document.getElementById('list-body');
+  const filtered = words.filter(w=>{
+    if(activeFolder==='all') return true;
+    return w.folder === activeFolder;
+  });
+  if(filtered.length===0){
+    body.innerHTML = '<div class="empty">Chưa có từ vựng nào trong mục này.</div>';
+    return;
+  }
+  body.innerHTML = filtered.map(w=>`
+    <div class="card">
+      <div class="jp">${w.jp}</div>
+      <div class="romaji">${w.romaji}</div>
+      <div class="vi">${w.vi}</div>
+      <select class="card-folder-select" data-id="${w.id}">
+        <option value="" ${!w.folder?'selected':''}>Không phân loại</option>
+        ${folders.map(f=>`<option value="${f}" ${w.folder===f?'selected':''}>${f}</option>`).join('')}
+      </select>
+      <button class="del" data-id="${w.id}" aria-label="Xóa">${TRASH_ICON}</button>
+    </div>`).join('');
+  body.querySelectorAll('.del').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      words = words.filter(w=>w.id !== Number(btn.dataset.id));
+      await persist();
+      renderList();
+    });
+  });
+  body.querySelectorAll('.card-folder-select').forEach(sel=>{
+    sel.addEventListener('change', async ()=>{
+      const w = words.find(x=>x.id === Number(sel.dataset.id));
+      if(w){
+        w.folder = sel.value || null;
+        await persist();
+        renderList();
+      }
+    });
+  });
+}
+
+/* ---------- quiz ---------- */
+let quizMode = 'jp2romaji';
+let quizFolder = 'all';
+let quizPool = [];
+let current = null;
+let matchTiles = [];
+let matchSelected = [];
+let matchWrong = [];
+let matchSolved = new Set();
+let matchTotalPairs = 0;
+const MAX_MATCH_PAIRS = 6;
+
+document.querySelectorAll('.quiz-modes button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('.quiz-modes button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    quizMode = b.dataset.mode;
+    startQuiz();
+  });
+});
+
+document.getElementById('quiz-folder').addEventListener('change', (e)=>{
+  quizFolder = e.target.value;
+  startQuiz();
+});
+
+function currentQuizPool(){
+  return quizFolder==='all' ? words : words.filter(w=>w.folder===quizFolder);
+}
+
+function renderQuizFolderOptions(){
+  const qf = document.getElementById('quiz-folder');
+  if(!qf) return;
+  qf.innerHTML = '<option value="all">Tất cả</option>' +
+    folders.map(f=>`<option value="${f}">${f}</option>`).join('');
+  if(quizFolder!=='all' && !folders.includes(quizFolder)) quizFolder = 'all';
+  qf.value = quizFolder;
+}
+
+function startQuiz(){
+  if(quizMode==='match'){ startMatchGame(); return; }
+  const pool = currentQuizPool();
+  quizPool = quizMode==='romaji2jp'
+    ? pool.filter(w => !kanaToRomaji(w.jp).unknown)
+    : [...pool];
+  nextCard();
+}
+
+function nextCard(){
+  const body = document.getElementById('quiz-body');
+  if(quizPool.length===0){
+    body.innerHTML = `<div class="empty">${quizMode==='romaji2jp'
+      ? 'Chưa có từ thuần hiragana/katakana để luyện tập ở chế độ này. Vui lòng thêm từ không chứa kanji.'
+      : 'Chưa có từ vựng nào. Vui lòng thêm từ ở mục "Thêm từ".'}</div>`;
+    return;
+  }
+  current = quizPool[Math.floor(Math.random()*quizPool.length)];
+  if(quizMode==='jp2romaji') renderJp2Romaji();
+  else renderRomaji2Jp();
+}
+
+/* ---------- matching game ---------- */
+function startMatchGame(){
+  const pool = currentQuizPool();
+  const body = document.getElementById('quiz-body');
+  if(pool.length===0){
+    body.innerHTML = '<div class="empty">Chưa có từ vựng nào trong thư mục này.</div>';
+    return;
+  }
+  const count = Math.min(MAX_MATCH_PAIRS, pool.length);
+  const chosen = [...pool].sort(()=>Math.random()-0.5).slice(0, count);
+  matchTiles = chosen.flatMap(w=>[{id:w.id, type:'jp', text:w.jp},{id:w.id, type:'vi', text:w.vi}]);
+  matchTiles.sort(()=>Math.random()-0.5);
+  matchSelected = [];
+  matchWrong = [];
+  matchSolved = new Set();
+  matchTotalPairs = count;
+  renderMatchGrid();
+}
+
+function renderMatchGrid(){
+  const body = document.getElementById('quiz-body');
+  const allSolved = matchSolved.size === matchTiles.length;
+  body.innerHTML = `
+    <div class="match-grid" id="match-grid">
+      ${matchTiles.map((t,i)=>{
+        const cls = matchSolved.has(i) ? 'solved' : matchWrong.includes(i) ? 'wrong' : matchSelected.includes(i) ? 'selected' : '';
+        return `<button class="match-tile ${t.type} ${cls}" data-idx="${i}" ${matchSolved.has(i)?'disabled':''}>${t.text}</button>`;
+      }).join('')}
+    </div>
+    ${allSolved ? `<div class="match-status">Hoàn thành! Đã ghép đúng ${matchTotalPairs} cặp.</div>
+      <div class="row"><button class="btn" id="match-replay">Chơi lại</button></div>` : ''}
+  `;
+  if(allSolved){
+    document.getElementById('match-replay').addEventListener('click', startMatchGame);
+    return;
+  }
+  document.querySelectorAll('#match-grid .match-tile').forEach(btn=>{
+    btn.addEventListener('click', ()=>onMatchTileClick(Number(btn.dataset.idx)));
+  });
+}
+
+function onMatchTileClick(idx){
+  if(matchSolved.has(idx) || matchSelected.includes(idx) || matchSelected.length>=2) return;
+  matchSelected.push(idx);
+  if(matchSelected.length < 2){
+    renderMatchGrid();
+    return;
+  }
+  const [a,b] = matchSelected;
+  const tileA = matchTiles[a], tileB = matchTiles[b];
+  if(tileA.id === tileB.id && tileA.type !== tileB.type){
+    matchSolved.add(a); matchSolved.add(b);
+    matchSelected = [];
+    renderMatchGrid();
+  } else {
+    matchWrong = [a,b];
+    renderMatchGrid();
+    setTimeout(()=>{
+      matchWrong = [];
+      matchSelected = [];
+      renderMatchGrid();
+    }, 700);
+  }
+}
+
+function renderJp2Romaji(){
+  const body = document.getElementById('quiz-body');
+  body.innerHTML = `
+    <div class="flash">
+      <div class="prompt">${current.jp}</div>
+      <div class="vi-meaning">${current.vi}</div>
+    </div>
+    <label>Gõ romaji</label>
+    <input type="text" id="quiz-input" class="romaji-input" autocomplete="off" autocapitalize="off">
+    <div class="row"><button class="btn" id="check-btn">Kiểm tra</button></div>
+    <div class="feedback" id="fb"></div>
+  `;
+  const input = document.getElementById('quiz-input');
+  input.focus();
+  const check = async ()=>{
+    const ok = input.value.trim().toLowerCase() === current.romaji.toLowerCase();
+    await grade(ok);
+  };
+  document.getElementById('check-btn').addEventListener('click', check);
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') check(); });
+}
+
+function renderRomaji2Jp(){
+  const body = document.getElementById('quiz-body');
+  const isKatakana = /[\u30A0-\u30FF]/.test(current.jp);
+  const tiles = isKatakana
+    ? ["ア","イ","ウ","エ","オ","カ","キ","ク","ケ","コ","サ","シ","ス","セ","ソ","タ","チ","ツ","テ","ト","ナ","ニ","ヌ","ネ","ノ","ハ","ヒ","フ","ヘ","ホ","マ","ミ","ム","メ","モ","ヤ","ユ","ヨ","ラ","リ","ル","レ","ロ","ワ","ン","ー"]
+    : ["あ","い","う","え","お","か","き","く","け","こ","さ","し","す","せ","そ","た","ち","つ","て","と","な","に","ぬ","ね","の","は","ひ","ふ","へ","ほ","ま","み","む","め","も","や","ゆ","よ","ら","り","る","れ","ろ","わ","ん","っ"];
+  body.innerHTML = `
+    <div class="flash">
+      <div class="prompt" style="font-family:'JetBrains Mono',monospace;font-size:26px;">${current.romaji}</div>
+      <div class="vi-meaning">${current.vi}</div>
+    </div>
+    <label>Ghép chữ (chạm để chọn)</label>
+    <div class="answer-box" id="answer-box"></div>
+    <div class="kgrid" id="kgrid">${tiles.map(t=>`<button data-t="${t}">${t}</button>`).join('')}</div>
+    <div class="row">
+      <button class="btn-ghost btn" id="back-btn">Xóa</button>
+      <button class="btn" id="check-btn">Kiểm tra</button>
+    </div>
+    <div class="feedback" id="fb"></div>
+  `;
+  let built = "";
+  const box = document.getElementById('answer-box');
+  document.getElementById('kgrid').addEventListener('click', e=>{
+    const t = e.target.closest('button');
+    if(!t) return;
+    built += t.dataset.t;
+    box.textContent = built;
+  });
+  document.getElementById('back-btn').addEventListener('click', ()=>{
+    built = built.slice(0,-1);
+    box.textContent = built;
+  });
+  document.getElementById('check-btn').addEventListener('click', async ()=>{
+    await grade(built === current.jp);
+  });
+}
+
+async function grade(ok){
+  const fb = document.getElementById('fb');
+  fb.className = 'feedback ' + (ok?'ok':'no');
+  fb.textContent = ok ? `○ Chính xác — ${current.jp} (${current.romaji})` : `✕ Chưa đúng — đáp án: ${current.jp} (${current.romaji})`;
+  setTimeout(nextCard, 1200);
+}
+
+loadWords();
+</script>
+</body>
+</html>

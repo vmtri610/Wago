@@ -1,0 +1,33 @@
+export interface KanaRow {
+  group: string;
+  items: { hira: string; kata: string; romaji: string }[];
+}
+
+export const BASIC_KANA: KanaRow[] = [
+  { group: 'Hàng A', items: [{ hira: 'あ', kata: 'ア', romaji: 'a' }, { hira: 'い', kata: 'イ', romaji: 'i' }, { hira: 'う', kata: 'ウ', romaji: 'u' }, { hira: 'え', kata: 'エ', romaji: 'e' }, { hira: 'お', kata: 'オ', romaji: 'o' }] },
+  { group: 'Hàng Ka', items: [{ hira: 'か', kata: 'カ', romaji: 'ka' }, { hira: 'き', kata: 'キ', romaji: 'ki' }, { hira: 'く', kata: 'ク', romaji: 'ku' }, { hira: 'け', kata: 'ケ', romaji: 'ke' }, { hira: 'こ', kata: 'コ', romaji: 'ko' }] },
+  { group: 'Hàng Sa', items: [{ hira: 'さ', kata: 'サ', romaji: 'sa' }, { hira: 'し', kata: 'シ', romaji: 'shi' }, { hira: 'す', kata: 'ス', romaji: 'su' }, { hira: 'せ', kata: 'セ', romaji: 'se' }, { hira: 'そ', kata: 'ソ', romaji: 'so' }] },
+  { group: 'Hàng Ta', items: [{ hira: 'た', kata: 'タ', romaji: 'ta' }, { hira: 'ち', kata: 'チ', romaji: 'chi' }, { hira: 'つ', kata: 'ツ', romaji: 'tsu' }, { hira: 'て', kata: 'テ', romaji: 'te' }, { hira: 'と', kata: 'ト', romaji: 'to' }] },
+  { group: 'Hàng Na', items: [{ hira: 'な', kata: 'ナ', romaji: 'na' }, { hira: 'に', kata: 'ニ', romaji: 'ni' }, { hira: 'ぬ', kata: 'ヌ', romaji: 'nu' }, { hira: 'ね', kata: 'ネ', romaji: 'ne' }, { hira: 'の', kata: 'ノ', romaji: 'no' }] },
+  { group: 'Hàng Ha', items: [{ hira: 'は', kata: 'ハ', romaji: 'ha' }, { hira: 'ひ', kata: 'ヒ', romaji: 'hi' }, { hira: 'ふ', kata: 'フ', romaji: 'fu' }, { hira: 'へ', kata: 'ヘ', romaji: 'he' }, { hira: 'ほ', kata: 'ホ', romaji: 'ho' }] },
+  { group: 'Hàng Ma', items: [{ hira: 'ま', kata: 'マ', romaji: 'ma' }, { hira: 'み', kata: 'ミ', romaji: 'mi' }, { hira: 'む', kata: 'ム', romaji: 'mu' }, { hira: 'め', kata: 'メ', romaji: 'me' }, { hira: 'も', kata: 'モ', romaji: 'mo' }] },
+  { group: 'Hàng Ya', items: [{ hira: 'や', kata: 'ヤ', romaji: 'ya' }, { hira: '', kata: '', romaji: '' }, { hira: 'ゆ', kata: 'ユ', romaji: 'yu' }, { hira: '', kata: '', romaji: '' }, { hira: 'よ', kata: 'ヨ', romaji: 'yo' }] },
+  { group: 'Hàng Ra', items: [{ hira: 'ら', kata: 'ラ', romaji: 'ra' }, { hira: 'り', kata: 'リ', romaji: 'ri' }, { hira: 'る', kata: 'ル', romaji: 'ru' }, { hira: 'れ', kata: 'レ', romaji: 're' }, { hira: 'ろ', kata: 'ロ', romaji: 'ro' }] },
+  { group: 'Hàng Wa / N', items: [{ hira: 'わ', kata: 'ワ', romaji: 'wa' }, { hira: 'を', kata: 'ヲ', romaji: 'wo' }, { hira: 'ん', kata: 'ン', romaji: 'n' }] }
+];
+
+export const DAKUON_KANA: KanaRow[] = [
+  { group: 'Hàng Ga', items: [{ hira: 'が', kata: 'ガ', romaji: 'ga' }, { hira: 'ぎ', kata: 'ギ', romaji: 'gi' }, { hira: 'ぐ', kata: 'グ', romaji: 'gu' }, { hira: 'げ', kata: 'ゲ', romaji: 'ge' }, { hira: 'ご', kata: 'ゴ', romaji: 'go' }] },
+  { group: 'Hàng Za', items: [{ hira: 'ざ', kata: 'ザ', romaji: 'za' }, { hira: 'じ', kata: 'ジ', romaji: 'ji' }, { hira: 'ず', kata: 'ズ', romaji: 'zu' }, { hira: 'ぜ', kata: 'ゼ', romaji: 'ze' }, { hira: 'ぞ', kata: 'ゾ', romaji: 'zo' }] },
+  { group: 'Hàng Da', items: [{ hira: 'だ', kata: 'ダ', romaji: 'da' }, { hira: 'ぢ', kata: 'ヂ', romaji: 'ji' }, { hira: 'づ', kata: 'ヅ', romaji: 'zu' }, { hira: 'で', kata: 'デ', romaji: 'de' }, { hira: 'ど', kata: 'ド', romaji: 'do' }] },
+  { group: 'Hàng Ba', items: [{ hira: 'ば', kata: 'バ', romaji: 'ba' }, { hira: 'び', kata: 'ビ', romaji: 'bi' }, { hira: 'ぶ', kata: 'ブ', romaji: 'bu' }, { hira: 'べ', kata: 'ベ', romaji: 'be' }, { hira: 'ぼ', kata: 'ボ', romaji: 'bo' }] },
+  { group: 'Hàng Pa', items: [{ hira: 'ぱ', kata: 'パ', romaji: 'pa' }, { hira: 'ぴ', kata: 'ピ', romaji: 'pi' }, { hira: 'ぷ', kata: 'プ', romaji: 'pu' }, { hira: 'ぺ', kata: 'ペ', romaji: 'pe' }, { hira: 'ぽ', kata: 'ポ', romaji: 'po' }] }
+];
+
+export const YOON_KANA: KanaRow[] = [
+  { group: 'Kya / Gya', items: [{ hira: 'きゃ', kata: 'キャ', romaji: 'kya' }, { hira: 'きゅ', kata: 'キュ', romaji: 'kyu' }, { hira: 'きょ', kata: 'キョ', romaji: 'kyo' }, { hira: 'ぎゃ', kata: 'ギャ', romaji: 'gya' }, { hira: 'ぎゅ', kata: 'ギュ', romaji: 'gyu' }, { hira: 'ぎょ', kata: 'ギョ', romaji: 'gyo' }] },
+  { group: 'Sha / Ja', items: [{ hira: 'しゃ', kata: 'シャ', romaji: 'sha' }, { hira: 'しゅ', kata: 'シュ', romaji: 'shu' }, { hira: 'しょ', kata: 'ショ', romaji: 'sho' }, { hira: 'じゃ', kata: 'ジャ', romaji: 'ja' }, { hira: 'じゅ', kata: 'ジュ', romaji: 'ju' }, { hira: 'じょ', kata: 'ジョ', romaji: 'jo' }] },
+  { group: 'Cha / Nya', items: [{ hira: 'ちゃ', kata: 'チャ', romaji: 'cha' }, { hira: 'ちゅ', kata: 'チュ', romaji: 'chu' }, { hira: 'ちょ', kata: 'チョ', romaji: 'cho' }, { hira: 'にゃ', kata: 'ニャ', romaji: 'nya' }, { hira: 'にゅ', kata: 'ニュ', romaji: 'nyu' }, { hira: 'にょ', kata: 'ニョ', romaji: 'nyo' }] },
+  { group: 'Hya / Bya / Pya', items: [{ hira: 'ひゃ', kata: 'ヒャ', romaji: 'hya' }, { hira: 'ひゅ', kata: 'ヒュ', romaji: 'hyu' }, { hira: 'ひょ', kata: 'ヒョ', romaji: 'hyo' }, { hira: 'びゃ', kata: 'ビャ', romaji: 'bya' }, { hira: 'びゅ', kata: 'ビュ', romaji: 'byu' }, { hira: 'びょ', kata: 'ビョ', romaji: 'byo' }, { hira: 'ぴゃ', kata: 'ピャ', romaji: 'pya' }, { hira: 'ぴゅ', kata: 'ピュ', romaji: 'pyu' }, { hira: 'ぴょ', kata: 'ピョ', romaji: 'pyo' }] },
+  { group: 'Mya / Rya', items: [{ hira: 'みゃ', kata: 'ミャ', romaji: 'mya' }, { hira: 'みゅ', kata: 'ミュ', romaji: 'myu' }, { hira: 'みょ', kata: 'ミョ', romaji: 'myo' }, { hira: 'りゃ', kata: 'リャ', romaji: 'rya' }, { hira: 'りゅ', kata: 'リュ', romaji: 'ryu' }, { hira: 'りょ', kata: 'リョ', romaji: 'ryo' }] }
+];
