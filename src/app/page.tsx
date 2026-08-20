@@ -1072,37 +1072,52 @@ export default function Home() {
                 })}
               </div>
 
-              {/* SRS Quiz Mode Options */}
-              <div className="flex gap-1.5 pt-1">
+              {/* SRS Quiz Mode Options & Auto Speak Toggle */}
+              <div className="flex flex-col sm:flex-row gap-2 pt-1 items-stretch sm:items-center">
+                <div className="flex gap-1.5 flex-1">
+                  <button
+                    onClick={() => setSrsQuizMode('jp2romaji')}
+                    className={`flex-1 py-2 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 ${
+                      srsQuizMode === 'jp2romaji'
+                        ? 'bg-[var(--indigo)] text-white border-[var(--indigo)]'
+                        : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
+                    }`}
+                  >
+                    <Type className="w-3.5 h-3.5" /> Từ → Romaji
+                  </button>
+                  <button
+                    onClick={() => setSrsQuizMode('mcq')}
+                    className={`flex-1 py-2 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 ${
+                      srsQuizMode === 'mcq'
+                        ? 'bg-[var(--indigo)] text-white border-[var(--indigo)]'
+                        : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
+                    }`}
+                  >
+                    <CheckSquare className="w-3.5 h-3.5" /> Trắc nghiệm
+                  </button>
+                  <button
+                    onClick={() => setSrsQuizMode('audio')}
+                    className={`flex-1 py-2 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 ${
+                      srsQuizMode === 'audio'
+                        ? 'bg-[var(--indigo)] text-white border-[var(--indigo)]'
+                        : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
+                    }`}
+                  >
+                    <Headphones className="w-3.5 h-3.5" /> Luyện nghe
+                  </button>
+                </div>
+
                 <button
-                  onClick={() => setSrsQuizMode('jp2romaji')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 ${
-                    srsQuizMode === 'jp2romaji'
-                      ? 'bg-[var(--indigo)] text-white border-[var(--indigo)]'
-                      : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
+                  onClick={() => setAutoSpeak(!autoSpeak)}
+                  className={`px-3 py-2 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1.5 transition shrink-0 ${
+                    autoSpeak
+                      ? 'bg-indigo-50 border-[var(--indigo)] text-[var(--indigo)]'
+                      : 'bg-white border-gray-300 text-gray-400'
                   }`}
+                  title="Tự động đọc phát âm từ tiếng Nhật khi mở thẻ mới"
                 >
-                  <Type className="w-3.5 h-3.5" /> Từ → Romaji
-                </button>
-                <button
-                  onClick={() => setSrsQuizMode('mcq')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 ${
-                    srsQuizMode === 'mcq'
-                      ? 'bg-[var(--indigo)] text-white border-[var(--indigo)]'
-                      : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
-                  }`}
-                >
-                  <CheckSquare className="w-3.5 h-3.5" /> Trắc nghiệm
-                </button>
-                <button
-                  onClick={() => setSrsQuizMode('audio')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 ${
-                    srsQuizMode === 'audio'
-                      ? 'bg-[var(--indigo)] text-white border-[var(--indigo)]'
-                      : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
-                  }`}
-                >
-                  <Headphones className="w-3.5 h-3.5" /> Luyện nghe
+                  {autoSpeak ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+                  Tự động đọc
                 </button>
               </div>
             </div>
