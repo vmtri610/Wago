@@ -74,7 +74,7 @@ export default function Home() {
   const [currentSrsCard, setCurrentSrsCard] = useState<Word | null>(null);
   const [srsCompletedDeck, setSrsCompletedDeck] = useState<boolean>(false);
   const [srsInput, setSrsInput] = useState('');
-  const [srsFeedback, setSrsFeedback] = useState<{ type: 'ok' | 'no'; msg: string; srsChange?: string } | null>(null);
+  const [srsFeedback, setSrsFeedback] = useState<{ type: 'ok' | 'no'; msg: string; oldLevel?: number; newLevel?: number } | null>(null);
   const [srsMcqOptions, setSrsMcqOptions] = useState<Word[]>([]);
   const [selectedSrsMcqWordId, setSelectedSrsMcqWordId] = useState<string | null>(null);
 
@@ -89,7 +89,7 @@ export default function Home() {
   const [currentQuizCard, setCurrentQuizCard] = useState<Word | null>(null);
   const [quizCompletedDeck, setQuizCompletedDeck] = useState<boolean>(false);
   const [quizInput, setQuizInput] = useState('');
-  const [quizFeedback, setQuizFeedback] = useState<{ type: 'ok' | 'no'; msg: string; srsChange?: string } | null>(null);
+  const [quizFeedback, setQuizFeedback] = useState<{ type: 'ok' | 'no'; msg: string; oldLevel?: number; newLevel?: number } | null>(null);
   const [romaji2JpBuilt, setRomaji2JpBuilt] = useState('');
   const [autoSpeak, setAutoSpeak] = useState<boolean>(true);
   const [quizMcqOptions, setQuizMcqOptions] = useState<Word[]>([]);
@@ -356,7 +356,7 @@ export default function Home() {
     if (activeTab === 'srs') {
       initSrsDeck();
     }
-  }, [activeTab, srsQuizMode, srsFolderIds, words]);
+  }, [activeTab, srsQuizMode, srsFolderIds]);
 
   const advanceSrsCard = () => {
     if (srsDeck.length <= 1) {
@@ -413,14 +413,13 @@ export default function Home() {
       console.error('Lỗi cập nhật SRS lên Supabase DB:', e);
     }
 
-    const levelMsg = ok ? `Level ${oldLevel} ➔ Level ${newLevel}` : `Rớt về Level 0`;
-
     setSrsFeedback({
       type: ok ? 'ok' : 'no',
       msg: ok 
         ? `Chính xác — ${currentSrsCard.jp} (${currentSrsCard.romaji})`
         : `Chưa đúng — ${currentSrsCard.jp} (${currentSrsCard.romaji})`,
-      srsChange: levelMsg
+      oldLevel,
+      newLevel
     });
   };
 
@@ -508,7 +507,7 @@ export default function Home() {
     if (activeTab === 'quiz') {
       initDeck();
     }
-  }, [activeTab, quizMode, quizFolderIds, words]);
+  }, [activeTab, quizMode, quizFolderIds]);
 
   const advanceCard = () => {
     if (quizDeck.length <= 1) {
@@ -567,14 +566,13 @@ export default function Home() {
       console.error('Lỗi cập nhật SRS lên Supabase DB:', e);
     }
 
-    const levelMsg = ok ? `Level ${oldLevel} ➔ Level ${newLevel}` : `Hạ xuống Level 0`;
-
     setQuizFeedback({
       type: ok ? 'ok' : 'no',
       msg: ok 
         ? `Chính xác — ${currentQuizCard.jp} (${currentQuizCard.romaji})`
         : `Chưa đúng — ${currentQuizCard.jp} (${currentQuizCard.romaji})`,
-      srsChange: levelMsg
+      oldLevel,
+      newLevel
     });
   };
 
@@ -1236,13 +1234,15 @@ export default function Home() {
                   )}
 
                   {srsFeedback && (
-                    <div className="space-y-1.5 pt-2">
+                    <div className="space-y-2 pt-2">
                       <div className={`text-sm font-semibold transition ${srsFeedback.type === 'ok' ? 'text-emerald-600' : 'text-rose-600'}`}>
                         {srsFeedback.msg}
                       </div>
-                      {srsFeedback.srsChange && (
-                        <div className="text-xs font-bold text-indigo-700 bg-indigo-50 inline-block px-3.5 py-1 rounded-full border border-indigo-200 shadow-2xs">
-                          🔄 {srsFeedback.srsChange}
+                      {srsFeedback.oldLevel !== undefined && srsFeedback.newLevel !== undefined && (
+                        <div className="flex items-center justify-center gap-2 pt-0.5">
+                          {renderSrsChip(srsFeedback.oldLevel)}
+                          <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
+                          {renderSrsChip(srsFeedback.newLevel)}
                         </div>
                       )}
                     </div>
@@ -1511,13 +1511,15 @@ export default function Home() {
                     )}
 
                     {quizFeedback && (
-                      <div className="space-y-1">
+                      <div className="space-y-2 pt-2">
                         <div className={`text-sm font-semibold transition ${quizFeedback.type === 'ok' ? 'text-emerald-600' : 'text-rose-600'}`}>
                           {quizFeedback.msg}
                         </div>
-                        {quizFeedback.srsChange && (
-                          <div className="text-xs font-bold text-indigo-700 bg-indigo-50 inline-block px-3 py-1 rounded-full border border-indigo-200">
-                            🔄 SRS: {quizFeedback.srsChange}
+                        {quizFeedback.oldLevel !== undefined && quizFeedback.newLevel !== undefined && (
+                          <div className="flex items-center justify-center gap-2 pt-0.5">
+                            {renderSrsChip(quizFeedback.oldLevel)}
+                            <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
+                            {renderSrsChip(quizFeedback.newLevel)}
                           </div>
                         )}
                       </div>
@@ -1658,13 +1660,15 @@ export default function Home() {
                     {/* Feedback & Next Button */}
                     {quizFeedback && (
                       <div className="space-y-3 pt-2">
-                        <div className="space-y-1">
+                        <div className="space-y-2">
                           <div className={`text-sm font-semibold transition ${quizFeedback.type === 'ok' ? 'text-emerald-600' : 'text-rose-600'}`}>
                             {quizFeedback.msg}
                           </div>
-                          {quizFeedback.srsChange && (
-                            <div className="text-xs font-bold text-indigo-700 bg-indigo-50 inline-block px-3 py-1 rounded-full border border-indigo-200">
-                              🔄 SRS: {quizFeedback.srsChange}
+                          {quizFeedback.oldLevel !== undefined && quizFeedback.newLevel !== undefined && (
+                            <div className="flex items-center justify-center gap-2 pt-0.5">
+                              {renderSrsChip(quizFeedback.oldLevel)}
+                              <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
+                              {renderSrsChip(quizFeedback.newLevel)}
                             </div>
                           )}
                         </div>
