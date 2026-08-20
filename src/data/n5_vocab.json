@@ -1,1747 +1,3021 @@
 {
   "words": [
     {
-      "id": 1786899551670,
+      "id": "1787232308659.3584",
       "jp": "い",
       "romaji": "i",
       "vi": "Dạ dày / Bao tử",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899566670,
+      "id": "1787232308659.7793",
       "jp": "え",
       "romaji": "e",
-      "vi": "Bức tranh / Phim ảnh",
-      "folder": "Chữ gốc"
+      "vi": "Bức tranh",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899581670,
+      "id": "1787232308659.0928",
       "jp": "あい",
       "romaji": "ai",
-      "vi": "Tình yêu / Tình thương",
-      "folder": "Chữ gốc"
+      "vi": "Tình yêu",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899596670,
+      "id": "1787232308659.7454",
       "jp": "いえ",
       "romaji": "ie",
-      "vi": "Ngôi nhà",
-      "folder": "Chữ gốc"
+      "vi": "Nhà",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899611670,
+      "id": "1787232308659.8809",
       "jp": "うえ",
       "romaji": "ue",
-      "vi": "Phía trên / Bên trên",
-      "folder": "Chữ gốc"
+      "vi": "Trên, phía trên",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899626670,
+      "id": "1787232308659.7903",
       "jp": "いう",
       "romaji": "iu",
-      "vi": "Nói (hành động nói)",
-      "folder": "Chữ gốc"
+      "vi": "Nói",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899641670,
+      "id": "1787232308659.493",
       "jp": "おい",
       "romaji": "oi",
       "vi": "Cháu trai",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899656670,
+      "id": "1787232308659.7366",
       "jp": "あう",
       "romaji": "au",
-      "vi": "Gặp gỡ (hành động gặp mặt)",
-      "folder": "Chữ gốc"
+      "vi": "Gặp gỡ",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899671670,
+      "id": "1787232308659.0308",
       "jp": "あお",
       "romaji": "ao",
-      "vi": "Màu xanh dương (Xanh da trời)",
-      "folder": "Chữ gốc"
+      "vi": "Màu xanh dương",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899686670,
+      "id": "1787232308659.9333",
       "jp": "いいえ",
       "romaji": "iie",
-      "vi": "Không / Không phải (từ chối, đáp lại câu hỏi)",
-      "folder": "Chữ gốc"
+      "vi": "Không (phủ định)",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899701670,
+      "id": "1787232308659.732",
       "jp": "いけ",
       "romaji": "ike",
       "vi": "Cái ao",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899716670,
+      "id": "1787232308659.088",
       "jp": "こい",
       "romaji": "koi",
-      "vi": "Cá chép (hoặc tình yêu đơn phương/mối tình)",
-      "folder": "Chữ gốc"
+      "vi": "Cá chép",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899731670,
+      "id": "1787232308659.88",
       "jp": "かお",
       "romaji": "kao",
       "vi": "Khuôn mặt",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899746670,
+      "id": "1787232308659.7302",
       "jp": "かき",
       "romaji": "kaki",
       "vi": "Quả hồng",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899761670,
+      "id": "1787232308659.974",
       "jp": "えき",
       "romaji": "eki",
       "vi": "Nhà ga",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899776670,
+      "id": "1787232308659.234",
       "jp": "かい",
       "romaji": "kai",
-      "vi": "Con sò / Con ngao",
-      "folder": "Chữ gốc"
+      "vi": "Vỏ sò",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899791670,
+      "id": "1787232308659.213",
       "jp": "かく",
       "romaji": "kaku",
-      "vi": "Viết (hành động viết)",
-      "folder": "Chữ gốc"
+      "vi": "Viết",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899806670,
+      "id": "1787232308659.5237",
       "jp": "あき",
       "romaji": "aki",
       "vi": "Mùa thu",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899821670,
+      "id": "1787232308659.449",
       "jp": "こえ",
       "romaji": "koe",
-      "vi": "Giọng nói / Tiếng nói",
-      "folder": "Chữ gốc"
+      "vi": "Giọng nói",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899836670,
+      "id": "1787232308659.2642",
       "jp": "きかい",
       "romaji": "kikai",
       "vi": "Máy móc",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899851670,
+      "id": "1787232308659.01",
       "jp": "かさ",
       "romaji": "kasa",
-      "vi": "Cái ô / Cái dù",
-      "folder": "Chữ gốc"
+      "vi": "Cái ô, cái dù",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899866670,
+      "id": "1787232308659.1665",
       "jp": "すし",
       "romaji": "sushi",
-      "vi": "Món Sushi",
-      "folder": "Chữ gốc"
+      "vi": "Sushi",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899881670,
+      "id": "1787232308659.0684",
       "jp": "あせ",
       "romaji": "ase",
       "vi": "Mồ hôi",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899896670,
+      "id": "1787232308659.7737",
       "jp": "うし",
       "romaji": "ushi",
       "vi": "Con bò",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899911670,
+      "id": "1787232308659.52",
       "jp": "しお",
       "romaji": "shio",
       "vi": "Muối",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899926670,
+      "id": "1787232308659.403",
       "jp": "そこ",
       "romaji": "soko",
-      "vi": "Chỗ đó (gần người nghe)",
-      "folder": "Chữ gốc"
+      "vi": "Chỗ đó, nơi đó",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899941670,
+      "id": "1787232308659.059",
       "jp": "すき",
       "romaji": "suki",
-      "vi": "Thích / Sùng bái",
-      "folder": "Chữ gốc"
+      "vi": "Thích",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899956670,
+      "id": "1787232308659.076",
       "jp": "しか",
       "romaji": "shika",
-      "vi": "Con hươu / Con nai",
-      "folder": "Chữ gốc"
+      "vi": "Con nai",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899971670,
+      "id": "1787232308659.4739",
       "jp": "すいか",
       "romaji": "suika",
       "vi": "Dưa hấu",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786899986670,
+      "id": "1787232308659.4744",
       "jp": "せかい",
       "romaji": "sekai",
       "vi": "Thế giới",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900001670,
+      "id": "1787232308659.071",
+      "jp": "あかい",
+      "romaji": "akai",
+      "vi": "Màu đỏ",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.5247",
+      "jp": "あおい",
+      "romaji": "aoi",
+      "vi": "Màu xanh",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.913",
+      "jp": "さか",
+      "romaji": "saka",
+      "vi": "Con dốc",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.6892",
+      "jp": "しかく",
+      "romaji": "shikaku",
+      "vi": "Hình vuông",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.7983",
+      "jp": "さけ",
+      "romaji": "sake",
+      "vi": "Rượu",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.5522",
+      "jp": "いす",
+      "romaji": "isu",
+      "vi": "Cái ghế",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.7415",
+      "jp": "きそく",
+      "romaji": "kisoku",
+      "vi": "Quy định",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.3462",
+      "jp": "うそ",
+      "romaji": "uso",
+      "vi": "Dối trá",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.2307",
       "jp": "て",
       "romaji": "te",
       "vi": "Bàn tay",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900016670,
+      "id": "1787232308659.0554",
       "jp": "つき",
       "romaji": "tsuki",
       "vi": "Mặt trăng",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900031670,
+      "id": "1787232308659.4644",
       "jp": "くち",
       "romaji": "kuchi",
-      "vi": "Cái miệng",
-      "folder": "Chữ gốc"
+      "vi": "Miệng",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900046670,
+      "id": "1787232308659.6167",
       "jp": "おと",
       "romaji": "oto",
-      "vi": "Âm thanh / Tiếng động",
-      "folder": "Chữ gốc"
+      "vi": "Âm thanh",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900061670,
+      "id": "1787232308659.1333",
       "jp": "そと",
       "romaji": "soto",
       "vi": "Bên ngoài",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900076670,
+      "id": "1787232308659.2573",
       "jp": "たつ",
       "romaji": "tatsu",
       "vi": "Đứng",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900091670,
+      "id": "1787232308659.6934",
       "jp": "たいこ",
       "romaji": "taiko",
-      "vi": "Cái trống",
-      "folder": "Chữ gốc"
+      "vi": "Trống",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900106670,
+      "id": "1787232308659.038",
       "jp": "つくえ",
       "romaji": "tsukue",
       "vi": "Cái bàn",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900121670,
+      "id": "1787232308659.836",
       "jp": "おとこ",
       "romaji": "otoko",
-      "vi": "Nam giới / Con trai",
-      "folder": "Chữ gốc"
+      "vi": "Con trai / Đàn ông",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900136670,
+      "id": "1787232308659.4006",
       "jp": "ちかてつ",
       "romaji": "chikatetsu",
       "vi": "Tàu điện ngầm",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900151670,
+      "id": "1787232308659.269",
       "jp": "いぬ",
       "romaji": "inu",
       "vi": "Con chó",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900166670,
+      "id": "1787232308659.2522",
       "jp": "ねこ",
       "romaji": "neko",
       "vi": "Con mèo",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900181670,
+      "id": "1787232308659.0002",
       "jp": "にく",
       "romaji": "niku",
       "vi": "Thịt",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900196670,
+      "id": "1787232308659.8835",
       "jp": "ぬの",
       "romaji": "nuno",
-      "vi": "Vải vóc",
-      "folder": "Chữ gốc"
+      "vi": "Vải",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900211670,
+      "id": "1787232308659.7388",
       "jp": "なつ",
       "romaji": "natsu",
       "vi": "Mùa hè",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900226670,
+      "id": "1787232308659.4092",
       "jp": "きつね",
       "romaji": "kitsune",
       "vi": "Con cáo",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900241670,
+      "id": "1787232308659.7969",
       "jp": "さかな",
       "romaji": "sakana",
       "vi": "Con cá",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900256670,
+      "id": "1787232308659.8718",
       "jp": "きのこ",
       "romaji": "kinoko",
-      "vi": "Cây nấm",
-      "folder": "Chữ gốc"
+      "vi": "Nấm",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900271670,
+      "id": "1787232308659.2983",
       "jp": "おかね",
       "romaji": "okane",
-      "vi": "Tiền bạc",
-      "folder": "Chữ gốc"
+      "vi": "Tiền",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900286670,
+      "id": "1787232308659.665",
       "jp": "にかい",
       "romaji": "nikai",
-      "vi": "Tầng 2 / Lầu 1",
-      "folder": "Chữ gốc"
+      "vi": "Tầng 2",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900301670,
+      "id": "1787232308659.0884",
       "jp": "はな",
       "romaji": "hana",
-      "vi": "Bông hoa",
-      "folder": "Chữ gốc"
+      "vi": "Hoa",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900316670,
+      "id": "1787232308659.891",
       "jp": "ふえ",
       "romaji": "fue",
-      "vi": "Cái còi / Cây sáo",
-      "folder": "Chữ gốc"
+      "vi": "Cái sáo",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900331670,
+      "id": "1787232308659.4048",
       "jp": "はこ",
       "romaji": "hako",
-      "vi": "Cái hộp / Cái thùng",
-      "folder": "Chữ gốc"
+      "vi": "Cái hộp",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900346670,
+      "id": "1787232308659.976",
       "jp": "ふね",
       "romaji": "fune",
-      "vi": "Con thuyền / Tàu thủy",
-      "folder": "Chữ gốc"
+      "vi": "Tàu thủy",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900361670,
+      "id": "1787232308659.9363",
       "jp": "ほし",
       "romaji": "hoshi",
       "vi": "Ngôi sao",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900376670,
+      "id": "1787232308659.3105",
       "jp": "ひと",
       "romaji": "hito",
-      "vi": "Con người",
-      "folder": "Chữ gốc"
+      "vi": "Người",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900391670,
+      "id": "1787232308659.5554",
       "jp": "へそ",
       "romaji": "heso",
-      "vi": "Cái rốn",
-      "folder": "Chữ gốc"
+      "vi": "Rốn",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900406670,
+      "id": "1787232308659.4517",
       "jp": "ほね",
       "romaji": "hone",
       "vi": "Xương",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900421670,
+      "id": "1787232308659.1433",
       "jp": "ふく",
       "romaji": "fuku",
       "vi": "Quần áo",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900436670,
+      "id": "1787232308659.9521",
       "jp": "ひなた",
       "romaji": "hinata",
-      "vi": "Nơi có ánh nắng",
-      "folder": "Chữ gốc"
+      "vi": "Chỗ có nắng",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900451670,
+      "id": "1787232308659.1975",
+      "jp": "あした",
+      "romaji": "ashita",
+      "vi": "Ngày mai",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.6396",
+      "jp": "きせつ",
+      "romaji": "kisetsu",
+      "vi": "Mùa",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.0457",
+      "jp": "おととい",
+      "romaji": "ototoi",
+      "vi": "Ngày hôm kia",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.9849",
+      "jp": "くに",
+      "romaji": "kuni",
+      "vi": "Đất nước",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.9724",
+      "jp": "はた",
+      "romaji": "hata",
+      "vi": "Lá cờ",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.5894",
       "jp": "うま",
       "romaji": "uma",
       "vi": "Con ngựa",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900466670,
+      "id": "1787232308659.3633",
       "jp": "むし",
       "romaji": "mushi",
-      "vi": "Côn trùng / Sâu bọ",
-      "folder": "Chữ gốc"
+      "vi": "Côn trùng",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900481670,
+      "id": "1787232308659.4575",
       "jp": "かめ",
       "romaji": "kame",
       "vi": "Con rùa",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900496670,
+      "id": "1787232308659.5696",
       "jp": "こま",
       "romaji": "koma",
       "vi": "Con quay",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900511670,
+      "id": "1787232308659.6802",
       "jp": "みみ",
       "romaji": "mimi",
       "vi": "Cái tai",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900526670,
+      "id": "1787232308659.4307",
       "jp": "あめ",
       "romaji": "ame",
-      "vi": "Cơn mưa",
-      "folder": "Chữ gốc"
+      "vi": "Mưa",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900541670,
+      "id": "1787232308659.2092",
       "jp": "くも",
       "romaji": "kumo",
       "vi": "Đám mây",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900556670,
+      "id": "1787232308659.3674",
       "jp": "にもつ",
       "romaji": "nimotsu",
-      "vi": "Hành lý / Đồ đạc",
-      "folder": "Chữ gốc"
+      "vi": "Hành lý",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900571670,
+      "id": "1787232308659.4602",
       "jp": "はさみ",
       "romaji": "hasami",
       "vi": "Cái kéo",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900586670,
+      "id": "1787232308659.4053",
       "jp": "むすめ",
       "romaji": "musume",
-      "vi": "Con gái (của mình)",
-      "folder": "Chữ gốc"
+      "vi": "Con gái",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900601670,
+      "id": "1787232308659.7097",
       "jp": "やま",
       "romaji": "yama",
-      "vi": "Ngọn núi",
-      "folder": "Chữ gốc"
+      "vi": "Núi",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900616670,
+      "id": "1787232308659.5679",
       "jp": "よむ",
       "romaji": "yomu",
       "vi": "Đọc",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900631670,
+      "id": "1787232308659.559",
       "jp": "ゆめ",
       "romaji": "yume",
       "vi": "Giấc mơ",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900646670,
+      "id": "1787232308659.1138",
       "jp": "やね",
       "romaji": "yane",
       "vi": "Mái nhà",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900661670,
+      "id": "1787232308659.731",
       "jp": "ゆき",
       "romaji": "yuki",
       "vi": "Tuyết",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900676670,
+      "id": "1787232308659.902",
       "jp": "ふゆ",
       "romaji": "fuyu",
       "vi": "Mùa đông",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900691670,
+      "id": "1787232308659.4097",
       "jp": "おゆ",
       "romaji": "oyu",
       "vi": "Nước nóng",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900706670,
+      "id": "1787232308659.8284",
       "jp": "よこ",
       "romaji": "yoko",
-      "vi": "Bên cạnh / Trục ngang",
-      "folder": "Chữ gốc"
+      "vi": "Bên cạnh",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900721670,
+      "id": "1787232308659.9487",
       "jp": "やすむ",
       "romaji": "yasumu",
       "vi": "Nghỉ ngơi",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900736670,
+      "id": "1787232308659.6025",
       "jp": "ゆかた",
       "romaji": "yukata",
-      "vi": "Áo Kimono mùa hè (Yukata)",
-      "folder": "Chữ gốc"
+      "vi": "Áo yukata",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900751670,
+      "id": "1787232308659.2898",
       "jp": "さる",
       "romaji": "saru",
       "vi": "Con khỉ",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900766670,
+      "id": "1787232308659.2634",
       "jp": "くり",
       "romaji": "kuri",
       "vi": "Hạt dẻ",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900781670,
+      "id": "1787232308659.358",
       "jp": "はれ",
       "romaji": "hare",
-      "vi": "Trời nắng / Nắng đẹp",
-      "folder": "Chữ gốc"
+      "vi": "Trời nắng, quang đãng",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900796670,
+      "id": "1787232308659.762",
       "jp": "そら",
       "romaji": "sora",
       "vi": "Bầu trời",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900811670,
+      "id": "1787232308659.2686",
       "jp": "みる",
       "romaji": "miru",
-      "vi": "Nhìn / Xem",
-      "folder": "Chữ gốc"
+      "vi": "Nhìn, xem",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900826670,
+      "id": "1787232308659.911",
       "jp": "これ",
       "romaji": "kore",
       "vi": "Cái này",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900841670,
+      "id": "1787232308659.8752",
       "jp": "しろ",
       "romaji": "shiro",
       "vi": "Màu trắng",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900856670,
+      "id": "1787232308659.7385",
       "jp": "りか",
       "romaji": "rika",
-      "vi": "Môn Khoa học",
-      "folder": "Chữ gốc"
+      "vi": "Khoa học",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900871670,
+      "id": "1787232308659.4255",
       "jp": "さくら",
       "romaji": "sakura",
       "vi": "Hoa anh đào",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900886670,
+      "id": "1787232308659.852",
       "jp": "ふくろ",
       "romaji": "fukuro",
-      "vi": "Cái túi / Cái bao",
-      "folder": "Chữ gốc"
+      "vi": "Cái túi",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900901670,
+      "id": "1787232308659.3157",
       "jp": "かわ",
       "romaji": "kawa",
-      "vi": "Dòng sông",
-      "folder": "Chữ gốc"
+      "vi": "Sông",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900916670,
+      "id": "1787232308659.286",
       "jp": "わに",
       "romaji": "wani",
-      "vi": "Con cá sấu",
-      "folder": "Chữ gốc"
+      "vi": "Cá sấu",
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900931670,
+      "id": "1787232308659.3594",
       "jp": "わたし",
       "romaji": "watashi",
       "vi": "Tôi",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900946670,
+      "id": "1787232308659.3079",
       "jp": "わらう",
       "romaji": "warau",
       "vi": "Cười",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786900961670,
+      "id": "1787232308659.9448",
       "jp": "わすれる",
       "romaji": "wasureru",
       "vi": "Quên",
-      "folder": "Chữ gốc"
+      "folder": "Hiragana"
     },
     {
-      "id": 1786910000000,
+      "id": "1787232308659.5378",
+      "jp": "あたま",
+      "romaji": "atama",
+      "vi": "Cái đầu",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.9785",
+      "jp": "うみ",
+      "romaji": "umi",
+      "vi": "Biển",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.4417",
+      "jp": "かいもの",
+      "romaji": "kaimono",
+      "vi": "Mua sắm",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.0452",
+      "jp": "まくら",
+      "romaji": "makura",
+      "vi": "Cái gối",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.2085",
+      "jp": "おつり",
+      "romaji": "otsuri",
+      "vi": "Tiền thối",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.5134",
+      "jp": "こころ",
+      "romaji": "kokoro",
+      "vi": "Trái tim",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.3425",
+      "jp": "にわ",
+      "romaji": "niwa",
+      "vi": "Vườn",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.1165",
+      "jp": "らいねん",
+      "romaji": "rainen",
+      "vi": "Năm sau",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232308659.4487",
+      "jp": "ほんや",
+      "romaji": "honya",
+      "vi": "Hiệu sách",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787232610214.7715",
       "jp": "みず",
       "romaji": "mizu",
       "vi": "Nước",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910015000,
+      "id": "1787232610214.4617",
       "jp": "かばん",
       "romaji": "kaban",
-      "vi": "Cặp / Túi xách",
-      "folder": "Âm đục"
+      "vi": "Cái cặp/túi xách",
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910030000,
+      "id": "1787232610214.6963",
       "jp": "でんわ",
       "romaji": "denwa",
       "vi": "Điện thoại",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910045000,
+      "id": "1787232610214.546",
       "jp": "めがね",
       "romaji": "megane",
       "vi": "Kính mắt",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910060000,
+      "id": "1787232610214.1267",
       "jp": "たべる",
       "romaji": "taberu",
       "vi": "Ăn",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910075000,
+      "id": "1787232610214.316",
       "jp": "かんじ",
       "romaji": "kanji",
       "vi": "Chữ Hán",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910090000,
+      "id": "1787232610214.2087",
       "jp": "かぞく",
       "romaji": "kazoku",
       "vi": "Gia đình",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910105000,
+      "id": "1787232610214.1016",
       "jp": "ごぜん",
       "romaji": "gozen",
-      "vi": "Buổi sáng / AM",
-      "folder": "Âm đục"
+      "vi": "Sáng",
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910120000,
+      "id": "1787232610214.1187",
       "jp": "げんき",
       "romaji": "genki",
-      "vi": "Khỏe mạnh",
-      "folder": "Âm đục"
+      "vi": "Khỏe mạnh, tràn đầy năng lượng",
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910135000,
+      "id": "1787232610214.4917",
       "jp": "しんぶん",
       "romaji": "shinbun",
-      "vi": "Tờ báo",
-      "folder": "Âm đục"
+      "vi": "Báo (tin tức)",
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910150000,
+      "id": "1787232610214.2654",
       "jp": "おみやげ",
       "romaji": "omiyage",
       "vi": "Quà lưu niệm",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910165000,
+      "id": "1787232610214.9014",
       "jp": "ともだち",
       "romaji": "tomodachi",
       "vi": "Bạn bè",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910180000,
+      "id": "1787232610214.7285",
       "jp": "えんぴつ",
       "romaji": "enpitsu",
       "vi": "Bút chì",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910195000,
+      "id": "1787232610214.5566",
       "jp": "にほんご",
       "romaji": "nihongo",
       "vi": "Tiếng Nhật",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910210000,
+      "id": "1787232610214.533",
       "jp": "せんぱい",
       "romaji": "senpai",
-      "vi": "Tiền bối / Lớp trên",
-      "folder": "Âm đục"
+      "vi": "Tiền bối, đàn anh/chị",
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910225000,
-      "jp": "がく",
-      "romaji": "gaku",
-      "vi": "Khung tranh / Học",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910240000,
-      "jp": "ごご",
-      "romaji": "gogo",
-      "vi": "Buổi chiều / PM",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910255000,
-      "jp": "みぎ",
-      "romaji": "migi",
-      "vi": "Bên phải",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910270000,
-      "jp": "はいざら",
-      "romaji": "haizara",
-      "vi": "Gạt tàn thuốc",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910285000,
-      "jp": "ふじさん",
-      "romaji": "fujisan",
-      "vi": "Núi Phú Sĩ",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910300000,
-      "jp": "かぜ",
-      "romaji": "kaze",
-      "vi": "Gió / Cảm lạnh",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910315000,
-      "jp": "ぐんじん",
-      "romaji": "gunjin",
-      "vi": "Quân nhân / Bộ đội",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910345000,
-      "jp": "まど",
-      "romaji": "mado",
-      "vi": "Cửa sổ",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910360000,
-      "jp": "すいぞくかん",
-      "romaji": "suizokukan",
-      "vi": "Thủy cung",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910375000,
-      "jp": "げんいん",
-      "romaji": "genin",
-      "vi": "Nguyên nhân",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910390000,
-      "jp": "くだもの",
-      "romaji": "kudamono",
-      "vi": "Hoa quả / Trái cây",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910405000,
-      "jp": "でんき",
-      "romaji": "denki",
-      "vi": "Điện / Đèn điện",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910420000,
-      "jp": "わなげ",
-      "romaji": "wanage",
-      "vi": "Trò ném vòng",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910435000,
-      "jp": "たばこ",
-      "romaji": "tabako",
-      "vi": "Thuốc lá",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910450000,
-      "jp": "りんご",
-      "romaji": "ringo",
-      "vi": "Quả táo",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910465000,
-      "jp": "へび",
-      "romaji": "hebi",
-      "vi": "Con rắn",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910480000,
-      "jp": "なべ",
-      "romaji": "nabe",
-      "vi": "Cái nồi",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910495000,
-      "jp": "こども",
-      "romaji": "kodomo",
-      "vi": "Trẻ em",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910510000,
-      "jp": "ぶんか",
-      "romaji": "bunka",
-      "vi": "Văn hóa",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910525000,
-      "jp": "ゆび",
-      "romaji": "yubi",
-      "vi": "Ngón tay",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910540000,
-      "jp": "ぼいん",
-      "romaji": "boin",
-      "vi": "Nguyên âm",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910555000,
-      "jp": "おどり",
-      "romaji": "odori",
-      "vi": "Điệu nhảy / Khiêu vũ",
-      "folder": "Âm đục"
-    },
-    {
-      "id": 1786910570000,
+      "id": "1787232610214.1982",
       "jp": "がいこくじん",
       "romaji": "gaikokujin",
       "vi": "Người nước ngoài",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910585000,
+      "id": "1787232610214.2307",
       "jp": "かがく",
       "romaji": "kagaku",
       "vi": "Khoa học",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910600000,
+      "id": "1787232610214.9045",
       "jp": "ぎんこう",
       "romaji": "ginkou",
       "vi": "Ngân hàng",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910615000,
+      "id": "1787232610214.033",
+      "jp": "みぎ",
+      "romaji": "migi",
+      "vi": "Bên phải",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787232610214.9229",
       "jp": "めぐすり",
       "romaji": "megusuri",
       "vi": "Thuốc nhỏ mắt",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910630000,
+      "id": "1787232610214.7036",
+      "jp": "げんいん",
+      "romaji": "genin",
+      "vi": "Nguyên nhân",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787232610214.4702",
       "jp": "ひげ",
       "romaji": "hige",
-      "vi": "Râu",
-      "folder": "Âm đục"
+      "vi": "Râu ria",
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910645000,
+      "id": "1787232610214.7651",
+      "jp": "ごご",
+      "romaji": "gogo",
+      "vi": "Chiều",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787232610214.438",
       "jp": "かざん",
       "romaji": "kazan",
       "vi": "Núi lửa",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910660000,
+      "id": "1787232610214.3376",
       "jp": "ひだり",
       "romaji": "hidari",
       "vi": "Bên trái",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910675000,
+      "id": "1787232610214.7212",
       "jp": "えだ",
       "romaji": "eda",
       "vi": "Cành cây",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910690000,
+      "id": "1787232610214.5854",
+      "jp": "でんき",
+      "romaji": "denki",
+      "vi": "Điện, đèn điện",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787232610214.9287",
+      "jp": "おどり",
+      "romaji": "odori",
+      "vi": "Khiêu vũ",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787232610214.6978",
+      "jp": "こども",
+      "romaji": "kodomo",
+      "vi": "Trẻ con",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787232610214.8684",
+      "jp": "たばこ",
+      "romaji": "tabako",
+      "vi": "Thuốc lá",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787232610214.6423",
+      "jp": "ゆび",
+      "romaji": "yubi",
+      "vi": "Ngón tay",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787232610214.5454",
+      "jp": "へび",
+      "romaji": "hebi",
+      "vi": "Con rắn",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787232610214.8228",
+      "jp": "ぶんか",
+      "romaji": "bunka",
+      "vi": "Văn hóa",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787232610214.6423",
+      "jp": "なべ",
+      "romaji": "nabe",
+      "vi": "Cái nồi",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787232610214.9338",
+      "jp": "ぼいん",
+      "romaji": "boin",
+      "vi": "Nguyên âm",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787232610214.4534",
       "jp": "うで",
       "romaji": "ude",
       "vi": "Cánh tay",
-      "folder": "Âm đục"
+      "folder": "Dakuon & Handakuon"
     },
     {
-      "id": 1786910705000,
+      "id": "1787232969899.079",
       "jp": "にっき",
       "romaji": "nikki",
       "vi": "Nhật ký",
-      "folder": "Chữ gốc"
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910720000,
+      "id": "1787232969899.9778",
       "jp": "きって",
       "romaji": "kitte",
       "vi": "Tem thư",
-      "folder": "Chữ gốc"
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910735000,
+      "id": "1787232969899.3928",
       "jp": "きっぷ",
       "romaji": "kippu",
       "vi": "Vé (tàu, xe)",
-      "folder": "Âm đục"
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910750000,
+      "id": "1787232969899.7708",
       "jp": "ざっし",
       "romaji": "zasshi",
       "vi": "Tạp chí",
-      "folder": "Âm đục"
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910765000,
+      "id": "1787232969899.3801",
       "jp": "おっと",
       "romaji": "otto",
-      "vi": "Chồng (mình)",
-      "folder": "Chữ gốc"
+      "vi": "Chồng",
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910780000,
+      "id": "1787232969899.3875",
       "jp": "みっか",
       "romaji": "mikka",
-      "vi": "Ngày mồng 3 / 3 ngày",
-      "folder": "Chữ gốc"
+      "vi": "Ngày mùng 3",
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910795000,
+      "id": "1787232969899.0808",
       "jp": "にっし",
       "romaji": "nisshi",
-      "vi": "Sổ nhật ký công việc",
-      "folder": "Chữ gốc"
+      "vi": "Nhật chí, sổ nhật ký công tác",
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910810000,
+      "id": "1787232969899.6301",
       "jp": "けっか",
       "romaji": "kekka",
       "vi": "Kết quả",
-      "folder": "Chữ gốc"
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910825000,
+      "id": "1787232969899.828",
       "jp": "せっけん",
       "romaji": "sekken",
       "vi": "Xà phòng",
-      "folder": "Chữ gốc"
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910840000,
+      "id": "1787232969899.4658",
       "jp": "けっこん",
       "romaji": "kekkon",
       "vi": "Kết hôn",
-      "folder": "Chữ gốc"
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910855000,
+      "id": "1787232969899.9604",
       "jp": "しっぱい",
       "romaji": "shippai",
       "vi": "Thất bại",
-      "folder": "Âm đục"
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910870000,
+      "id": "1787232969899.1897",
       "jp": "いっぽん",
       "romaji": "ippon",
-      "vi": "1 cây / 1 chiếc (vật dài)",
-      "folder": "Âm đục"
+      "vi": "Một cây (que, bút...)",
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910885000,
+      "id": "1787232969899.59",
       "jp": "けっせき",
       "romaji": "kesseki",
       "vi": "Vắng mặt",
-      "folder": "Chữ gốc"
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910900000,
+      "id": "1787232969899.9607",
       "jp": "あさって",
       "romaji": "asatte",
-      "vi": "Ngày kia",
-      "folder": "Chữ gốc"
+      "vi": "Ngày mốt (ngày kia)",
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910915000,
-      "jp": "きっさとん",
+      "id": "1787232969899.5388",
+      "jp": "きっさてん",
       "romaji": "kissaten",
       "vi": "Quán cà phê",
-      "folder": "Chữ gốc"
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910930000,
+      "id": "1787232969899.3962",
       "jp": "らっかさん",
       "romaji": "rakkasan",
-      "vi": "Cái dụ nhảy (dù)",
-      "folder": "Chữ gốc"
+      "vi": "Cái dù (nhảy dù)",
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910945000,
+      "id": "1787232969899.5227",
       "jp": "がっき",
       "romaji": "gakki",
       "vi": "Nhạc cụ",
-      "folder": "Âm đục"
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910960000,
+      "id": "1787232969899.6006",
       "jp": "かっちり",
       "romaji": "kacchiri",
-      "vi": "Chặt chẽ / Chắc chắn",
-      "folder": "Chữ gốc"
+      "vi": "Chắc chắn, khít khao",
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910975000,
+      "id": "1787232969899.535",
       "jp": "こぎって",
       "romaji": "kogitte",
-      "vi": "Tờ séc",
-      "folder": "Âm đục"
+      "vi": "Séc (ngân hàng)",
+      "folder": "Sokuon"
     },
     {
-      "id": 1786910990000,
+      "id": "1787232969899.7588",
       "jp": "おっとせい",
       "romaji": "ottosei",
-      "vi": "Con hải cẩu",
-      "folder": "Chữ gốc"
+      "vi": "Hải cẩu lông mao",
+      "folder": "Sokuon"
     },
     {
-      "id": 1786911005000,
+      "id": "1787232969899.922",
       "jp": "ろっこつ",
       "romaji": "rokkotsu",
       "vi": "Xương sườn",
-      "folder": "Chữ gốc"
+      "folder": "Sokuon"
     },
     {
-      "id": 1786911020000,
+      "id": "1787232969899.158",
       "jp": "たったいま",
       "romaji": "tattaima",
-      "vi": "Vừa mới xong",
-      "folder": "Chữ gốc"
+      "vi": "Vừa mới đây",
+      "folder": "Sokuon"
     },
     {
-      "id": 1786911035000,
+      "id": "1787232969899.998",
       "jp": "ねったい",
       "romaji": "nettai",
       "vi": "Nhiệt đới",
-      "folder": "Chữ gốc"
+      "folder": "Sokuon"
     },
     {
-      "id": 1786911050000,
+      "id": "1787232969899.669",
       "jp": "ほっぺた",
       "romaji": "hoppeta",
-      "vi": "Cái má",
-      "folder": "Âm đục"
+      "vi": "Má (gò má)",
+      "folder": "Sokuon"
     },
     {
-      "id": 1786911065000,
+      "id": "1787232969899.335",
       "jp": "れっしゃ",
       "romaji": "ressha",
-      "vi": "Tàu hỏa",
-      "folder": "Âm ghép"
+      "vi": "Đoàn tàu hỏa",
+      "folder": "Sokuon"
     },
     {
-      "id": 1786911080000,
+      "id": "1787232969899.5076",
       "jp": "さっかく",
       "romaji": "sakkaku",
-      "vi": "Ảo giác",
-      "folder": "Chữ gốc"
+      "vi": "Ảo giác, nhầm lẫn",
+      "folder": "Sokuon"
     },
     {
-      "id": 1786911095000,
+      "id": "1787232969899.47",
       "jp": "ひっかく",
       "romaji": "hikkaku",
-      "vi": "Cào / Cấu",
-      "folder": "Chữ gốc"
+      "vi": "Cào, gãi",
+      "folder": "Sokuon"
     },
     {
-      "id": 1786911110000,
+      "id": "1787233099278.0273",
+      "jp": "がく",
+      "romaji": "gaku",
+      "vi": "Học vấn / môn học",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787233099278.898",
+      "jp": "わなげ",
+      "romaji": "wanage",
+      "vi": "Trò chơi ném vòng",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787233099278.057",
+      "jp": "はいざら",
+      "romaji": "haizara",
+      "vi": "Cái gạt tàn",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787233099278.2861",
+      "jp": "ふじさん",
+      "romaji": "fujisan",
+      "vi": "Núi Phú Sĩ",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787233099278.0447",
+      "jp": "かぜ",
+      "romaji": "kaze",
+      "vi": "Gió",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787233099278.9553",
+      "jp": "ぐんじん",
+      "romaji": "gunjin",
+      "vi": "Quân nhân",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787233099278.7856",
+      "jp": "まど",
+      "romaji": "mado",
+      "vi": "Cửa sổ",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787233099278.2405",
+      "jp": "すいぞくかん",
+      "romaji": "suizokukan",
+      "vi": "Thủy cung",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787233099278.33",
+      "jp": "くだもの",
+      "romaji": "kudamono",
+      "vi": "Hoa quả, trái cây",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787233099278.4543",
+      "jp": "りんご",
+      "romaji": "ringo",
+      "vi": "Quả táo",
+      "folder": "Dakuon & Handakuon"
+    },
+    {
+      "id": "1787233311024.7908",
+      "jp": "め",
+      "romaji": "me",
+      "vi": "Con mắt",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787233311024.8755",
+      "jp": "きれいな",
+      "romaji": "kireina",
+      "vi": "Đẹp, sạch sẽ",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787233311024.2778",
+      "jp": "よる",
+      "romaji": "yoru",
+      "vi": "Buổi tối, ban đêm",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787233311024.1267",
+      "jp": "せんす",
+      "romaji": "sensu",
+      "vi": "Cái quạt xếp",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787233311024.3909",
+      "jp": "かに",
+      "romaji": "kani",
+      "vi": "Con cua",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787233311024.5615",
+      "jp": "つの",
+      "romaji": "tsuno",
+      "vi": "Sừng",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787233311024.8733",
+      "jp": "へい",
+      "romaji": "hei",
+      "vi": "Bức tường, hàng rào",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787233311024.5833",
+      "jp": "くつ",
+      "romaji": "kutsu",
+      "vi": "Giày",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787233311024.9521",
+      "jp": "あし",
+      "romaji": "ashi",
+      "vi": "Chân",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787233311024.153",
+      "jp": "ここ",
+      "romaji": "koko",
+      "vi": "Ở đây, chỗ này",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787233311024.6658",
+      "jp": "くし",
+      "romaji": "kushi",
+      "vi": "Cái lược",
+      "folder": "Hiragana"
+    },
+    {
+      "id": "1787233508453.1687",
       "jp": "くうき",
       "romaji": "kuuki",
       "vi": "Không khí",
-      "folder": "Chữ gốc"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911125000,
+      "id": "1787233508453.006",
       "jp": "すうじ",
       "romaji": "suuji",
-      "vi": "Chữ số",
-      "folder": "Âm đục"
+      "vi": "Con số",
+      "folder": "Chōon"
     },
     {
-      "id": 1786911140000,
+      "id": "1787233508453.71",
       "jp": "せんぷうき",
       "romaji": "senpuuki",
-      "vi": "Quạt điện",
-      "folder": "Âm đục"
+      "vi": "Quạt máy",
+      "folder": "Chōon"
     },
     {
-      "id": 1786911155000,
+      "id": "1787233508453.013",
       "jp": "おかあさん",
       "romaji": "okaasan",
       "vi": "Mẹ",
-      "folder": "Chữ gốc"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911170000,
+      "id": "1787233508453.3115",
       "jp": "おばあさん",
       "romaji": "obaasan",
       "vi": "Bà",
-      "folder": "Âm đục"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911185000,
+      "id": "1787233508453.8555",
       "jp": "おじいさん",
       "romaji": "ojiisan",
       "vi": "Ông",
-      "folder": "Âm đục"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911200000,
+      "id": "1787233508453.3008",
       "jp": "おにいさん",
       "romaji": "oniisan",
       "vi": "Anh trai",
-      "folder": "Chữ gốc"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911215000,
+      "id": "1787233508453.5325",
       "jp": "れい",
       "romaji": "rei",
-      "vi": "Ví dụ / Số 0",
-      "folder": "Chữ gốc"
+      "vi": "Ví dụ / số 0",
+      "folder": "Chōon"
     },
     {
-      "id": 1786911230000,
+      "id": "1787233508453.9224",
       "jp": "えいが",
       "romaji": "eiga",
       "vi": "Phim điện ảnh",
-      "folder": "Âm đục"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911245000,
-      "jp": "きれい",
-      "romaji": "kirei",
-      "vi": "Đẹp / Sạch sẽ",
-      "folder": "Chữ gốc"
-    },
-    {
-      "id": 1786911260000,
+      "id": "1787233508453.1814",
       "jp": "がくせい",
       "romaji": "gakusei",
-      "vi": "Học sinh / Sinh viên",
-      "folder": "Âm đục"
+      "vi": "Học sinh, sinh viên",
+      "folder": "Chōon"
     },
     {
-      "id": 1786911275000,
+      "id": "1787233508453.1213",
       "jp": "ぼうし",
       "romaji": "boushi",
-      "vi": "Cái mũ / Nón",
-      "folder": "Âm đục"
+      "vi": "Mũ, nón",
+      "folder": "Chōon"
     },
     {
-      "id": 1786911290000,
+      "id": "1787233508453.2024",
       "jp": "ひこうき",
       "romaji": "hikouki",
       "vi": "Máy bay",
-      "folder": "Chữ gốc"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911305000,
+      "id": "1787233508453.863",
       "jp": "いもうと",
       "romaji": "imouto",
       "vi": "Em gái",
-      "folder": "Chữ gốc"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911320000,
+      "id": "1787233508453.4727",
       "jp": "ごうかく",
       "romaji": "goukaku",
-      "vi": "Thi đỗ / Trúng tuyển",
-      "folder": "Âm đục"
+      "vi": "Đỗ, đậu (thi)",
+      "folder": "Chōon"
     },
     {
-      "id": 1786911335000,
+      "id": "1787233508453.9697",
       "jp": "おとうさん",
       "romaji": "otousan",
       "vi": "Bố",
-      "folder": "Chữ gốc"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911350000,
+      "id": "1787233508453.8406",
       "jp": "れいぞうこ",
       "romaji": "reizouko",
       "vi": "Tủ lạnh",
-      "folder": "Âm đục"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911365000,
+      "id": "1787233508453.9832",
       "jp": "おねえさん",
       "romaji": "oneesan",
       "vi": "Chị gái",
-      "folder": "Chữ gốc"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911380000,
+      "id": "1787233508453.3782",
       "jp": "こうつう",
       "romaji": "koutsuu",
       "vi": "Giao thông",
-      "folder": "Chữ gốc"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911395000,
+      "id": "1787233508453.6528",
       "jp": "にんずう",
       "romaji": "ninzuu",
       "vi": "Số người",
-      "folder": "Âm đục"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911410000,
+      "id": "1787233508453.7915",
       "jp": "ふうとう",
       "romaji": "fuutou",
       "vi": "Phong bì",
-      "folder": "Chữ gốc"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911425000,
+      "id": "1787233508453.0012",
       "jp": "こおり",
       "romaji": "koori",
-      "vi": "Băng / Đá lạnh",
-      "folder": "Chữ gốc"
+      "vi": "Nước đá",
+      "folder": "Chōon"
     },
     {
-      "id": 1786911440000,
+      "id": "1787233508453.9724",
       "jp": "おおかみ",
       "romaji": "ookami",
-      "vi": "Con chó sói",
-      "folder": "Chữ gốc"
+      "vi": "Con sói",
+      "folder": "Chōon"
     },
     {
-      "id": 1786911455000,
+      "id": "1787233508453.3508",
       "jp": "ぶんぽう",
       "romaji": "bunpou",
       "vi": "Ngữ pháp",
-      "folder": "Âm đục"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911470000,
+      "id": "1787233508453.6775",
       "jp": "めいれい",
       "romaji": "meirei",
       "vi": "Mệnh lệnh",
-      "folder": "Chữ gốc"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911485000,
+      "id": "1787233508453.4307",
       "jp": "けいざい",
       "romaji": "keizai",
       "vi": "Kinh tế",
-      "folder": "Âm đục"
+      "folder": "Chōon"
     },
     {
-      "id": 1786911500000,
+      "id": "1787233508453.6633",
       "jp": "ないよう",
       "romaji": "naiyou",
       "vi": "Nội dung",
-      "folder": "Chữ gốc"
+      "folder": "Chōon"
     },
     {
-      "id": 1786920000000,
+      "id": "1787233846220.0168",
       "jp": "おちゃ",
       "romaji": "ocha",
-      "vi": "Trà / Nước trà",
-      "folder": "Âm ghép"
+      "vi": "Trà",
+      "folder": "Yōon"
     },
     {
-      "id": 1786920015000,
+      "id": "1787233846220.4373",
       "jp": "じしょ",
       "romaji": "jisho",
       "vi": "Từ điển",
-      "folder": "Âm ghép"
+      "folder": "Yōon"
     },
     {
-      "id": 1786920030000,
+      "id": "1787233846220.073",
       "jp": "ひゃく",
       "romaji": "hyaku",
-      "vi": "Một trăm",
-      "folder": "Âm ghép"
+      "vi": "Một trăm (100)",
+      "folder": "Yōon"
     },
     {
-      "id": 1786920045000,
+      "id": "1787233846220.894",
       "jp": "きょく",
       "romaji": "kyoku",
-      "vi": "Ca khúc / Bài hát",
-      "folder": "Âm ghép"
+      "vi": "Bài hát, bản nhạc",
+      "folder": "Yōon"
     },
     {
-      "id": 1786920060000,
+      "id": "1787233846220.211",
       "jp": "きしゃ",
       "romaji": "kisha",
-      "vi": "Tàu hỏa / Nhà báo",
-      "folder": "Âm ghép"
+      "vi": "Xe lửa / Nhà báo (phỏng vấn)",
+      "folder": "Yōon"
     },
     {
-      "id": 1786920075000,
+      "id": "1787233846220.9973",
       "jp": "きゃく",
       "romaji": "kyaku",
-      "vi": "Khách hàng",
-      "folder": "Âm ghép"
+      "vi": "Khách",
+      "folder": "Yōon"
     },
     {
-      "id": 1786920090000,
+      "id": "1787233846220.3755",
       "jp": "しゃしん",
       "romaji": "shashin",
-      "vi": "Bức ảnh",
-      "folder": "Âm ghép"
+      "vi": "Ảnh chụp",
+      "folder": "Yōon"
     },
     {
-      "id": 1786920105000,
+      "id": "1787233846220.1538",
       "jp": "めんきょ",
       "romaji": "menkyo",
-      "vi": "Bằng cấp / Giấy phép",
-      "folder": "Âm ghép"
+      "vi": "Bằng lái, giấy phép",
+      "folder": "Yōon"
     },
     {
-      "id": 1786920120000,
+      "id": "1787233846220.4163",
       "jp": "しょくじ",
       "romaji": "shokuji",
       "vi": "Bữa ăn",
-      "folder": "Âm ghép"
+      "folder": "Yōon"
     },
     {
-      "id": 1786920135000,
+      "id": "1787233846220.6853",
       "jp": "しゅじん",
       "romaji": "shujin",
-      "vi": "Chồng (của mình) / Chủ nhà",
-      "folder": "Âm ghép"
+      "vi": "Chồng, chủ nhân",
+      "folder": "Yōon"
     },
     {
-      "id": 1786920150000,
+      "id": "1787233846220.0286",
       "jp": "りょこう",
       "romaji": "ryokou",
       "vi": "Du lịch",
-      "folder": "Âm ghép"
+      "folder": "Yōon"
     },
     {
-      "id": 1786920165000,
+      "id": "1787233846220.8074",
       "jp": "しょくどう",
       "romaji": "shokudou",
-      "vi": "Nhà ăn / Căng tin",
-      "folder": "Âm ghép"
+      "vi": "Nhà ăn, quán ăn",
+      "folder": "Yōon"
     },
     {
-      "id": 1786920180000,
+      "id": "1787233846220.654",
       "jp": "はっぴゃく",
       "romaji": "happyaku",
-      "vi": "Tám trăm",
-      "folder": "Âm ghép"
+      "vi": "Tám trăm (800)",
+      "folder": "Yōon"
     },
     {
-      "id": 1786920195000,
+      "id": "1787233846220.676",
       "jp": "しゅくだい",
       "romaji": "shukudai",
       "vi": "Bài tập về nhà",
-      "folder": "Âm ghép"
+      "folder": "Yōon"
     },
     {
-      "id": 1786920210000,
+      "id": "1787233846220.231",
       "jp": "びじゅつかん",
       "romaji": "bijutsukan",
       "vi": "Bảo tàng mỹ thuật",
-      "folder": "Âm ghép"
+      "folder": "Yōon"
     },
     {
-      "id": 1786920225000,
+      "id": "1787233846220.9368",
+      "jp": "さんびゃく",
+      "romaji": "sanbyaku",
+      "vi": "Ba trăm (300)",
+      "folder": "Yōon"
+    },
+    {
+      "id": "1787233846220.8765",
+      "jp": "ろっぴゃく",
+      "romaji": "roppyaku",
+      "vi": "Sáu trăm (600)",
+      "folder": "Yōon"
+    },
+    {
+      "id": "1787233846220.4536",
+      "jp": "びじゅつ",
+      "romaji": "bijutsu",
+      "vi": "Mỹ thuật",
+      "folder": "Yōon"
+    },
+    {
+      "id": "1787233846220.41",
+      "jp": "でんしゃ",
+      "romaji": "densha",
+      "vi": "Tàu điện",
+      "folder": "Yōon"
+    },
+    {
+      "id": "1787233932262.6702",
       "jp": "きょう",
       "romaji": "kyou",
       "vi": "Hôm nay",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920240000,
+      "id": "1787233932262.799",
       "jp": "こしょう",
       "romaji": "koshou",
-      "vi": "Hỏng hóc / Tieu (hạt tiêu)",
-      "folder": "Âm ghép"
+      "vi": "Sự cố, hỏng hóc",
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920255000,
+      "id": "1787233932262.5552",
       "jp": "しゅうり",
       "romaji": "shuuri",
       "vi": "Sửa chữa",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920270000,
+      "id": "1787233932262.5823",
       "jp": "びょういん",
       "romaji": "byouin",
       "vi": "Bệnh viện",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920285000,
+      "id": "1787233932262.703",
       "jp": "じゅぎょう",
       "romaji": "jugyou",
-      "vi": "Tiết học / Giờ học",
-      "folder": "Âm ghép"
+      "vi": "Giờ học, buổi học",
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920300000,
+      "id": "1787233932262.7087",
       "jp": "きゅうけい",
       "romaji": "kyuukei",
       "vi": "Nghỉ giải lao",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920315000,
+      "id": "1787233932262.526",
       "jp": "こうじょう",
       "romaji": "koujou",
-      "vi": "Nhà máy / Xưởng",
-      "folder": "Âm ghép"
+      "vi": "Nhà máy",
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920330000,
+      "id": "1787233932262.7153",
       "jp": "りょうしん",
       "romaji": "ryoushin",
-      "vi": "Cha mẹ / Phụ huynh",
-      "folder": "Âm ghép"
+      "vi": "Cha mẹ",
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920345000,
+      "id": "1787233932262.6382",
       "jp": "れんしゅう",
       "romaji": "renshuu",
       "vi": "Luyện tập",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920360000,
+      "id": "1787233932262.2288",
       "jp": "りゅうがく",
       "romaji": "ryuugaku",
       "vi": "Du học",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920375000,
+      "id": "1787233932262.3027",
       "jp": "ぎゅうにゅう",
       "romaji": "gyuunyuu",
       "vi": "Sữa bò",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920390000,
+      "id": "1787233932262.8503",
       "jp": "ちゅうごくご",
       "romaji": "chuugokugo",
-      "vi": "Tiếng Trung Quốc",
-      "folder": "Âm ghép"
+      "vi": "Tiếng Trung",
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920405000,
+      "id": "1787233932262.183",
       "jp": "きゅうきゅうしゃ",
       "romaji": "kyuukyuusha",
       "vi": "Xe cứu thương",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920420000,
+      "id": "1787233932262.4177",
       "jp": "きょねん",
       "romaji": "kyonen",
       "vi": "Năm ngoái",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920435000,
+      "id": "1787233932262.8901",
       "jp": "べんきょう",
       "romaji": "benkyou",
       "vi": "Học tập",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920450000,
+      "id": "1787233932262.6545",
       "jp": "ゆうびんきょく",
       "romaji": "yuubinkyoku",
       "vi": "Bưu điện",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920465000,
+      "id": "1787233932262.4548",
       "jp": "こうぎょう",
       "romaji": "kougyou",
       "vi": "Công nghiệp",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920480000,
+      "id": "1787233932262.467",
       "jp": "のうぎょう",
       "romaji": "nougyou",
       "vi": "Nông nghiệp",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920495000,
+      "id": "1787233932262.1206",
       "jp": "かいしゃいん",
       "romaji": "kaishain",
       "vi": "Nhân viên công ty",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920510000,
+      "id": "1787233932262.643",
       "jp": "うんてんしゅ",
       "romaji": "untenshu",
-      "vi": "Người lái xe / Tài xế",
-      "folder": "Âm ghép"
+      "vi": "Người lái xe",
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920525000,
+      "id": "1787233932262.1455",
       "jp": "じゅうにがつ",
       "romaji": "juunigatsu",
       "vi": "Tháng mười hai",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920540000,
+      "id": "1787233932262.0435",
       "jp": "じゅうしょ",
       "romaji": "juusho",
       "vi": "Địa chỉ",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920555000,
+      "id": "1787233932262.149",
       "jp": "しょうがくきん",
       "romaji": "shougakukin",
       "vi": "Học bổng",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920570000,
+      "id": "1787233932262.3157",
       "jp": "うちゅう",
       "romaji": "uchuu",
       "vi": "Vũ trụ",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920585000,
+      "id": "1787233932262.3264",
       "jp": "こうちょう",
       "romaji": "kouchou",
       "vi": "Hiệu trưởng",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920600000,
+      "id": "1787233932262.9204",
       "jp": "ゆにゅう",
       "romaji": "yunyuu",
       "vi": "Nhập khẩu",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920615000,
+      "id": "1787233932262.8376",
       "jp": "にひゃく",
       "romaji": "nihyaku",
       "vi": "Hai trăm",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920630000,
-      "jp": "さんびゃく",
-      "romaji": "sanbyaku",
-      "vi": "Ba trăm",
-      "folder": "Âm ghép"
-    },
-    {
-      "id": 1786920645000,
+      "id": "1787233932262.9346",
       "jp": "いちびょう",
       "romaji": "ichibyou",
       "vi": "Một giây",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920660000,
+      "id": "1787233932262.7744",
       "jp": "びょうき",
       "romaji": "byouki",
-      "vi": "Bệnh tật / Bị ốm",
-      "folder": "Âm ghép"
+      "vi": "Bệnh tật",
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920675000,
+      "id": "1787233932262.8083",
       "jp": "みょうじ",
       "romaji": "myouji",
-      "vi": "Họ (họ tên)",
-      "folder": "Âm ghép"
+      "vi": "Họ (tên)",
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920690000,
+      "id": "1787233932262.3044",
       "jp": "りょうしゅうしょ",
       "romaji": "ryoushuusho",
-      "vi": "Biên lai / Hóa đơn",
-      "folder": "Âm ghép"
+      "vi": "Biên lai",
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920705000,
+      "id": "1787233932262.2405",
       "jp": "りゅうがくせい",
       "romaji": "ryuugakusei",
       "vi": "Du học sinh",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920720000,
+      "id": "1787233932262.2412",
       "jp": "だいとうりょう",
       "romaji": "daitouryou",
       "vi": "Tổng thống",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920735000,
+      "id": "1787233932262.892",
       "jp": "ちょうちん",
       "romaji": "chouchin",
       "vi": "Đèn lồng",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920750000,
+      "id": "1787233932262.5676",
       "jp": "けんびきょう",
       "romaji": "kenbikyou",
       "vi": "Kính hiển vi",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920765000,
+      "id": "1787233932262.8694",
       "jp": "はつでんしょ",
       "romaji": "hatsudensho",
       "vi": "Nhà máy điện",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920780000,
+      "id": "1787233932262.4844",
       "jp": "みゃく",
       "romaji": "myaku",
       "vi": "Mạch",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
     },
     {
-      "id": 1786920795000,
+      "id": "1787233932262.2131",
       "jp": "りゅう",
       "romaji": "ryuu",
       "vi": "Con rồng",
-      "folder": "Âm ghép"
+      "folder": "Yōon & Chōon"
+    },
+    {
+      "id": "1787234186632.403",
+      "jp": "はつおん",
+      "romaji": "hatsuon",
+      "vi": "Phát âm",
+      "folder": "Yōon"
+    },
+    {
+      "id": "1787234186632.473",
+      "jp": "あつい",
+      "romaji": "atsui",
+      "vi": "Nóng",
+      "folder": "Yōon"
+    },
+    {
+      "id": "1787234186632.091",
+      "jp": "ろくさつ",
+      "romaji": "rokusatsu",
+      "vi": "Sáu quyển (sách)",
+      "folder": "Yōon"
+    },
+    {
+      "id": "1787234186632.2122",
+      "jp": "ろくせんえん",
+      "romaji": "rokusen en",
+      "vi": "Sáu nghìn yên",
+      "folder": "Yōon"
+    },
+    {
+      "id": "1787234186632.512",
+      "jp": "ろくおん",
+      "romaji": "rokuon",
+      "vi": "Ghi âm",
+      "folder": "Yōon"
+    },
+    {
+      "id": "1787234186632.295",
+      "jp": "さとう",
+      "romaji": "satou",
+      "vi": "Đường (gia vị)",
+      "folder": "Yōon"
+    },
+    {
+      "id": "1787234186632.3232",
+      "jp": "うんどう",
+      "romaji": "undou",
+      "vi": "Vận động",
+      "folder": "Yōon"
+    },
+    {
+      "id": "1787234186632.7808",
+      "jp": "ばんごう",
+      "romaji": "bangou",
+      "vi": "Số, con số",
+      "folder": "Yōon"
+    },
+    {
+      "id": "1787234186632.8987",
+      "jp": "ぼうえき",
+      "romaji": "boueki",
+      "vi": "Thương mại",
+      "folder": "Yōon"
+    },
+    {
+      "id": "1787234186632.3228",
+      "jp": "せきどう",
+      "romaji": "sekidou",
+      "vi": "Xích đạo",
+      "folder": "Yōon & Chōon"
+    },
+    {
+      "id": "1787234186632.2278",
+      "jp": "ようちえん",
+      "romaji": "youchien",
+      "vi": "Nhà trẻ, mẫu giáo",
+      "folder": "Yōon & Chōon"
+    },
+    {
+      "id": "1787234186632.153",
+      "jp": "てんきよほう",
+      "romaji": "tenkiyohou",
+      "vi": "Dự báo thời tiết",
+      "folder": "Yōon & Chōon"
+    },
+    {
+      "id": "1787234186632.773",
+      "jp": "けいさつ",
+      "romaji": "keisatsu",
+      "vi": "Cảnh sát",
+      "folder": "Yōon & Chōon"
+    },
+    {
+      "id": "1787234186632.588",
+      "jp": "ぎゅうにく",
+      "romaji": "gyuuniku",
+      "vi": "Thịt bò",
+      "folder": "Yōon & Chōon"
+    },
+    {
+      "id": "1787234186632.25",
+      "jp": "げっきゅう",
+      "romaji": "gekkyuu",
+      "vi": "Lương tháng",
+      "folder": "Yōon & Chōon"
+    },
+    {
+      "id": "1787234186632.3462",
+      "jp": "きゅうこう",
+      "romaji": "kyuukou",
+      "vi": "Cấp tốc, tốc hành",
+      "folder": "Yōon & Chōon"
+    },
+    {
+      "id": "1787234186632.651",
+      "jp": "きんぎょ",
+      "romaji": "kingyo",
+      "vi": "Cá vàng",
+      "folder": "Yōon & Chōon"
+    },
+    {
+      "id": "1787234186632.1697",
+      "jp": "じどうしゃ",
+      "romaji": "jidousha",
+      "vi": "Xe ô tô",
+      "folder": "Yōon & Chōon"
+    },
+    {
+      "id": "1787234186632.436",
+      "jp": "きょうしつ",
+      "romaji": "kyoushitsu",
+      "vi": "Lớp học, phòng học",
+      "folder": "Yōon & Chōon"
+    },
+    {
+      "id": "1787234186632.2688",
+      "jp": "しょうぼうしゃ",
+      "romaji": "shoubousha",
+      "vi": "Xe cứu hỏa",
+      "folder": "Yōon & Chōon"
+    },
+    {
+      "id": "1787234430312.1726",
+      "jp": "いち",
+      "romaji": "ichi",
+      "vi": "Số 1",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.8264",
+      "jp": "に",
+      "romaji": "ni",
+      "vi": "Số 2",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.2397",
+      "jp": "さん",
+      "romaji": "san",
+      "vi": "Số 3",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.1235",
+      "jp": "よん",
+      "romaji": "yon",
+      "vi": "Số 4",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.567",
+      "jp": "ご",
+      "romaji": "go",
+      "vi": "Số 5",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.0425",
+      "jp": "ろく",
+      "romaji": "roku",
+      "vi": "Số 6",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.583",
+      "jp": "なな",
+      "romaji": "nana",
+      "vi": "Số 7",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.5747",
+      "jp": "はち",
+      "romaji": "hachi",
+      "vi": "Số 8",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.3037",
+      "jp": "きゅう",
+      "romaji": "kyuu",
+      "vi": "Số 9",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.5334",
+      "jp": "じゅう",
+      "romaji": "juu",
+      "vi": "Số 10",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.3235",
+      "jp": "じゅういち",
+      "romaji": "juuichi",
+      "vi": "Số 11",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.813",
+      "jp": "じゅうに",
+      "romaji": "juuni",
+      "vi": "Số 12",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.5737",
+      "jp": "じゅうさん",
+      "romaji": "juusan",
+      "vi": "Số 13",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.4773",
+      "jp": "じゅうよん",
+      "romaji": "juuyon",
+      "vi": "Số 14",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.1042",
+      "jp": "じゅうご",
+      "romaji": "juugo",
+      "vi": "Số 15",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.4905",
+      "jp": "じゅうろく",
+      "romaji": "juuroku",
+      "vi": "Số 16",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.4685",
+      "jp": "じゅうなな",
+      "romaji": "juunana",
+      "vi": "Số 17",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.283",
+      "jp": "じゅうはち",
+      "romaji": "juuhachi",
+      "vi": "Số 18",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.111",
+      "jp": "じゅうきゅう",
+      "romaji": "juukyuu",
+      "vi": "Số 19",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.8137",
+      "jp": "にじゅう",
+      "romaji": "nijuu",
+      "vi": "Số 20",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.707",
+      "jp": "にじゅういち",
+      "romaji": "nijuuichi",
+      "vi": "Số 21",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.4023",
+      "jp": "にじゅうに",
+      "romaji": "nijuuni",
+      "vi": "Số 22",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.0627",
+      "jp": "にじゅうさん",
+      "romaji": "nijuusan",
+      "vi": "Số 23",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.132",
+      "jp": "にじゅうよん",
+      "romaji": "nijuuyon",
+      "vi": "Số 24",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.3647",
+      "jp": "にじゅうご",
+      "romaji": "nijuugo",
+      "vi": "Số 25",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.5295",
+      "jp": "にじゅうろく",
+      "romaji": "nijuuroku",
+      "vi": "Số 26",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.371",
+      "jp": "にじゅうなな",
+      "romaji": "nijuunana",
+      "vi": "Số 27",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.025",
+      "jp": "にじゅうはち",
+      "romaji": "nijuuhachi",
+      "vi": "Số 28",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.2278",
+      "jp": "にじゅうきゅう",
+      "romaji": "nijuukyuu",
+      "vi": "Số 29",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.4958",
+      "jp": "さんじゅう",
+      "romaji": "sanjuu",
+      "vi": "Số 30",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.1848",
+      "jp": "さんじゅういち",
+      "romaji": "sanjuuichi",
+      "vi": "Số 31",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.2368",
+      "jp": "さんじゅうに",
+      "romaji": "sanjuuni",
+      "vi": "Số 32",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.078",
+      "jp": "さんじゅうさん",
+      "romaji": "sanjuusan",
+      "vi": "Số 33",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.168",
+      "jp": "さんじゅうよん",
+      "romaji": "sanjuuyon",
+      "vi": "Số 34",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.2969",
+      "jp": "さんじゅうご",
+      "romaji": "sanjuugo",
+      "vi": "Số 35",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.1113",
+      "jp": "さんじゅうろく",
+      "romaji": "sanjuuroku",
+      "vi": "Số 36",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.6636",
+      "jp": "さんじゅうなな",
+      "romaji": "sanjuunana",
+      "vi": "Số 37",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.5283",
+      "jp": "さんじゅうはち",
+      "romaji": "sanjuuhachi",
+      "vi": "Số 38",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.956",
+      "jp": "さんじゅうきゅう",
+      "romaji": "sanjuukyuu",
+      "vi": "Số 39",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.6672",
+      "jp": "よんじゅう",
+      "romaji": "yonjuu",
+      "vi": "Số 40",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.849",
+      "jp": "よんじゅういち",
+      "romaji": "yonjuuichi",
+      "vi": "Số 41",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.8828",
+      "jp": "よんじゅうに",
+      "romaji": "yonjuuni",
+      "vi": "Số 42",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.3926",
+      "jp": "よんじゅうさん",
+      "romaji": "yonjuusan",
+      "vi": "Số 43",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.8733",
+      "jp": "よんじゅうよん",
+      "romaji": "yonjuuyon",
+      "vi": "Số 44",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.213",
+      "jp": "よんじゅうご",
+      "romaji": "yonjuugo",
+      "vi": "Số 45",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.5615",
+      "jp": "よんじゅうろく",
+      "romaji": "yonjuuroku",
+      "vi": "Số 46",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.4504",
+      "jp": "よんじゅうなな",
+      "romaji": "yonjuunana",
+      "vi": "Số 47",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.4788",
+      "jp": "よんじゅうはち",
+      "romaji": "yonjuuhachi",
+      "vi": "Số 48",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.9243",
+      "jp": "よんじゅうきゅう",
+      "romaji": "yonjuukyuu",
+      "vi": "Số 49",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.2378",
+      "jp": "ごじゅう",
+      "romaji": "gojuu",
+      "vi": "Số 50",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.2188",
+      "jp": "ごじゅういち",
+      "romaji": "gojuuichi",
+      "vi": "Số 51",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.8254",
+      "jp": "ごじゅうに",
+      "romaji": "gojuuni",
+      "vi": "Số 52",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.399",
+      "jp": "ごじゅうさん",
+      "romaji": "gojuusan",
+      "vi": "Số 53",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.3718",
+      "jp": "ごじゅうよん",
+      "romaji": "gojuuyon",
+      "vi": "Số 54",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.0286",
+      "jp": "ごじゅうご",
+      "romaji": "gojuugo",
+      "vi": "Số 55",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.4546",
+      "jp": "ごじゅうろく",
+      "romaji": "gojuuroku",
+      "vi": "Số 56",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.2285",
+      "jp": "ごじゅうなな",
+      "romaji": "gojuunana",
+      "vi": "Số 57",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.0554",
+      "jp": "ごじゅうはち",
+      "romaji": "gojuuhachi",
+      "vi": "Số 58",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.7356",
+      "jp": "ごじゅうきゅう",
+      "romaji": "gojuukyuu",
+      "vi": "Số 59",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.6477",
+      "jp": "ろくじゅう",
+      "romaji": "rokujuu",
+      "vi": "Số 60",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.3083",
+      "jp": "ろくじゅういち",
+      "romaji": "rokujuuichi",
+      "vi": "Số 61",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.4185",
+      "jp": "ろくじゅうに",
+      "romaji": "rokujuuni",
+      "vi": "Số 62",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.3452",
+      "jp": "ろくじゅうさん",
+      "romaji": "rokujuusan",
+      "vi": "Số 63",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.0242",
+      "jp": "ろくじゅうよん",
+      "romaji": "rokujuuyon",
+      "vi": "Số 64",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.0269",
+      "jp": "ろくじゅうご",
+      "romaji": "rokujuugo",
+      "vi": "Số 65",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.0657",
+      "jp": "ろくじゅうろく",
+      "romaji": "rokujuuroku",
+      "vi": "Số 66",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.7156",
+      "jp": "ろくじゅうなな",
+      "romaji": "rokujuunana",
+      "vi": "Số 67",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.1616",
+      "jp": "ろくじゅうはち",
+      "romaji": "rokujuuhachi",
+      "vi": "Số 68",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.3982",
+      "jp": "ろくじゅうきゅう",
+      "romaji": "rokujuukyuu",
+      "vi": "Số 69",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.039",
+      "jp": "ななじゅう",
+      "romaji": "nanajuu",
+      "vi": "Số 70",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.9026",
+      "jp": "ななじゅういち",
+      "romaji": "nanajuuichi",
+      "vi": "Số 71",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.7136",
+      "jp": "ななじゅうに",
+      "romaji": "nanajuuni",
+      "vi": "Số 72",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.8103",
+      "jp": "ななじゅうさん",
+      "romaji": "nanajuusan",
+      "vi": "Số 73",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.166",
+      "jp": "ななじゅうよん",
+      "romaji": "nanajuuyon",
+      "vi": "Số 74",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.946",
+      "jp": "ななじゅうご",
+      "romaji": "nanajuugo",
+      "vi": "Số 75",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.5103",
+      "jp": "ななじゅうろく",
+      "romaji": "nanajuuroku",
+      "vi": "Số 76",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.6553",
+      "jp": "ななじゅうなな",
+      "romaji": "nanajuunana",
+      "vi": "Số 77",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.497",
+      "jp": "ななじゅうはち",
+      "romaji": "nanajuuhachi",
+      "vi": "Số 78",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.9785",
+      "jp": "ななじゅうきゅう",
+      "romaji": "nanajuukyuu",
+      "vi": "Số 79",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.0764",
+      "jp": "はちじゅう",
+      "romaji": "hachijuu",
+      "vi": "Số 80",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.0251",
+      "jp": "はちじゅういち",
+      "romaji": "hachijuuichi",
+      "vi": "Số 81",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.8057",
+      "jp": "はちじゅうに",
+      "romaji": "hachijuuni",
+      "vi": "Số 82",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.0146",
+      "jp": "はちじゅうさん",
+      "romaji": "hachijuusan",
+      "vi": "Số 83",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.4692",
+      "jp": "はちじゅうよん",
+      "romaji": "hachijuuyon",
+      "vi": "Số 84",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.7559",
+      "jp": "はちじゅうご",
+      "romaji": "hachijuugo",
+      "vi": "Số 85",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.1633",
+      "jp": "はちじゅうろく",
+      "romaji": "hachijuuroku",
+      "vi": "Số 86",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.6633",
+      "jp": "はちじゅうなな",
+      "romaji": "hachijuunana",
+      "vi": "Số 87",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.0647",
+      "jp": "はちじゅうはち",
+      "romaji": "hachijuuhachi",
+      "vi": "Số 88",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.5647",
+      "jp": "はちじゅうきゅう",
+      "romaji": "hachijuukyuu",
+      "vi": "Số 89",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.9512",
+      "jp": "きゅうじゅう",
+      "romaji": "kyuujuu",
+      "vi": "Số 90",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.5352",
+      "jp": "きゅうじゅういち",
+      "romaji": "kyuujuuichi",
+      "vi": "Số 91",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.7578",
+      "jp": "きゅうじゅうに",
+      "romaji": "kyuujuuni",
+      "vi": "Số 92",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.1187",
+      "jp": "きゅうじゅうさん",
+      "romaji": "kyuujuusan",
+      "vi": "Số 93",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.058",
+      "jp": "きゅうじゅうよん",
+      "romaji": "kyuujuuyon",
+      "vi": "Số 94",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.1475",
+      "jp": "きゅうじゅうご",
+      "romaji": "kyuujuugo",
+      "vi": "Số 95",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.6763",
+      "jp": "きゅうじゅうろく",
+      "romaji": "kyuujuuroku",
+      "vi": "Số 96",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.5403",
+      "jp": "きゅうじゅうなな",
+      "romaji": "kyuujuunana",
+      "vi": "Số 97",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.8945",
+      "jp": "きゅうじゅうはち",
+      "romaji": "kyuujuuhachi",
+      "vi": "Số 98",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.3955",
+      "jp": "きゅうじゅうきゅう",
+      "romaji": "kyuujuukyuu",
+      "vi": "Số 99",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234430312.977",
+      "jp": "ひゃく",
+      "romaji": "hyaku",
+      "vi": "Số 100",
+      "folder": "Sūji"
+    },
+    {
+      "id": "1787234510651.3848",
+      "jp": "メモ",
+      "romaji": "memo",
+      "vi": "Giấy nhớ / Ghi chú",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.9167",
+      "jp": "タワー",
+      "romaji": "tawaa",
+      "vi": "Tháp",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.2395",
+      "jp": "ミルク",
+      "romaji": "miruku",
+      "vi": "Sữa",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.867",
+      "jp": "カラオケ",
+      "romaji": "karaoke",
+      "vi": "Karaoke",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.1458",
+      "jp": "フルーツ",
+      "romaji": "furuutsu",
+      "vi": "Trái cây",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.9104",
+      "jp": "ノート",
+      "romaji": "nooto",
+      "vi": "Quyển vở",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.3845",
+      "jp": "コーラ",
+      "romaji": "koora",
+      "vi": "Nước Cola",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.088",
+      "jp": "スープ",
+      "romaji": "suupu",
+      "vi": "Súp",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.1042",
+      "jp": "テープ",
+      "romaji": "teepu",
+      "vi": "Băng cassette/băng dính",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.6575",
+      "jp": "プール",
+      "romaji": "puuru",
+      "vi": "Hồ bơi",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.2383",
+      "jp": "ケーキ",
+      "romaji": "keeki",
+      "vi": "Bánh kem/bánh ngọt",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.7383",
+      "jp": "デパート",
+      "romaji": "depaato",
+      "vi": "Trung tâm thương mại",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.3335",
+      "jp": "レシート",
+      "romaji": "reshiito",
+      "vi": "Hóa đơn, biên lai",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.9043",
+      "jp": "アイスクリーム",
+      "romaji": "aisukuriimu",
+      "vi": "Kem (ăn)",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.562",
+      "jp": "オーストラリア",
+      "romaji": "oosutoraria",
+      "vi": "Nước Úc",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.2385",
+      "jp": "アイス",
+      "romaji": "aisu",
+      "vi": "Kem (dạng que/ốc quế)",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.3904",
+      "jp": "ソース",
+      "romaji": "soosu",
+      "vi": "Sốt (gia vị)",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.214",
+      "jp": "スキー",
+      "romaji": "sukii",
+      "vi": "Trượt tuyết",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.526",
+      "jp": "コース",
+      "romaji": "koosu",
+      "vi": "Đường đua, lộ trình",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.2014",
+      "jp": "テニス",
+      "romaji": "tenisu",
+      "vi": "Quần vợt (tennis)",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.45",
+      "jp": "カヌー",
+      "romaji": "kanuu",
+      "vi": "Xuồng, ca-nô (canoe)",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.6436",
+      "jp": "テスト",
+      "romaji": "tesuto",
+      "vi": "Bài kiểm tra",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.0117",
+      "jp": "ツアー",
+      "romaji": "tsuaa",
+      "vi": "Tour du lịch",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.8206",
+      "jp": "タクシー",
+      "romaji": "takushii",
+      "vi": "Xe taxi",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.8928",
+      "jp": "ネクタイ",
+      "romaji": "nekutai",
+      "vi": "Cà vạt",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.2556",
+      "jp": "セーター",
+      "romaji": "seetaa",
+      "vi": "Áo len (sweater)",
+      "folder": "Katakana"
+    },
+    {
+      "id": "1787234510651.0024",
+      "jp": "コーヒー",
+      "romaji": "koohii",
+      "vi": "Cà phê",
+      "folder": "Katakana"
     }
   ]
 }

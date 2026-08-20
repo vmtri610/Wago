@@ -9,7 +9,8 @@ import { BASIC_KANA, DAKUON_KANA, YOON_KANA, KanaRow } from '@/data/kanaChart';
 import { 
   BookOpen, Plus, List, Brain, Search, Trash2, Edit2, 
   Sparkles, CheckCircle2, AlertCircle, RefreshCw, FolderPlus, Check, X, RotateCcw,
-  Trophy, ArrowRight, Volume2, VolumeX, Grid, Table, Menu, PanelLeftClose, PanelLeftOpen
+  Trophy, ArrowRight, Volume2, VolumeX, Grid, Table, Menu, PanelLeftClose, PanelLeftOpen,
+  GraduationCap, Headphones, Type, Keyboard, CheckSquare, Layers, Clock, Flame, Zap
 } from 'lucide-react';
 
 export interface Folder {
@@ -24,7 +25,12 @@ export interface Word {
   jp: string;
   romaji: string;
   vi: string;
+  srs_level?: number;
+  next_review_at?: string | null;
 }
+
+// SRS Intervals in hours for Level 0..5
+const SRS_INTERVAL_HOURS = [0, 4, 24, 72, 168, 336];
 
 export default function Home() {
   const supabase = createClient();
@@ -35,7 +41,7 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Navigation State
-  const [activeTab, setActiveTab] = useState<'add' | 'list' | 'quiz' | 'kana'>('add');
+  const [activeTab, setActiveTab] = useState<'add' | 'list' | 'srs' | 'quiz' | 'kana' | 'choonRule'>('srs');
   const [words, setWords] = useState<Word[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [activeFolder, setActiveFolder] = useState<string>('all');
@@ -57,22 +63,41 @@ export default function Home() {
   const [renamingFolderId, setRenamingFolderId] = useState<string | null>(null);
   const [renameInputValue, setRenameInputValue] = useState('');
 
-  // Quiz Deck State
-  const [quizMode, setQuizMode] = useState<'jp2romaji' | 'romaji2jp' | 'match'>('jp2romaji');
-  const [quizFolderId, setQuizFolderId] = useState<string>('all');
+  // -------------------------------------------------------------
+  // DEDICATED SRS TAB STATE
+  // -------------------------------------------------------------
+  const [srsQuizMode, setSrsQuizMode] = useState<'jp2romaji' | 'mcq' | 'audio'>('jp2romaji');
+  const [srsFolderIds, setSrsFolderIds] = useState<string[]>(['all']);
+  const [srsDeck, setSrsDeck] = useState<Word[]>([]);
+  const [srsTotalCount, setSrsTotalCount] = useState<number>(0);
+  const [srsCurrentIndex, setSrsCurrentIndex] = useState<number>(0);
+  const [currentSrsCard, setCurrentSrsCard] = useState<Word | null>(null);
+  const [srsCompletedDeck, setSrsCompletedDeck] = useState<boolean>(false);
+  const [srsInput, setSrsInput] = useState('');
+  const [srsFeedback, setSrsFeedback] = useState<{ type: 'ok' | 'no'; msg: string; srsChange?: string } | null>(null);
+  const [srsMcqOptions, setSrsMcqOptions] = useState<Word[]>([]);
+  const [selectedSrsMcqWordId, setSelectedSrsMcqWordId] = useState<string | null>(null);
+
+  // -------------------------------------------------------------
+  // STANDARD QUIZ TAB STATE (FREE PRACTICE)
+  // -------------------------------------------------------------
+  const [quizMode, setQuizMode] = useState<'jp2romaji' | 'romaji2jp' | 'mcq' | 'audio' | 'match'>('jp2romaji');
+  const [quizFolderIds, setQuizFolderIds] = useState<string[]>(['all']);
   const [quizDeck, setQuizDeck] = useState<Word[]>([]);
   const [quizTotalCount, setQuizTotalCount] = useState<number>(0);
   const [quizCurrentIndex, setQuizCurrentIndex] = useState<number>(0);
   const [currentQuizCard, setCurrentQuizCard] = useState<Word | null>(null);
   const [quizCompletedDeck, setQuizCompletedDeck] = useState<boolean>(false);
   const [quizInput, setQuizInput] = useState('');
-  const [quizFeedback, setQuizFeedback] = useState<{ type: 'ok' | 'no'; msg: string } | null>(null);
+  const [quizFeedback, setQuizFeedback] = useState<{ type: 'ok' | 'no'; msg: string; srsChange?: string } | null>(null);
   const [romaji2JpBuilt, setRomaji2JpBuilt] = useState('');
   const [autoSpeak, setAutoSpeak] = useState<boolean>(true);
+  const [quizMcqOptions, setQuizMcqOptions] = useState<Word[]>([]);
+  const [selectedMcqWordId, setSelectedMcqWordId] = useState<string | null>(null);
 
   // Match Game state
   const [matchPool, setMatchPool] = useState<Word[]>([]);
-  const [matchTiles, setMatchTiles] = useState<{ id: string; type: 'jp' | 'vi'; text: string }[]>([]);
+  const [matchTiles, setMatchTiles] = useState<{ id: string; type: 'jp' | 'romaji'; text: string }[]>([]);
   const [matchSelected, setMatchSelected] = useState<number[]>([]);
   const [matchWrong, setMatchWrong] = useState<number[]>([]);
   const [matchSolved, setMatchSolved] = useState<Set<number>>(new Set());
@@ -83,8 +108,34 @@ export default function Home() {
   const [kanaScript, setKanaScript] = useState<'hira' | 'kata' | 'both'>('hira');
   const [kanaSection, setKanaSection] = useState<'basic' | 'dakuon' | 'yoon'>('basic');
 
+  // Helper function to check if word is due for SRS review
+  const isWordSrsDue = (w: Word) => {
+    if (!w.next_review_at) return true;
+    return new Date(w.next_review_at) <= new Date();
+  };
+
+  // Helper renderer for SRS Colored Level Chips
+  const renderSrsChip = (level: number = 0, isDue?: boolean) => {
+    const configs = [
+      { label: 'Level 0', bg: 'bg-rose-100 text-rose-800 border-rose-300', dot: 'bg-rose-500' },
+      { label: 'Level 1', bg: 'bg-orange-100 text-orange-800 border-orange-300', dot: 'bg-orange-500' },
+      { label: 'Level 2', bg: 'bg-cyan-100 text-cyan-800 border-cyan-300', dot: 'bg-cyan-500' },
+      { label: 'Level 3', bg: 'bg-emerald-100 text-emerald-800 border-emerald-300', dot: 'bg-emerald-500' },
+      { label: 'Level 4', bg: 'bg-indigo-100 text-indigo-800 border-indigo-300', dot: 'bg-indigo-500' },
+      { label: 'Level 5', bg: 'bg-purple-100 text-purple-800 border-purple-300', dot: 'bg-purple-500' }
+    ];
+    const cfg = configs[Math.min(Math.max(0, level), 5)];
+
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${cfg.bg} shadow-2xs`}>
+        <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
+        {cfg.label}
+      </span>
+    );
+  };
+
   // -------------------------------------------------------------
-  // Load data from Supabase (fallback to Local JSON/LocalStorage)
+  // Load data DIRECTLY from Supabase Database (No LocalStorage)
   // -------------------------------------------------------------
   const fetchData = async () => {
     try {
@@ -92,62 +143,25 @@ export default function Home() {
       const { data: wData, error: wError } = await supabase.from('words').select('*').order('created_at', { ascending: false });
 
       if (fError || wError) {
-        throw new Error(fError?.message || wError?.message || 'Lỗi truy vấn Supabase');
+        throw new Error(fError?.message || wError?.message || 'Lỗi truy vấn Supabase DB');
       }
 
       setFolders(fData || []);
-      setWords(wData || []);
-      setSyncStatus({ mode: 'supabase', message: 'Cloud Sync' });
+      setWords((wData || []).map((w: any) => ({
+        ...w,
+        srs_level: w.srs_level ?? 0,
+        next_review_at: w.next_review_at || null
+      })));
+      setSyncStatus({ mode: 'supabase', message: 'Supabase DB Live' });
     } catch (err: any) {
-      console.warn('Fallback to Local due to Supabase:', err?.message);
-      loadLocalBackup();
+      console.error('Lỗi kết nối Supabase DB:', err?.message);
+      setSyncStatus({ mode: 'local', message: 'Lỗi Supabase DB' });
     }
-  };
-
-  const loadLocalBackup = () => {
-    try {
-      const stored = localStorage.getItem('wago-vocab-data');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed.words && parsed.words.length > 0) {
-          setWords(parsed.words);
-          const formattedFolders = (parsed.folders || []).map((f: any) => 
-            typeof f === 'string' ? { id: f, name: f } : f
-          );
-          setFolders(formattedFolders);
-          setSyncStatus({ mode: 'local', message: 'Local Mode' });
-          return;
-        }
-      }
-    } catch (e) {
-      console.error('Lỗi đọc localStorage:', e);
-    }
-
-    const defaultFolder: Folder = { id: 'n5-folder', name: 'N5' };
-    const defaultWords: Word[] = (defaultVocab.words || []).map(w => ({
-      id: String(w.id),
-      jp: w.jp,
-      romaji: w.romaji,
-      vi: w.vi,
-      folder_id: defaultFolder.id
-    }));
-
-    setFolders([defaultFolder]);
-    setWords(defaultWords);
-    setSyncStatus({ mode: 'local', message: `${defaultWords.length} từ N5` });
   };
 
   useEffect(() => {
     fetchData();
   }, []);
-
-  const saveLocalBackup = (newWords: Word[], newFolders: Folder[]) => {
-    try {
-      localStorage.setItem('wago-vocab-data', JSON.stringify({ words: newWords, folders: newFolders }));
-    } catch (e) {
-      console.error('Lỗi lưu localStorage backup:', e);
-    }
-  };
 
   // -------------------------------------------------------------
   // Add Word & Auto Lookup
@@ -200,25 +214,26 @@ export default function Home() {
 
     const newWord: Word = {
       id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-      jp, romaji, vi, folder_id
+      jp, romaji, vi, folder_id,
+      srs_level: 0,
+      next_review_at: new Date().toISOString()
     };
 
     const updatedWords = [newWord, ...words];
     setWords(updatedWords);
-    saveLocalBackup(updatedWords, folders);
 
-    if (syncStatus.mode === 'supabase') {
-      try {
-        await supabase.from('words').insert([{
-          id: newWord.id,
-          jp: newWord.jp,
-          romaji: newWord.romaji,
-          vi: newWord.vi,
-          folder_id: newWord.folder_id
-        }]);
-      } catch (e) {
-        console.error('Lỗi lưu từ vào Supabase:', e);
-      }
+    try {
+      await supabase.from('words').insert([{
+        id: newWord.id,
+        jp: newWord.jp,
+        romaji: newWord.romaji,
+        vi: newWord.vi,
+        folder_id: newWord.folder_id,
+        srs_level: 0,
+        next_review_at: newWord.next_review_at
+      }]);
+    } catch (e) {
+      console.error('Lỗi lưu từ vào Supabase DB:', e);
     }
 
     setInJp(''); setInRomaji(''); setInVi(''); setJpHint('');
@@ -228,26 +243,18 @@ export default function Home() {
   const handleDeleteWord = async (id: string) => {
     const updatedWords = words.filter(w => w.id !== id);
     setWords(updatedWords);
-    saveLocalBackup(updatedWords, folders);
-
-    if (syncStatus.mode === 'supabase') {
-      await supabase.from('words').delete().eq('id', id);
-    }
+    await supabase.from('words').delete().eq('id', id);
   };
 
   const handleChangeWordFolder = async (wordId: string, newFolderId: string) => {
     const folder_id = newFolderId || null;
     const updatedWords = words.map(w => w.id === wordId ? { ...w, folder_id } : w);
     setWords(updatedWords);
-    saveLocalBackup(updatedWords, folders);
-
-    if (syncStatus.mode === 'supabase') {
-      await supabase.from('words').update({ folder_id }).eq('id', wordId);
-    }
+    await supabase.from('words').update({ folder_id }).eq('id', wordId);
   };
 
   // -------------------------------------------------------------
-  // Folder Management
+  // Folder Management (Direct Supabase DB)
   // -------------------------------------------------------------
   const handleAddFolder = async () => {
     const name = newFolderName.trim();
@@ -261,11 +268,7 @@ export default function Home() {
     const updatedFolders = [...folders, newFolder];
     setFolders(updatedFolders);
     setNewFolderName('');
-    saveLocalBackup(words, updatedFolders);
-
-    if (syncStatus.mode === 'supabase') {
-      await supabase.from('folders').insert([{ id: newFolder.id, name: newFolder.name }]);
-    }
+    await supabase.from('folders').insert([{ id: newFolder.id, name: newFolder.name }]);
   };
 
   const handleDeleteFolder = async (folderId: string) => {
@@ -274,11 +277,7 @@ export default function Home() {
     setFolders(updatedFolders);
     setWords(updatedWords);
     if (activeFolder === folderId) setActiveFolder('all');
-    saveLocalBackup(updatedWords, updatedFolders);
-
-    if (syncStatus.mode === 'supabase') {
-      await supabase.from('folders').delete().eq('id', folderId);
-    }
+    await supabase.from('folders').delete().eq('id', folderId);
   };
 
   const handleRenameFolderCommit = async (folderId: string) => {
@@ -288,26 +287,187 @@ export default function Home() {
 
     const updatedFolders = folders.map(f => f.id === folderId ? { ...f, name: newName } : f);
     setFolders(updatedFolders);
-    saveLocalBackup(words, updatedFolders);
-
-    if (syncStatus.mode === 'supabase') {
-      await supabase.from('folders').update({ name: newName }).eq('id', folderId);
-    }
+    await supabase.from('folders').update({ name: newName }).eq('id', folderId);
   };
 
   // -------------------------------------------------------------
-  // QUIZ DECK ENGINE
+  // DEDICATED SRS TAB LOGIC WITH MULTI-FOLDER FILTER
+  // -------------------------------------------------------------
+  const dueSrsWords = words.filter(w => {
+    const matchesFolder = srsFolderIds.includes('all') || (w.folder_id && srsFolderIds.includes(w.folder_id));
+    return matchesFolder && isWordSrsDue(w);
+  });
+
+  const toggleSrsFolder = (fId: string) => {
+    if (fId === 'all') {
+      setSrsFolderIds(['all']);
+      return;
+    }
+    let next: string[];
+    if (srsFolderIds.includes('all')) {
+      next = [fId];
+    } else if (srsFolderIds.includes(fId)) {
+      next = srsFolderIds.filter(id => id !== fId);
+      if (next.length === 0) next = ['all'];
+    } else {
+      next = [...srsFolderIds, fId];
+    }
+    setSrsFolderIds(next);
+  };
+
+  const generateSrsMcqOptions = (targetCard: Word, pool: Word[]) => {
+    const distractors = pool.filter(w => w.id !== targetCard.id);
+    const shuffledDistractors = [...distractors].sort(() => Math.random() - 0.5).slice(0, 3);
+    const options = [targetCard, ...shuffledDistractors].sort(() => Math.random() - 0.5);
+    return options;
+  };
+
+  const initSrsDeck = () => {
+    setSrsFeedback(null);
+    setSrsInput('');
+    setSrsCompletedDeck(false);
+    setSelectedSrsMcqWordId(null);
+
+    if (dueSrsWords.length === 0) {
+      setSrsDeck([]);
+      setSrsTotalCount(0);
+      setSrsCurrentIndex(0);
+      setCurrentSrsCard(null);
+      setSrsCompletedDeck(true);
+      return;
+    }
+
+    const shuffled = [...dueSrsWords].sort(() => Math.random() - 0.5);
+    setSrsDeck(shuffled);
+    setSrsTotalCount(shuffled.length);
+    setSrsCurrentIndex(1);
+    setCurrentSrsCard(shuffled[0]);
+
+    if (srsQuizMode === 'mcq' || srsQuizMode === 'audio') {
+      setSrsMcqOptions(generateSrsMcqOptions(shuffled[0], words));
+    }
+
+    if ((autoSpeak || srsQuizMode === 'audio') && shuffled[0]?.jp) {
+      speakJapanese(shuffled[0].jp);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'srs') {
+      initSrsDeck();
+    }
+  }, [activeTab, srsQuizMode, srsFolderIds, words]);
+
+  const advanceSrsCard = () => {
+    if (srsDeck.length <= 1) {
+      setSrsDeck([]);
+      setCurrentSrsCard(null);
+      setSrsCompletedDeck(true);
+    } else {
+      const nextDeck = srsDeck.slice(1);
+      setSrsDeck(nextDeck);
+      setCurrentSrsCard(nextDeck[0]);
+      setSrsCurrentIndex(prev => prev + 1);
+
+      if (srsQuizMode === 'mcq' || srsQuizMode === 'audio') {
+        setSrsMcqOptions(generateSrsMcqOptions(nextDeck[0], words));
+      }
+
+      if ((autoSpeak || srsQuizMode === 'audio') && nextDeck[0]?.jp) {
+        speakJapanese(nextDeck[0].jp);
+      }
+    }
+    setSrsFeedback(null);
+    setSrsInput('');
+    setSelectedSrsMcqWordId(null);
+  };
+
+  const handleSrsGrade = async (ok: boolean) => {
+    if (!currentSrsCard) return;
+
+    if (ok) speakJapanese(currentSrsCard.jp);
+
+    const oldLevel = currentSrsCard.srs_level || 0;
+    const newLevel = ok ? Math.min(oldLevel + 1, 5) : 0;
+    const hoursToAdd = SRS_INTERVAL_HOURS[newLevel] || 0;
+
+    const nextDate = new Date();
+    nextDate.setHours(nextDate.getHours() + hoursToAdd);
+    const nextReviewIso = nextDate.toISOString();
+
+    const updatedWord: Word = {
+      ...currentSrsCard,
+      srs_level: newLevel,
+      next_review_at: nextReviewIso
+    };
+
+    const updatedWords = words.map(w => w.id === updatedWord.id ? updatedWord : w);
+    setWords(updatedWords);
+
+    try {
+      await supabase.from('words').update({
+        srs_level: newLevel,
+        next_review_at: nextReviewIso
+      }).eq('id', updatedWord.id);
+    } catch (e) {
+      console.error('Lỗi cập nhật SRS lên Supabase DB:', e);
+    }
+
+    const levelMsg = ok ? `Level ${oldLevel} ➔ Level ${newLevel}` : `Rớt về Level 0`;
+
+    setSrsFeedback({
+      type: ok ? 'ok' : 'no',
+      msg: ok 
+        ? `Chính xác — ${currentSrsCard.jp} (${currentSrsCard.romaji})`
+        : `Chưa đúng — ${currentSrsCard.jp} (${currentSrsCard.romaji})`,
+      srsChange: levelMsg
+    });
+  };
+
+  const handleSrsMcqChoiceSelect = (option: Word) => {
+    if (!currentSrsCard || srsFeedback) return;
+    setSelectedSrsMcqWordId(option.id);
+    const isCorrect = option.id === currentSrsCard.id;
+    handleSrsGrade(isCorrect);
+  };
+
+  // -------------------------------------------------------------
+  // STANDARD QUIZ DECK ENGINE (FREE PRACTICE)
   // -------------------------------------------------------------
   const filteredWords = words.filter(w => {
-    if (quizFolderId === 'all') return true;
-    return w.folder_id === quizFolderId;
+    return quizFolderIds.includes('all') || (w.folder_id && quizFolderIds.includes(w.folder_id));
   });
+
+  const toggleQuizFolder = (fId: string) => {
+    if (fId === 'all') {
+      setQuizFolderIds(['all']);
+      return;
+    }
+    let next: string[];
+    if (quizFolderIds.includes('all')) {
+      next = [fId];
+    } else if (quizFolderIds.includes(fId)) {
+      next = quizFolderIds.filter(id => id !== fId);
+      if (next.length === 0) next = ['all'];
+    } else {
+      next = [...quizFolderIds, fId];
+    }
+    setQuizFolderIds(next);
+  };
+
+  const generateMcqOptions = (targetCard: Word, pool: Word[]) => {
+    const distractors = pool.filter(w => w.id !== targetCard.id);
+    const shuffledDistractors = [...distractors].sort(() => Math.random() - 0.5).slice(0, 3);
+    const options = [targetCard, ...shuffledDistractors].sort(() => Math.random() - 0.5);
+    return options;
+  };
 
   const initDeck = () => {
     setQuizFeedback(null);
     setQuizInput('');
     setRomaji2JpBuilt('');
     setQuizCompletedDeck(false);
+    setSelectedMcqWordId(null);
 
     if (quizMode === 'match') {
       initMatchGame();
@@ -334,7 +494,12 @@ export default function Home() {
     setQuizCurrentIndex(1);
     setCurrentQuizCard(shuffled[0]);
 
-    if (autoSpeak && shuffled[0]?.jp) {
+    if (quizMode === 'mcq' || quizMode === 'audio') {
+      const poolForMcq = filteredWords.length >= 4 ? filteredWords : words;
+      setQuizMcqOptions(generateMcqOptions(shuffled[0], poolForMcq));
+    }
+
+    if ((autoSpeak || quizMode === 'audio') && shuffled[0]?.jp) {
       speakJapanese(shuffled[0].jp);
     }
   };
@@ -343,7 +508,7 @@ export default function Home() {
     if (activeTab === 'quiz') {
       initDeck();
     }
-  }, [activeTab, quizMode, quizFolderId, words]);
+  }, [activeTab, quizMode, quizFolderIds, words]);
 
   const advanceCard = () => {
     if (quizDeck.length <= 1) {
@@ -356,29 +521,71 @@ export default function Home() {
       setCurrentQuizCard(nextDeck[0]);
       setQuizCurrentIndex(prev => prev + 1);
 
-      if (autoSpeak && nextDeck[0]?.jp) {
+      if (quizMode === 'mcq' || quizMode === 'audio') {
+        const poolForMcq = filteredWords.length >= 4 ? filteredWords : words;
+        setQuizMcqOptions(generateMcqOptions(nextDeck[0], poolForMcq));
+      }
+
+      if ((autoSpeak || quizMode === 'audio') && nextDeck[0]?.jp) {
         speakJapanese(nextDeck[0].jp);
       }
     }
     setQuizFeedback(null);
     setQuizInput('');
     setRomaji2JpBuilt('');
+    setSelectedMcqWordId(null);
   };
 
-  const handleGrade = (ok: boolean) => {
+  const handleGrade = async (ok: boolean) => {
     if (!currentQuizCard) return;
 
     if (ok) speakJapanese(currentQuizCard.jp);
+
+    const oldLevel = currentQuizCard.srs_level || 0;
+    const newLevel = ok ? Math.min(oldLevel + 1, 5) : 0;
+    const hoursToAdd = SRS_INTERVAL_HOURS[newLevel] || 0;
+
+    const nextDate = new Date();
+    nextDate.setHours(nextDate.getHours() + hoursToAdd);
+    const nextReviewIso = nextDate.toISOString();
+
+    const updatedWord: Word = {
+      ...currentQuizCard,
+      srs_level: newLevel,
+      next_review_at: nextReviewIso
+    };
+
+    const updatedWords = words.map(w => w.id === updatedWord.id ? updatedWord : w);
+    setWords(updatedWords);
+
+    try {
+      await supabase.from('words').update({
+        srs_level: newLevel,
+        next_review_at: nextReviewIso
+      }).eq('id', updatedWord.id);
+    } catch (e) {
+      console.error('Lỗi cập nhật SRS lên Supabase DB:', e);
+    }
+
+    const levelMsg = ok ? `Level ${oldLevel} ➔ Level ${newLevel}` : `Hạ xuống Level 0`;
 
     setQuizFeedback({
       type: ok ? 'ok' : 'no',
       msg: ok 
         ? `Chính xác — ${currentQuizCard.jp} (${currentQuizCard.romaji})`
-        : `Chưa đúng — ${currentQuizCard.jp} (${currentQuizCard.romaji})`
+        : `Chưa đúng — ${currentQuizCard.jp} (${currentQuizCard.romaji})`,
+      srsChange: levelMsg
     });
   };
 
-  // Match Game Deck Logic
+  const handleMcqChoiceSelect = (option: Word) => {
+    if (!currentQuizCard || quizFeedback) return;
+    setSelectedMcqWordId(option.id);
+    const isCorrect = option.id === currentQuizCard.id;
+    handleGrade(isCorrect);
+  };
+
+  // Match Game Deck Logic (Romaji <-> Japanese Word)
   const initMatchGame = () => {
     const pool = [...filteredWords].sort(() => Math.random() - 0.5);
     setMatchPool(pool);
@@ -393,7 +600,7 @@ export default function Home() {
 
     const tiles = chosen.flatMap(w => [
       { id: w.id, type: 'jp' as const, text: w.jp },
-      { id: w.id, type: 'vi' as const, text: w.vi }
+      { id: w.id, type: 'romaji' as const, text: w.romaji }
     ]).sort(() => Math.random() - 0.5);
 
     setMatchTiles(tiles);
@@ -409,6 +616,9 @@ export default function Home() {
     const tileClicked = matchTiles[index];
     if (tileClicked.type === 'jp') {
       speakJapanese(tileClicked.text);
+    } else {
+      const matchedWord = words.find(w => w.id === tileClicked.id);
+      if (matchedWord) speakJapanese(matchedWord.jp);
     }
 
     const nextSelected = [...matchSelected, index];
@@ -451,9 +661,11 @@ export default function Home() {
 
   const navItems = [
     { id: 'add' as const, label: 'Thêm từ mới', shortLabel: 'Thêm từ', icon: Plus },
-    { id: 'list' as const, label: `Danh sách từ (${words.length})`, shortLabel: `Danh sách`, icon: List },
-    { id: 'quiz' as const, label: 'Luyện tập Flashcard', shortLabel: 'Luyện tập', icon: Brain },
+    { id: 'list' as const, label: 'Danh sách từ', shortLabel: 'Danh sách', icon: List },
+    { id: 'srs' as const, label: 'Ôn tập SRS', shortLabel: 'Ôn tập SRS', icon: Flame },
+    { id: 'quiz' as const, label: 'Luyện tập Tự do', shortLabel: 'Luyện tập', icon: Brain },
     { id: 'kana' as const, label: 'Bảng chữ cái Kana', shortLabel: 'Bảng Kana', icon: Grid },
+    { id: 'choonRule' as const, label: 'Lý thuyết Trường âm', shortLabel: 'Trường âm', icon: GraduationCap },
   ];
 
   return (
@@ -521,16 +733,18 @@ export default function Home() {
                     setMobileMenuOpen(false);
                   }}
                   title={item.label}
-                  className={`w-full px-3 py-2.5 rounded-xl font-semibold text-sm transition flex items-center gap-3 ${
+                  className={`w-full px-3 py-2.5 rounded-xl font-semibold text-sm transition flex items-center justify-between ${
                     isActive
                       ? 'bg-[var(--indigo)] text-white shadow-xs'
                       : 'text-[var(--ink-soft)] hover:bg-[#EFE8D8]/50 hover:text-[var(--indigo-deep)]'
                   } ${sidebarCollapsed ? 'md:justify-center md:px-0' : ''}`}
                 >
-                  <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-[var(--indigo)]'}`} />
-                  <span className={`${sidebarCollapsed ? 'md:hidden' : 'block'} truncate`}>
-                    {item.label}
-                  </span>
+                  <div className="flex items-center gap-3 truncate">
+                    <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : item.id === 'srs' ? 'text-rose-500' : 'text-[var(--indigo)]'}`} />
+                    <span className={`${sidebarCollapsed ? 'md:hidden' : 'block'} truncate`}>
+                      {item.label}
+                    </span>
+                  </div>
                 </button>
               );
             })}
@@ -743,7 +957,7 @@ export default function Home() {
                 words
                   .filter(w => activeFolder === 'all' || w.folder_id === activeFolder)
                   .map(w => (
-                    <div key={w.id} className="bg-[#FFFDF9] border border-[var(--card-border)] p-4 rounded-xl relative shadow-xs hover:border-[var(--indigo)] transition flex flex-col justify-between">
+                    <div key={w.id} className="bg-[#FFFDF9] border border-[var(--card-border)] p-4 rounded-xl relative shadow-xs hover:border-[var(--indigo)] transition flex flex-col justify-between space-y-2">
                       <div>
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-2">
@@ -779,6 +993,11 @@ export default function Home() {
                             <option key={f.id} value={f.id}>{f.name}</option>
                           ))}
                         </select>
+
+                        {/* SRS Colored Level Chip */}
+                        <div>
+                          {renderSrsChip(w.srs_level, isWordSrsDue(w))}
+                        </div>
                       </div>
                     </div>
                   ))
@@ -787,59 +1006,380 @@ export default function Home() {
           </section>
         )}
 
-        {/* TAB 3: LUYỆN TẬP */}
+        {/* TAB 3: DEDICATED TAB ÔN TẬP SRS */}
+        {activeTab === 'srs' && (
+          <section className="space-y-5">
+            {/* SRS Header Dashboard */}
+            <div className="bg-[#FFFDF9] border border-[var(--card-border)] p-5 rounded-2xl shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[var(--card-border)] pb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-[var(--indigo-deep)] flex items-center gap-2">
+                    <Flame className="w-6 h-6 text-rose-500 animate-pulse" />
+                    Phòng Ôn tập SRS
+                  </h2>
+                </div>
+
+                <div className="px-4 py-2 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 font-bold text-xs flex items-center gap-1.5 shrink-0">
+                  <Clock className="w-4 h-4 text-rose-600" />
+                  {dueSrsWords.length} từ đến hạn hôm nay
+                </div>
+              </div>
+
+              {/* SRS Level Distribution Chips */}
+              <div className="space-y-1.5">
+                <div className="text-xs font-semibold text-[var(--ink-soft)]">Thống kê cấp độ trí nhớ (6 Level):</div>
+                <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+                  {[0, 1, 2, 3, 4, 5].map(lvl => {
+                    const count = words.filter(w => (w.srs_level || 0) === lvl).length;
+                    return (
+                      <div key={lvl} className="bg-white border border-[var(--card-border)] p-2.5 rounded-xl text-center space-y-1">
+                        <div className="flex justify-center">{renderSrsChip(lvl)}</div>
+                        <div className="text-base font-bold text-[var(--indigo-deep)]">{count} <span className="text-[10px] font-normal text-gray-500">từ</span></div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* SRS Multi-selection Folder Filter */}
+              <div className="flex gap-1.5 flex-wrap items-center pt-2 border-t border-[var(--card-border)]/60">
+                <button
+                  onClick={() => setSrsFolderIds(['all'])}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+                    srsFolderIds.includes('all')
+                      ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-xs'
+                      : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
+                  }`}
+                >
+                  Tất cả ({words.length})
+                </button>
+
+                {folders.map(f => {
+                  const isSelected = !srsFolderIds.includes('all') && srsFolderIds.includes(f.id);
+                  const wordCount = words.filter(w => w.folder_id === f.id).length;
+                  return (
+                    <button
+                      key={f.id}
+                      onClick={() => toggleSrsFolder(f.id)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition flex items-center gap-1 ${
+                        isSelected
+                          ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-xs'
+                          : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
+                      }`}
+                    >
+                      {isSelected && <Check className="w-3 h-3" />}
+                      {f.name} ({wordCount})
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* SRS Quiz Mode Options */}
+              <div className="flex gap-1.5 pt-1">
+                <button
+                  onClick={() => setSrsQuizMode('jp2romaji')}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 ${
+                    srsQuizMode === 'jp2romaji'
+                      ? 'bg-[var(--indigo)] text-white border-[var(--indigo)]'
+                      : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
+                  }`}
+                >
+                  <Type className="w-3.5 h-3.5" /> Từ → Romaji
+                </button>
+                <button
+                  onClick={() => setSrsQuizMode('mcq')}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 ${
+                    srsQuizMode === 'mcq'
+                      ? 'bg-[var(--indigo)] text-white border-[var(--indigo)]'
+                      : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
+                  }`}
+                >
+                  <CheckSquare className="w-3.5 h-3.5" /> Trắc nghiệm
+                </button>
+                <button
+                  onClick={() => setSrsQuizMode('audio')}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 ${
+                    srsQuizMode === 'audio'
+                      ? 'bg-[var(--indigo)] text-white border-[var(--indigo)]'
+                      : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
+                  }`}
+                >
+                  <Headphones className="w-3.5 h-3.5" /> Luyện nghe
+                </button>
+              </div>
+            </div>
+
+            {/* SRS QUIZ CARD VIEW */}
+            <div className="bg-[#FFFDF9] border border-[var(--card-border)] p-6 rounded-xl text-center space-y-4">
+              {srsCompletedDeck ? (
+                <div className="py-8 space-y-4">
+                  <div className="inline-flex p-4 bg-emerald-100 text-emerald-700 rounded-full">
+                    <Trophy className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-xl font-bold text-[var(--indigo-deep)]">Tuyệt vời! Đã hoàn thành ôn tập SRS hôm nay!</h3>
+                  <p className="text-sm text-[var(--ink-soft)] max-w-sm mx-auto">
+                    Bạn không còn từ nào đến hạn cần ôn tập. Hãy quay lại vào ngày mai để tiếp tục duy trì trí nhớ nhé!
+                  </p>
+                  <button
+                    onClick={initSrsDeck}
+                    className="px-6 py-2.5 bg-[var(--indigo)] text-white text-xs font-bold rounded-lg hover:bg-[var(--indigo-deep)] inline-flex items-center gap-2 shadow"
+                  >
+                    <RotateCcw className="w-4 h-4" /> Làm mới lại danh sách ôn
+                  </button>
+                </div>
+              ) : currentSrsCard ? (
+                <>
+                  <div className="flex justify-between items-center text-xs text-[var(--ink-soft)] font-semibold border-b border-[var(--card-border)] pb-3">
+                    <span>Thẻ ôn SRS: {srsCurrentIndex} / {srsTotalCount}</span>
+                    <div>{renderSrsChip(currentSrsCard.srs_level, isWordSrsDue(currentSrsCard))}</div>
+                  </div>
+
+                  {srsQuizMode === 'jp2romaji' && (
+                    <>
+                      <div className="py-4">
+                        <div className="inline-flex items-center gap-3">
+                          <span className="text-4xl font-medium font-jp text-[var(--ink)]">{currentSrsCard.jp}</span>
+                          <button
+                            onClick={() => speakJapanese(currentSrsCard.jp)}
+                            title="Nghe phát âm"
+                            className="p-2 rounded-full text-[var(--indigo)] hover:bg-indigo-50 border border-transparent hover:border-indigo-200 transition"
+                          >
+                            <Volume2 className="w-6 h-6" />
+                          </button>
+                        </div>
+                        <div className="text-sm text-[var(--ink-soft)] mt-2 font-medium">{currentSrsCard.vi}</div>
+                      </div>
+
+                      <input
+                        type="text"
+                        value={srsInput}
+                        onChange={(e) => setSrsInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            if (srsFeedback) {
+                              advanceSrsCard();
+                            } else {
+                              handleSrsGrade(srsInput.trim().toLowerCase() === currentSrsCard.romaji.toLowerCase());
+                            }
+                          }
+                        }}
+                        placeholder=""
+                        className="w-full text-center py-2.5 border border-[var(--card-border)] rounded-lg text-base font-jetbrains focus:outline-none focus:border-[var(--indigo)] bg-white"
+                        autoFocus
+                      />
+                    </>
+                  )}
+
+                  {(srsQuizMode === 'mcq' || srsQuizMode === 'audio') && (
+                    <>
+                      <div className="py-2 space-y-3 border-b border-[var(--card-border)] pb-4 flex flex-col items-center justify-center">
+                        {srsQuizMode === 'mcq' ? (
+                          <div className="inline-flex items-center gap-3">
+                            <span className="text-3xl font-bold font-jetbrains text-[var(--indigo-deep)]">{currentSrsCard.romaji}</span>
+                            <button
+                              onClick={() => speakJapanese(currentSrsCard.jp)}
+                              title="Nghe phát âm"
+                              className="p-2 rounded-full text-[var(--indigo)] hover:bg-indigo-50 transition"
+                            >
+                              <Volume2 className="w-5 h-5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => speakJapanese(currentSrsCard.jp)}
+                              className="p-5 bg-indigo-50 border-2 border-[var(--indigo)] text-[var(--indigo)] rounded-full hover:bg-indigo-100 active:scale-95 transition shadow-sm inline-flex items-center justify-center"
+                              title="Bấm để nghe lại phát âm"
+                            >
+                              <Volume2 className="w-8 h-8 animate-pulse text-[var(--indigo)]" />
+                            </button>
+                            {srsFeedback && (
+                              <div className="text-lg font-bold font-jp text-[var(--indigo-deep)]">
+                                {currentSrsCard.jp} <span className="text-xs font-jetbrains font-semibold text-[var(--indigo)]">({currentSrsCard.romaji})</span>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 pt-2">
+                        {srsMcqOptions.map((opt, idx) => {
+                          const isSelected = selectedSrsMcqWordId === opt.id;
+                          const isTarget = opt.id === currentSrsCard.id;
+
+                          let style = 'bg-white border-[var(--card-border)] text-[var(--ink)] hover:border-[var(--indigo)] hover:bg-indigo-50/50';
+
+                          if (srsFeedback) {
+                            if (isTarget) {
+                              style = 'bg-emerald-100 border-emerald-500 text-emerald-900 font-bold shadow-xs';
+                            } else if (isSelected && !isTarget) {
+                              style = 'bg-rose-100 border-rose-500 text-rose-900 font-bold shadow-xs';
+                            } else {
+                              style = 'bg-gray-50 border-gray-200 text-gray-400 opacity-60 pointer-events-none';
+                            }
+                          }
+
+                          return (
+                            <button
+                              key={opt.id || idx}
+                              onClick={() => handleSrsMcqChoiceSelect(opt)}
+                              disabled={srsFeedback !== null}
+                              className={`p-4 border-2 rounded-xl text-center min-h-[64px] flex flex-col items-center justify-center transition ${style}`}
+                            >
+                              <span className="text-2xl font-medium font-jp">{opt.jp}</span>
+                              {srsFeedback && <span className="text-xs font-normal text-gray-500 mt-1">{opt.vi}</span>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+
+                  {srsFeedback && (
+                    <div className="space-y-1.5 pt-2">
+                      <div className={`text-sm font-semibold transition ${srsFeedback.type === 'ok' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {srsFeedback.msg}
+                      </div>
+                      {srsFeedback.srsChange && (
+                        <div className="text-xs font-bold text-indigo-700 bg-indigo-50 inline-block px-3.5 py-1 rounded-full border border-indigo-200 shadow-2xs">
+                          🔄 {srsFeedback.srsChange}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {srsFeedback ? (
+                    <div className="pt-2">
+                      <button
+                        onClick={advanceSrsCard}
+                        autoFocus
+                        className="w-full py-2.5 bg-[var(--indigo)] text-white rounded-lg text-xs font-bold hover:bg-[var(--indigo-deep)] transition flex items-center justify-center gap-1.5 shadow-xs"
+                      >
+                        Tiếp tục <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : srsQuizMode === 'jp2romaji' && (
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={advanceSrsCard}
+                        className="px-4 py-2.5 border border-gray-300 text-[var(--ink-soft)] rounded-lg text-xs font-semibold hover:bg-gray-100"
+                      >
+                        Bỏ qua
+                      </button>
+                      <button
+                        onClick={() => handleSrsGrade(srsInput.trim().toLowerCase() === currentSrsCard.romaji.toLowerCase())}
+                        className="flex-1 py-2.5 bg-[var(--indigo)] text-white rounded-lg text-xs font-bold hover:bg-[var(--indigo-deep)] transition"
+                      >
+                        Kiểm tra
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-sm text-[var(--ink-soft)] py-8">Chưa có từ vựng đến hạn cần ôn tập trong SRS.</p>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* TAB 4: LUYỆN TẬP TỰ DO (STANDALONE) */}
         {activeTab === 'quiz' && (
           <section className="space-y-4">
-            <div className="flex gap-2 bg-[#FFFDF9] p-1.5 border border-[var(--card-border)] rounded-lg">
+            {/* Quiz Mode Tabs with Icons */}
+            <div className="flex gap-1.5 bg-[#FFFDF9] p-1.5 border border-[var(--card-border)] rounded-lg overflow-x-auto">
               <button
                 onClick={() => setQuizMode('jp2romaji')}
-                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition ${
+                className={`px-3 py-2 text-xs font-semibold rounded-md transition whitespace-nowrap flex items-center gap-1.5 ${
                   quizMode === 'jp2romaji'
                     ? 'bg-[var(--indigo)] text-white shadow-xs'
                     : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'
                 }`}
               >
+                <Type className="w-3.5 h-3.5" />
                 Từ → Romaji
               </button>
               <button
                 onClick={() => setQuizMode('romaji2jp')}
-                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition ${
+                className={`px-3 py-2 text-xs font-semibold rounded-md transition whitespace-nowrap flex items-center gap-1.5 ${
                   quizMode === 'romaji2jp'
                     ? 'bg-[var(--indigo)] text-white shadow-xs'
                     : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'
                 }`}
               >
+                <Keyboard className="w-3.5 h-3.5" />
                 Romaji → Chữ
               </button>
               <button
+                onClick={() => setQuizMode('mcq')}
+                className={`px-3 py-2 text-xs font-semibold rounded-md transition whitespace-nowrap flex items-center gap-1.5 ${
+                  quizMode === 'mcq'
+                    ? 'bg-[var(--indigo)] text-white shadow-xs'
+                    : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'
+                }`}
+              >
+                <CheckSquare className="w-3.5 h-3.5" />
+                Trắc nghiệm
+              </button>
+              <button
+                onClick={() => setQuizMode('audio')}
+                className={`px-3 py-2 text-xs font-semibold rounded-md transition whitespace-nowrap flex items-center gap-1.5 ${
+                  quizMode === 'audio'
+                    ? 'bg-[var(--indigo)] text-white shadow-xs'
+                    : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'
+                }`}
+              >
+                <Headphones className="w-3.5 h-3.5" />
+                Luyện nghe
+              </button>
+              <button
                 onClick={() => setQuizMode('match')}
-                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition ${
+                className={`px-3 py-2 text-xs font-semibold rounded-md transition whitespace-nowrap flex items-center gap-1.5 ${
                   quizMode === 'match'
                     ? 'bg-[var(--indigo)] text-white shadow-xs'
                     : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'
                 }`}
               >
+                <Layers className="w-3.5 h-3.5" />
                 Ghép cặp
               </button>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <div className="flex-1 w-full">
-                <label className="block text-xs font-semibold text-[var(--ink-soft)] mb-1">Luyện theo thư mục</label>
-                <select
-                  value={quizFolderId}
-                  onChange={(e) => setQuizFolderId(e.target.value)}
-                  className="w-full px-3 py-2 border border-[var(--card-border)] rounded-lg text-xs bg-white focus:outline-none"
+            {/* Multi-selection Folder Filter & Controls */}
+            <div className="flex flex-col space-y-2">
+              <div className="flex gap-1.5 flex-wrap items-center">
+                <button
+                  onClick={() => setQuizFolderIds(['all'])}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+                    quizFolderIds.includes('all')
+                      ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-xs'
+                      : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
+                  }`}
                 >
-                  <option value="all">Tất cả ({words.length} từ)</option>
-                  {folders.map(f => (
-                    <option key={f.id} value={f.id}>{f.name}</option>
-                  ))}
-                </select>
+                  Tất cả ({words.length})
+                </button>
+
+                {folders.map(f => {
+                  const isSelected = !quizFolderIds.includes('all') && quizFolderIds.includes(f.id);
+                  const wordCount = words.filter(w => w.folder_id === f.id).length;
+                  return (
+                    <button
+                      key={f.id}
+                      onClick={() => toggleQuizFolder(f.id)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition flex items-center gap-1 ${
+                        isSelected
+                          ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-xs'
+                          : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
+                      }`}
+                    >
+                      {isSelected && <Check className="w-3 h-3" />}
+                      {f.name} ({wordCount})
+                    </button>
+                  );
+                })}
               </div>
 
-              {/* Options & Progress */}
-              <div className="flex items-center gap-2 sm:self-end">
+              {/* Progress & Speaker Toggle */}
+              <div className="flex items-center justify-between pt-2">
                 {quizMode !== 'match' && (
                   <button
                     onClick={() => setAutoSpeak(!autoSpeak)}
@@ -856,7 +1396,7 @@ export default function Home() {
                 )}
 
                 {!quizCompletedDeck && quizTotalCount > 0 && (
-                  <div className="px-3 py-1.5 bg-indigo-50 border border-indigo-200 text-indigo-800 rounded-lg text-xs font-semibold flex items-center gap-1.5 shrink-0">
+                  <div className="px-3 py-1.5 bg-indigo-50 border border-indigo-200 text-indigo-800 rounded-lg text-xs font-semibold flex items-center gap-1.5 shrink-0 ml-auto">
                     <Brain className="w-3.5 h-3.5 text-[var(--indigo)]" />
                     Tiến độ: {quizCurrentIndex} / {quizTotalCount} từ
                   </div>
@@ -874,7 +1414,7 @@ export default function Home() {
                     </div>
                     <h3 className="text-xl font-bold text-[var(--indigo-deep)]">Hoàn thành lượt học!</h3>
                     <p className="text-sm text-[var(--ink-soft)] max-w-sm mx-auto">
-                      Chúc mừng! Bạn đã ôn luyện qua toàn bộ <strong>{quizTotalCount} từ vựng</strong> trong thư mục này mà không bị sót chữ nào.
+                      Chúc mừng! Bạn đã ôn luyện qua toàn bộ <strong>{quizTotalCount} từ vựng</strong> trong lượt học này.
                     </p>
                     <button
                       onClick={initDeck}
@@ -885,9 +1425,14 @@ export default function Home() {
                   </div>
                 ) : currentQuizCard ? (
                   <>
+                    {/* SRS Level Chip Indicator */}
+                    <div className="flex justify-center mb-1">
+                      {renderSrsChip(currentQuizCard.srs_level, isWordSrsDue(currentQuizCard))}
+                    </div>
+
                     {quizMode === 'jp2romaji' ? (
                       <>
-                        <div className="py-6">
+                        <div className="py-4">
                           <div className="inline-flex items-center gap-3">
                             <span className="text-4xl font-medium font-jp text-[var(--ink)]">{currentQuizCard.jp}</span>
                             <button
@@ -966,8 +1511,15 @@ export default function Home() {
                     )}
 
                     {quizFeedback && (
-                      <div className={`text-sm font-semibold mt-1 transition ${quizFeedback.type === 'ok' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                        {quizFeedback.msg}
+                      <div className="space-y-1">
+                        <div className={`text-sm font-semibold transition ${quizFeedback.type === 'ok' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                          {quizFeedback.msg}
+                        </div>
+                        {quizFeedback.srsChange && (
+                          <div className="text-xs font-bold text-indigo-700 bg-indigo-50 inline-block px-3 py-1 rounded-full border border-indigo-200">
+                            🔄 SRS: {quizFeedback.srsChange}
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -1004,12 +1556,136 @@ export default function Home() {
                     )}
                   </>
                 ) : (
-                  <p className="text-sm text-[var(--ink-soft)] py-8">Chưa có từ vựng phù hợp trong thư mục này.</p>
+                  <p className="text-sm text-[var(--ink-soft)] py-8">Chưa có từ vựng phù hợp trong thư mục đã chọn.</p>
                 )}
               </div>
             )}
 
-            {/* QUIZ MODE 3: MATCH GAME */}
+            {/* QUIZ MODE 3 & 4: TRẮC NGHIỆM (ROMAJI -> JP) & LUYỆN NGHE (AUDIO -> JP) */}
+            {(quizMode === 'mcq' || quizMode === 'audio') && (
+              <div className="bg-[#FFFDF9] border border-[var(--card-border)] p-6 rounded-xl text-center space-y-5">
+                {quizCompletedDeck ? (
+                  <div className="py-8 space-y-4">
+                    <div className="inline-flex p-4 bg-amber-100 text-amber-700 rounded-full">
+                      <Trophy className="w-8 h-8" />
+                    </div>
+                    <h3 className="text-xl font-bold text-[var(--indigo-deep)]">Hoàn thành lượt học!</h3>
+                    <p className="text-sm text-[var(--ink-soft)] max-w-sm mx-auto">
+                      Chúc mừng! Bạn đã hoàn thành bài trắc nghiệm cho <strong>{quizTotalCount} từ vựng</strong> trong lượt học này.
+                    </p>
+                    <button
+                      onClick={initDeck}
+                      className="px-6 py-2.5 bg-[var(--indigo)] text-white text-xs font-bold rounded-lg hover:bg-[var(--indigo-deep)] inline-flex items-center gap-2 shadow"
+                    >
+                      <RotateCcw className="w-4 h-4" /> Luyện tập lại từ đầu
+                    </button>
+                  </div>
+                ) : currentQuizCard ? (
+                  <>
+                    {/* SRS Level Chip Indicator */}
+                    <div className="flex justify-center mb-1">
+                      {renderSrsChip(currentQuizCard.srs_level, isWordSrsDue(currentQuizCard))}
+                    </div>
+
+                    {/* Header Question */}
+                    <div className="py-2 space-y-3 border-b border-[var(--card-border)] pb-4 flex flex-col items-center justify-center">
+                      {quizMode === 'mcq' ? (
+                        <>
+                          <div className="inline-flex items-center gap-3">
+                            <span className="text-3xl font-bold font-jetbrains text-[var(--indigo-deep)]">{currentQuizCard.romaji}</span>
+                            <button
+                              onClick={() => speakJapanese(currentQuizCard.jp)}
+                              title="Nghe phát âm"
+                              className="p-2 rounded-full text-[var(--indigo)] hover:bg-indigo-50 border border-transparent hover:border-indigo-200 transition"
+                            >
+                              <Volume2 className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          {/* Minimalist Audio Icon Button */}
+                          <div className="py-2">
+                            <button
+                              onClick={() => speakJapanese(currentQuizCard.jp)}
+                              className="p-5 bg-indigo-50 border-2 border-[var(--indigo)] text-[var(--indigo)] rounded-full hover:bg-indigo-100 active:scale-95 transition shadow-sm inline-flex items-center justify-center"
+                              title="Bấm để nghe lại phát âm"
+                            >
+                              <Volume2 className="w-8 h-8 animate-pulse text-[var(--indigo)]" />
+                            </button>
+                          </div>
+                          {quizFeedback && (
+                            <div className="text-lg font-bold font-jp text-[var(--indigo-deep)]">
+                              {currentQuizCard.jp} <span className="text-xs font-jetbrains font-semibold text-[var(--indigo)]">({currentQuizCard.romaji})</span>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+
+                    {/* 4 Japanese Word Choice Buttons */}
+                    <div className="grid grid-cols-2 gap-3 pt-2">
+                      {quizMcqOptions.map((opt, idx) => {
+                        const isSelected = selectedMcqWordId === opt.id;
+                        const isTarget = opt.id === currentQuizCard.id;
+
+                        let style = 'bg-white border-[var(--card-border)] text-[var(--ink)] hover:border-[var(--indigo)] hover:bg-indigo-50/50';
+
+                        if (quizFeedback) {
+                          if (isTarget) {
+                            style = 'bg-emerald-100 border-emerald-500 text-emerald-900 font-bold shadow-xs';
+                          } else if (isSelected && !isTarget) {
+                            style = 'bg-rose-100 border-rose-500 text-rose-900 font-bold shadow-xs';
+                          } else {
+                            style = 'bg-gray-50 border-gray-200 text-gray-400 opacity-60 pointer-events-none';
+                          }
+                        }
+
+                        return (
+                          <button
+                            key={opt.id || idx}
+                            onClick={() => handleMcqChoiceSelect(opt)}
+                            disabled={quizFeedback !== null}
+                            className={`p-4 border-2 rounded-xl text-center min-h-[64px] flex flex-col items-center justify-center transition ${style}`}
+                          >
+                            <span className="text-2xl font-medium font-jp">{opt.jp}</span>
+                            {quizFeedback && <span className="text-xs font-normal text-gray-500 mt-1">{opt.vi}</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Feedback & Next Button */}
+                    {quizFeedback && (
+                      <div className="space-y-3 pt-2">
+                        <div className="space-y-1">
+                          <div className={`text-sm font-semibold transition ${quizFeedback.type === 'ok' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                            {quizFeedback.msg}
+                          </div>
+                          {quizFeedback.srsChange && (
+                            <div className="text-xs font-bold text-indigo-700 bg-indigo-50 inline-block px-3 py-1 rounded-full border border-indigo-200">
+                              🔄 SRS: {quizFeedback.srsChange}
+                            </div>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={advanceCard}
+                          autoFocus
+                          className="w-full py-2.5 bg-[var(--indigo)] text-white rounded-lg text-xs font-bold hover:bg-[var(--indigo-deep)] transition flex items-center justify-center gap-1.5 shadow-xs"
+                        >
+                          Tiếp tục <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm text-[var(--ink-soft)] py-8">Chưa có đủ từ vựng trong thư mục đã chọn để tạo bài trắc nghiệm.</p>
+                )}
+              </div>
+            )}
+
+            {/* QUIZ MODE 5: MATCH GAME (ROMAJI <-> JP WORD) */}
             {quizMode === 'match' && (
               <div className="bg-[#FFFDF9] border border-[var(--card-border)] p-6 rounded-xl space-y-4">
                 {matchCompletedAll ? (
@@ -1019,7 +1695,7 @@ export default function Home() {
                     </div>
                     <h3 className="text-xl font-bold text-[var(--indigo-deep)]">Hoàn thành ghép toàn bộ thư mục!</h3>
                     <p className="text-sm text-[var(--ink-soft)]">
-                      Bạn đã ghép thành công tất cả các từ trong thư mục này.
+                      Bạn đã ghép thành công tất cả các từ trong lượt học này.
                     </p>
                     <button
                       onClick={initMatchGame}
@@ -1032,8 +1708,7 @@ export default function Home() {
                   <p className="text-sm text-[var(--ink-soft)] text-center py-8">Chưa có đủ từ vựng để tạo bài ghép cặp.</p>
                 ) : (
                   <>
-                    <div className="flex justify-between items-center text-xs text-[var(--ink-soft)] mb-2 font-semibold">
-                      <span>Ghép các cặp từ tương ứng</span>
+                    <div className="flex justify-end items-center text-xs text-[var(--ink-soft)] mb-2 font-semibold">
                       <span>Còn lại: {matchPool.length} từ</span>
                     </div>
 
@@ -1053,7 +1728,9 @@ export default function Home() {
                             key={idx}
                             onClick={() => handleMatchClick(idx)}
                             disabled={isSolved}
-                            className={`p-3 border-2 rounded-lg text-sm text-center min-h-[56px] flex items-center justify-center transition shadow-2xs ${tile.type === 'jp' ? 'font-jp font-medium' : ''} ${style}`}
+                            className={`p-3 border-2 rounded-lg text-center min-h-[56px] flex items-center justify-center transition shadow-2xs ${
+                              tile.type === 'jp' ? 'font-jp font-medium text-xl' : 'font-jetbrains font-bold text-sm text-[var(--indigo)]'
+                            } ${style}`}
                           >
                             {tile.text}
                           </button>
@@ -1081,7 +1758,7 @@ export default function Home() {
           </section>
         )}
 
-        {/* TAB 4: BẢNG CHỮ CÁI (KANA CHART) */}
+        {/* TAB 5: BẢNG CHỮ CÁI (KANA CHART) */}
         {activeTab === 'kana' && (
           <section className="space-y-4">
             <div className="bg-[#FFFDF9] border border-[var(--card-border)] p-4 rounded-xl space-y-3">
@@ -1175,6 +1852,190 @@ export default function Home() {
                   </div>
                 </div>
               ))}
+            </div>
+          </section>
+        )}
+
+        {/* TAB 6: LÝ THUYẾT TRƯỜNG ÂM */}
+        {activeTab === 'choonRule' && (
+          <section className="space-y-6 bg-[#FFFDF9] border border-[var(--card-border)] p-6 rounded-2xl shadow-xs">
+            <div className="border-b border-[var(--card-border)] pb-4">
+              <h2 className="text-xl font-bold text-[var(--indigo-deep)] flex items-center gap-2">
+                <GraduationCap className="w-6 h-6 text-[var(--indigo)]" />
+                Quy tắc Trường âm (長音 - Chōon)
+              </h2>
+              <p className="text-xs text-[var(--ink-soft)] mt-1">
+                Trường âm là việc kéo dài phát âm của nguyên âm đứng trước gấp 2 lần thời lượng (2 nhịp/phách).
+              </p>
+            </div>
+
+            {/* Section 1: Quy tắc Hiragana */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-bold text-[var(--indigo-deep)] uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-amber-600" />
+                1. Quy tắc 5 Hàng âm (Hiragana)
+              </h3>
+              
+              <div className="overflow-x-auto border border-[var(--card-border)] rounded-xl bg-white">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-[#EEF2F7] text-[var(--indigo-deep)] font-bold border-b border-[var(--card-border)]">
+                    <tr>
+                      <th className="p-3">Hàng âm</th>
+                      <th className="p-3">Quy tắc (Chữ đi sau)</th>
+                      <th className="p-3">Ví dụ</th>
+                      <th className="p-3">Cách đọc ngân</th>
+                      <th className="p-3">Nghĩa</th>
+                      <th className="p-3 text-center">Nghe</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--card-border)]">
+                    <tr className="hover:bg-amber-50/40">
+                      <td className="p-3 font-semibold">Hàng A (あ)</td>
+                      <td className="p-3 font-bold text-amber-700">Thêm あ</td>
+                      <td className="p-3 font-jp text-sm">おかあさん</td>
+                      <td className="p-3 font-jetbrains font-semibold text-[var(--indigo)]">Okāsan</td>
+                      <td className="p-3 text-gray-600">Mẹ</td>
+                      <td className="p-3 text-center">
+                        <button onClick={() => speakJapanese('おかあさん')} className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50">
+                          <Volume2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-amber-50/40">
+                      <td className="p-3 font-semibold">Hàng I (い)</td>
+                      <td className="p-3 font-bold text-amber-700">Thêm い</td>
+                      <td className="p-3 font-jp text-sm">おじいさん</td>
+                      <td className="p-3 font-jetbrains font-semibold text-[var(--indigo)]">Ojīsan</td>
+                      <td className="p-3 text-gray-600">Ông</td>
+                      <td className="p-3 text-center">
+                        <button onClick={() => speakJapanese('おじいさん')} className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50">
+                          <Volume2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-amber-50/40">
+                      <td className="p-3 font-semibold">Hàng U (う)</td>
+                      <td className="p-3 font-bold text-amber-700">Thêm う</td>
+                      <td className="p-3 font-jp text-sm">くうき</td>
+                      <td className="p-3 font-jetbrains font-semibold text-[var(--indigo)]">Kūki</td>
+                      <td className="p-3 text-gray-600">Không khí</td>
+                      <td className="p-3 text-center">
+                        <button onClick={() => speakJapanese('くうき')} className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50">
+                          <Volume2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-amber-50/40">
+                      <td className="p-3 font-semibold">Hàng E (え)</td>
+                      <td className="p-3 font-bold text-emerald-700">Thêm い (95%)</td>
+                      <td className="p-3 font-jp text-sm">えいが</td>
+                      <td className="p-3 font-jetbrains font-semibold text-[var(--indigo)]">Ēga (Eiga)</td>
+                      <td className="p-3 text-gray-600">Phim điện ảnh</td>
+                      <td className="p-3 text-center">
+                        <button onClick={() => speakJapanese('えいが')} className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50">
+                          <Volume2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-amber-50/40">
+                      <td className="p-3 font-semibold">Hàng O (お)</td>
+                      <td className="p-3 font-bold text-emerald-700">Thêm う (95%)</td>
+                      <td className="p-3 font-jp text-sm">おとうさん</td>
+                      <td className="p-3 font-jetbrains font-semibold text-[var(--indigo)]">Otōsan (Otousan)</td>
+                      <td className="p-3 text-gray-600">Bố</td>
+                      <td className="p-3 text-center">
+                        <button onClick={() => speakJapanese('おとうさん')} className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50">
+                          <Volume2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Section 2: Katakana */}
+            <div className="space-y-2 p-4 bg-indigo-50/60 border border-indigo-100 rounded-xl">
+              <h3 className="text-sm font-bold text-[var(--indigo-deep)] flex items-center gap-1.5">
+                📌 Trường âm trong Katakana (Từ mượn tiếng Anh)
+              </h3>
+              <p className="text-xs text-[var(--ink-soft)] leading-relaxed">
+                Tất cả trường âm trong Katakana đều dùng duy nhất một dấu gạch ngang <strong>ー</strong>.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-xs">
+                <div className="p-2 bg-white rounded-lg border border-indigo-200 flex items-center justify-between">
+                  <span>ケーキ (Kēki - Bánh)</span>
+                  <button onClick={() => speakJapanese('ケーキ')} className="text-[var(--indigo)]"><Volume2 className="w-3.5 h-3.5" /></button>
+                </div>
+                <div className="p-2 bg-white rounded-lg border border-indigo-200 flex items-center justify-between">
+                  <span>コーヒー (Kōhī - Cà phê)</span>
+                  <button onClick={() => speakJapanese('コーヒー')} className="text-[var(--indigo)]"><Volume2 className="w-3.5 h-3.5" /></button>
+                </div>
+                <div className="p-2 bg-white rounded-lg border border-indigo-200 flex items-center justify-between">
+                  <span>スーパー (Sūpā - Siêu thị)</span>
+                  <button onClick={() => speakJapanese('スーパー')} className="text-[var(--indigo)]"><Volume2 className="w-3.5 h-3.5" /></button>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 3: Cặp từ dễ nhầm lẫn */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-bold text-[var(--indigo-deep)] uppercase tracking-wider flex items-center gap-1.5">
+                ⚠️ Các cặp từ dễ nhầm lẫn nhất (Âm ngắn vs Trường âm)
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="p-3 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
+                  <div className="flex justify-between items-center text-rose-700 font-semibold">
+                    <span>おじさん (Ojisan - Âm ngắn 1 nhịp)</span>
+                    <span className="text-gray-500">Chú / Bác</span>
+                    <button onClick={() => speakJapanese('おじさん')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
+                  </div>
+                  <div className="border-t border-dashed border-gray-200 pt-2 flex justify-between items-center text-emerald-700 font-semibold">
+                    <span>おじいさん (Ojīsan - Dài 2 nhịp)</span>
+                    <span className="text-gray-500">Ông</span>
+                    <button onClick={() => speakJapanese('おじいさん')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
+                  <div className="flex justify-between items-center text-rose-700 font-semibold">
+                    <span>おばさん (Obasan - Âm ngắn 1 nhịp)</span>
+                    <span className="text-gray-500">Cô / Dì</span>
+                    <button onClick={() => speakJapanese('おばさん')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
+                  </div>
+                  <div className="border-t border-dashed border-gray-200 pt-2 flex justify-between items-center text-emerald-700 font-semibold">
+                    <span>おばあさん (Obāsan - Dài 2 nhịp)</span>
+                    <span className="text-gray-500">Bà</span>
+                    <button onClick={() => speakJapanese('おばあさん')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
+                  <div className="flex justify-between items-center text-rose-700 font-semibold">
+                    <span>ゆき (Yuki - Âm ngắn 1 nhịp)</span>
+                    <span className="text-gray-500">Tuyết</span>
+                    <button onClick={() => speakJapanese('ゆき')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
+                  </div>
+                  <div className="border-t border-dashed border-gray-200 pt-2 flex justify-between items-center text-emerald-700 font-semibold">
+                    <span>ゆうき (Yūki - Dài 2 nhịp)</span>
+                    <span className="text-gray-500">Dũng khí</span>
+                    <button onClick={() => speakJapanese('ゆうき')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
+                  <div className="flex justify-between items-center text-rose-700 font-semibold">
+                    <span>とる (Toru - Âm ngắn 1 nhịp)</span>
+                    <span className="text-gray-500">Chụp / Lấy</span>
+                    <button onClick={() => speakJapanese('とる')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
+                  </div>
+                  <div className="border-t border-dashed border-gray-200 pt-2 flex justify-between items-center text-emerald-700 font-semibold">
+                    <span>とおる (Tōru - Dài 2 nhịp)</span>
+                    <span className="text-gray-500">Đi qua</span>
+                    <button onClick={() => speakJapanese('とおる')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
         )}
