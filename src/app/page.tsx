@@ -10,12 +10,20 @@ import {
   BookOpen, Plus, List, Brain, Search, Trash2, Edit2, 
   Sparkles, CheckCircle2, AlertCircle, RefreshCw, FolderPlus, Check, X, RotateCcw,
   Trophy, ArrowRight, Volume2, VolumeX, Grid, Table, Menu, PanelLeftClose, PanelLeftOpen,
-  GraduationCap, Headphones, Type, Keyboard, CheckSquare, Layers, Clock, Flame, Zap
+  GraduationCap, Headphones, Type, Keyboard, CheckSquare, Layers, Clock, Flame, Zap, Share2
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
+import UserMenu from '@/components/auth/UserMenu';
+import AuthLanding from '@/components/auth/AuthLanding';
+import UserProfileDropdown from '@/components/auth/UserProfileDropdown';
+import ShareFolderModal from '@/components/folder/ShareFolderModal';
 
 export interface Folder {
   id: string;
   name: string;
+  user_id?: string;
+  shared_with?: string[];
 }
 
 export interface Word {
@@ -27,6 +35,8 @@ export interface Word {
   vi: string;
   srs_level?: number;
   next_review_at?: string | null;
+  user_id?: string;
+  shared_with?: string[];
 }
 
 // SRS Intervals in hours for Level 0..5
@@ -34,14 +44,18 @@ const SRS_INTERVAL_HOURS = [0, 4, 24, 72, 168, 336];
 
 export default function Home() {
   const supabase = createClient();
+  const { user, profile, loading: authLoading, signInWithGoogle, signOut } = useAuth();
   const [isPending, startTransition] = useTransition();
 
   // Sidebar Layout State
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [sharingFolder, setSharingFolder] = useState<Folder | null>(null);
 
   // Navigation State
-  const [activeTab, setActiveTab] = useState<'add' | 'list' | 'srs' | 'quiz' | 'kana' | 'choonRule'>('srs');
+  const [activeTab, setActiveTab] = useState<'add' | 'list' | 'srs' | 'quiz' | 'kana' | 'theory'>('srs');
+  const [theorySubTab, setTheorySubTab] = useState<'choon' | 'suuji'>('choon');
   const [words, setWords] = useState<Word[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [activeFolder, setActiveFolder] = useState<string>('all');
@@ -62,6 +76,7 @@ export default function Home() {
   const [newFolderName, setNewFolderName] = useState('');
   const [renamingFolderId, setRenamingFolderId] = useState<string | null>(null);
   const [renameInputValue, setRenameInputValue] = useState('');
+  const [listSearchQuery, setListSearchQuery] = useState('');
 
   // -------------------------------------------------------------
   // DEDICATED SRS TAB STATE
@@ -161,7 +176,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [user]);
 
   // -------------------------------------------------------------
   // Add Word & Auto Lookup
@@ -230,7 +245,8 @@ export default function Home() {
         vi: newWord.vi,
         folder_id: newWord.folder_id,
         srs_level: 0,
-        next_review_at: newWord.next_review_at
+        next_review_at: newWord.next_review_at,
+        ...(user ? { user_id: user.id } : {})
       }]);
     } catch (e) {
       console.error('Lỗi lưu từ vào Supabase DB:', e);
@@ -268,7 +284,11 @@ export default function Home() {
     const updatedFolders = [...folders, newFolder];
     setFolders(updatedFolders);
     setNewFolderName('');
-    await supabase.from('folders').insert([{ id: newFolder.id, name: newFolder.name }]);
+    await supabase.from('folders').insert([{ 
+      id: newFolder.id, 
+      name: newFolder.name,
+      ...(user ? { user_id: user.id } : {})
+    }]);
   };
 
   const handleDeleteFolder = async (folderId: string) => {
@@ -660,17 +680,32 @@ export default function Home() {
   const navItems = [
     { id: 'add' as const, label: 'Thêm từ mới', shortLabel: 'Thêm từ', icon: Plus },
     { id: 'list' as const, label: 'Danh sách từ', shortLabel: 'Danh sách', icon: List },
-    { id: 'srs' as const, label: 'Ôn tập SRS', shortLabel: 'Ôn tập SRS', icon: Flame },
+    { id: 'srs' as const, label: 'Lặp lại ngắt quãng', shortLabel: 'Ôn ngắt quãng', icon: Flame },
     { id: 'quiz' as const, label: 'Luyện tập Tự do', shortLabel: 'Luyện tập', icon: Brain },
     { id: 'kana' as const, label: 'Bảng chữ cái Kana', shortLabel: 'Bảng Kana', icon: Grid },
-    { id: 'choonRule' as const, label: 'Lý thuyết Trường âm', shortLabel: 'Trường âm', icon: GraduationCap },
+    { id: 'theory' as const, label: 'Lý thuyết', shortLabel: 'Lý thuyết', icon: GraduationCap },
   ];
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-indigo-200 border-t-[var(--indigo)] rounded-full animate-spin" />
+          <p className="text-xs font-semibold text-[var(--ink-soft)]">Đang kết nối phiên đăng nhập...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthLanding onSignIn={signInWithGoogle} />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* MOBILE TOP BAR */}
       <div className="md:hidden bg-[#FFFDF9] border-b border-[var(--card-border)] px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-1.5 -ml-1 rounded-lg text-[var(--indigo)] hover:bg-black/5 transition"
@@ -678,12 +713,53 @@ export default function Home() {
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
-          <h1 className="font-shippori font-bold text-xl text-[var(--indigo-deep)] tracking-wide flex items-center gap-2">
+          <h1 className="font-shippori font-bold text-xl text-[var(--indigo-deep)] tracking-wide whitespace-nowrap">
             和語ノート
-            <span className="text-[10px] font-sans px-2 py-0.5 rounded-full bg-[var(--indigo)] text-white font-medium">v2.0</span>
           </h1>
         </div>
+
+        {/* Mobile User Avatar Only & Dropdown Menu */}
+        {user && (
+          <div className="relative">
+            <button
+              onClick={() => setProfileModalOpen(!profileModalOpen)}
+              className="p-0.5 rounded-full border-2 border-[var(--indigo)]/30 hover:border-[var(--indigo)] transition shrink-0 active:scale-95"
+              title="Tùy chọn tài khoản"
+            >
+              {profile?.avatar_url || user.user_metadata?.avatar_url ? (
+                <img
+                  src={profile?.avatar_url || user.user_metadata?.avatar_url}
+                  alt="Avatar"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-[var(--indigo)] text-white flex items-center justify-center font-bold text-xs">
+                  {(user.email || 'U')[0].toUpperCase()}
+                </div>
+              )}
+            </button>
+
+            <UserProfileDropdown
+              isOpen={profileModalOpen}
+              onClose={() => setProfileModalOpen(false)}
+              user={user}
+              profile={profile}
+              onSignOut={signOut}
+            />
+          </div>
+        )}
       </div>
+
+      {/* Share Folder Modal */}
+      {user && (
+        <ShareFolderModal
+          isOpen={!!sharingFolder}
+          onClose={() => setSharingFolder(null)}
+          folder={sharingFolder}
+          currentUserId={user.id}
+          onSuccess={fetchData}
+        />
+      )}
 
       {/* SIDEBAR NAVIGATION (Desktop Collapsible & Mobile Drawer) */}
       <aside className={`
@@ -695,9 +771,8 @@ export default function Home() {
           {/* Logo & Branding + Desktop Toggle */}
           <div className="border-b border-[var(--card-border)] pb-4 flex items-center justify-between">
             <div className={`overflow-hidden transition-all ${sidebarCollapsed ? 'md:hidden' : 'block'}`}>
-              <h1 className="font-shippori font-bold text-2xl text-[var(--indigo-deep)] tracking-wide flex items-center gap-2">
+              <h1 className="font-shippori font-bold text-2xl text-[var(--indigo-deep)] tracking-wide">
                 和語ノート
-                <span className="text-[10px] font-sans px-2 py-0.5 rounded-full bg-[var(--indigo)] text-white font-medium">v2.0</span>
               </h1>
               <p className="text-[11px] text-[var(--ink-soft)] mt-0.5 font-medium">Sổ tay học từ vựng</p>
             </div>
@@ -749,8 +824,23 @@ export default function Home() {
           </nav>
         </div>
 
-        {/* Sidebar Footer: Supabase Sync Status */}
-        <div className="pt-4 border-t border-[var(--card-border)] space-y-2">
+        {/* Sidebar Footer: Supabase Sync & User Auth */}
+        <div className="pt-4 border-t border-[var(--card-border)] space-y-3">
+          {/* User Profile / Login Button */}
+          {user ? (
+            <UserMenu
+              user={user}
+              profile={profile}
+              onSignOut={signOut}
+              collapsed={sidebarCollapsed}
+            />
+          ) : (
+            <GoogleSignInButton
+              onClick={signInWithGoogle}
+              collapsed={sidebarCollapsed}
+            />
+          )}
+
           <div className={`flex items-center ${sidebarCollapsed ? 'md:justify-center' : 'justify-between'}`}>
             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${
               syncStatus.mode === 'supabase' 
@@ -889,117 +979,162 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="flex gap-1.5 flex-wrap">
-              <button
-                onClick={() => setActiveFolder('all')}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
-                  activeFolder === 'all'
-                    ? 'bg-[var(--indigo)] text-white border-[var(--indigo)]'
-                    : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
-                }`}
-              >
-                Tất cả ({words.length})
-              </button>
-              {folders.map(f => {
-                const wordCount = words.filter(w => w.folder_id === f.id).length;
-                return (
-                  <div key={f.id} className="relative inline-flex items-center">
-                    {renamingFolderId === f.id ? (
-                      <div className="flex items-center gap-1 bg-white border border-[var(--indigo)] rounded-full px-2 py-0.5">
-                        <input
-                          type="text"
-                          value={renameInputValue}
-                          onChange={(e) => setRenameInputValue(e.target.value)}
-                          className="w-20 text-xs px-1 focus:outline-none"
-                          autoFocus
-                        />
-                        <button onClick={() => handleRenameFolderCommit(f.id)} className="text-emerald-600"><Check className="w-3 h-3" /></button>
-                        <button onClick={() => setRenamingFolderId(null)} className="text-rose-600"><X className="w-3 h-3" /></button>
-                      </div>
-                    ) : (
-                      <div className={`inline-flex items-center border rounded-full overflow-hidden text-xs font-semibold ${
-                        activeFolder === f.id
-                          ? 'bg-[var(--indigo)] text-white border-[var(--indigo)]'
-                          : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)]'
-                      }`}>
-                        <button onClick={() => setActiveFolder(f.id)} className="px-3 py-1.5">
-                          {f.name} ({wordCount})
-                        </button>
-                        <button
-                          onClick={() => { setRenamingFolderId(f.id); setRenameInputValue(f.name); }}
-                          className="px-1 py-1.5 opacity-60 hover:opacity-100 border-l border-current/20"
-                          title="Đổi tên"
-                        >
-                          <Edit2 className="w-3 h-3" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteFolder(f.id)}
-                          className="px-1.5 py-1.5 opacity-60 hover:opacity-100 text-rose-300 hover:text-rose-100"
-                          title="Xóa thư mục"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+            {/* Single-line Horizontal Scrollable Folder Bar */}
+            <div className="flex items-center gap-2">
+              <div className="flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 whitespace-nowrap">
+                <button
+                  onClick={() => setActiveFolder('all')}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition shrink-0 ${
+                    activeFolder === 'all'
+                      ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-2xs'
+                      : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
+                  }`}
+                >
+                  Tất cả ({words.length})
+                </button>
+                {folders.map(f => {
+                  const wordCount = words.filter(w => w.folder_id === f.id).length;
+                  const isActive = activeFolder === f.id;
+                  return (
+                    <div key={f.id} className="relative inline-flex items-center shrink-0">
+                      {renamingFolderId === f.id ? (
+                        <div className="flex items-center gap-1 bg-white border border-[var(--indigo)] rounded-full px-2.5 py-0.5 shadow-2xs">
+                          <input
+                            type="text"
+                            value={renameInputValue}
+                            onChange={(e) => setRenameInputValue(e.target.value)}
+                            className="w-24 text-xs px-1 focus:outline-none"
+                            autoFocus
+                          />
+                          <button onClick={() => handleRenameFolderCommit(f.id)} className="text-emerald-600 p-0.5"><Check className="w-3 h-3" /></button>
+                          <button onClick={() => setRenamingFolderId(null)} className="text-rose-600 p-0.5"><X className="w-3 h-3" /></button>
+                        </div>
+                      ) : (
+                        <div className={`inline-flex items-center border rounded-full overflow-hidden text-xs font-semibold shadow-2xs transition ${
+                          isActive
+                            ? 'bg-[var(--indigo)] text-white border-[var(--indigo)]'
+                            : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-gray-300'
+                        }`}>
+                          <button onClick={() => setActiveFolder(f.id)} className="px-3 py-1.5 whitespace-nowrap">
+                            {f.name} ({wordCount})
+                          </button>
+                          <button
+                            onClick={() => setSharingFolder(f)}
+                            className="px-1.5 py-1.5 opacity-60 hover:opacity-100 border-l border-current/20 hover:text-amber-300"
+                            title="Chia sẻ thư mục"
+                          >
+                            <Share2 className="w-3 h-3" />
+                          </button>
+                          <button
+                            onClick={() => { setRenamingFolderId(f.id); setRenameInputValue(f.name); }}
+                            className="px-1.5 py-1.5 opacity-60 hover:opacity-100 border-l border-current/20"
+                            title="Đổi tên"
+                          >
+                            <Edit2 className="w-3 h-3" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteFolder(f.id)}
+                            className="px-1.5 py-1.5 opacity-60 hover:opacity-100 text-rose-300 hover:text-rose-100 border-l border-current/20"
+                            title="Xóa thư mục"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Search Input Bar */}
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-2.5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Tìm kiếm theo tiếng Nhật, Romaji hoặc tiếng Việt..."
+                value={listSearchQuery}
+                onChange={(e) => setListSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-9 py-2 text-xs border border-[var(--card-border)] rounded-xl bg-white focus:outline-none focus:border-[var(--indigo)] shadow-2xs"
+              />
+              {listSearchQuery && (
+                <button
+                  onClick={() => setListSearchQuery('')}
+                  className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {words.filter(w => activeFolder === 'all' || w.folder_id === activeFolder).length === 0 ? (
-                <div className="col-span-full text-center py-12 text-sm text-[var(--ink-soft)] bg-[#FFFDF9] rounded-xl border border-dashed border-[var(--card-border)]">
-                  Chưa có từ vựng nào trong mục này.
-                </div>
-              ) : (
-                words
-                  .filter(w => activeFolder === 'all' || w.folder_id === activeFolder)
-                  .map(w => (
-                    <div key={w.id} className="bg-[#FFFDF9] border border-[var(--card-border)] p-4 rounded-xl relative shadow-xs hover:border-[var(--indigo)] transition flex flex-col justify-between space-y-2">
-                      <div>
-                        <div className="flex justify-between items-start">
-                          <div className="flex items-center gap-2">
-                            <div className="text-2xl font-medium font-jp text-[var(--ink)]">{w.jp}</div>
-                            <button
-                              onClick={() => speakJapanese(w.jp)}
-                              title="Nghe phát âm"
-                              className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50 transition"
-                            >
-                              <Volume2 className="w-4 h-4" />
-                            </button>
-                          </div>
+              {(() => {
+                const filteredListWords = words.filter(w => {
+                  const matchesFolder = activeFolder === 'all' || w.folder_id === activeFolder;
+                  if (!matchesFolder) return false;
+                  if (!listSearchQuery.trim()) return true;
+                  const q = listSearchQuery.toLowerCase().trim();
+                  return (
+                    w.jp.toLowerCase().includes(q) ||
+                    w.romaji.toLowerCase().includes(q) ||
+                    w.vi.toLowerCase().includes(q)
+                  );
+                });
+
+                if (filteredListWords.length === 0) {
+                  return (
+                    <div className="col-span-full text-center py-12 text-sm text-[var(--ink-soft)] bg-[#FFFDF9] rounded-xl border border-dashed border-[var(--card-border)]">
+                      {listSearchQuery ? `Không tìm thấy từ vựng khớp với "${listSearchQuery}".` : 'Chưa có từ vựng nào trong mục này.'}
+                    </div>
+                  );
+                }
+
+                return filteredListWords.map(w => (
+                  <div key={w.id} className="bg-[#FFFDF9] border border-[var(--card-border)] p-4 rounded-xl relative shadow-xs hover:border-[var(--indigo)] transition flex flex-col justify-between space-y-2">
+                    <div>
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-2">
+                          <div className="text-2xl font-medium font-jp text-[var(--ink)]">{w.jp}</div>
                           <button
-                            onClick={() => handleDeleteWord(w.id)}
-                            className="p-1 text-gray-400 hover:text-rose-600 transition"
-                            title="Xóa từ"
+                            onClick={() => speakJapanese(w.jp)}
+                            title="Nghe phát âm"
+                            className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50 transition"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Volume2 className="w-4 h-4" />
                           </button>
                         </div>
-                        <div className="text-sm font-jetbrains text-[var(--indigo)] font-semibold mt-0.5">{w.romaji}</div>
-                        <div className="text-sm text-[var(--ink-soft)] mt-1.5 font-medium">{w.vi}</div>
-                      </div>
-
-                      <div className="mt-3 pt-2 border-t border-[var(--card-border)]/50 flex justify-between items-center text-xs">
-                        <select
-                          value={w.folder_id || ''}
-                          onChange={(e) => handleChangeWordFolder(w.id, e.target.value)}
-                          className="px-2.5 py-1 bg-[#EEF2F7] text-[var(--indigo)] font-semibold rounded-md border border-[var(--card-border)] focus:outline-none text-xs"
+                        <button
+                          onClick={() => handleDeleteWord(w.id)}
+                          className="p-1 text-gray-400 hover:text-rose-600 transition"
+                          title="Xóa từ"
                         >
-                          <option value="">Không phân loại</option>
-                          {folders.map(f => (
-                            <option key={f.id} value={f.id}>{f.name}</option>
-                          ))}
-                        </select>
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="text-sm font-jetbrains text-[var(--indigo)] font-semibold mt-0.5">{w.romaji}</div>
+                      <div className="text-sm text-[var(--ink-soft)] mt-1.5 font-medium">{w.vi}</div>
+                    </div>
 
-                        {/* SRS Colored Level Chip */}
-                        <div>
-                          {renderSrsChip(w.srs_level, isWordSrsDue(w))}
-                        </div>
+                    <div className="mt-3 pt-2 border-t border-[var(--card-border)]/50 flex justify-between items-center text-xs">
+                      <select
+                        value={w.folder_id || ''}
+                        onChange={(e) => handleChangeWordFolder(w.id, e.target.value)}
+                        className="px-2.5 py-1 bg-[#EEF2F7] text-[var(--indigo)] font-semibold rounded-md border border-[var(--card-border)] focus:outline-none text-xs"
+                      >
+                        <option value="">Không phân loại</option>
+                        {folders.map(f => (
+                          <option key={f.id} value={f.id}>{f.name}</option>
+                        ))}
+                      </select>
+
+                      {/* SRS Colored Level Chip */}
+                      <div>
+                        {renderSrsChip(w.srs_level, isWordSrsDue(w))}
                       </div>
                     </div>
-                  ))
-              )}
+                  </div>
+                ));
+              })()}
             </div>
           </section>
         )}
@@ -1013,7 +1148,7 @@ export default function Home() {
                 <div>
                   <h2 className="text-xl font-bold text-[var(--indigo-deep)] flex items-center gap-2">
                     <Flame className="w-6 h-6 text-rose-500 animate-pulse" />
-                    Phòng Ôn tập SRS
+                    Ôn tập Lặp lại ngắt quãng
                   </h2>
                 </div>
 
@@ -1025,14 +1160,14 @@ export default function Home() {
 
               {/* SRS Level Distribution Chips */}
               <div className="space-y-1.5">
-                <div className="text-xs font-semibold text-[var(--ink-soft)]">Thống kê cấp độ trí nhớ (6 Level):</div>
-                <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+                <div className="text-xs font-semibold text-[var(--ink-soft)]">Tiến trình ghi nhớ (6 Cấp độ):</div>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                   {[0, 1, 2, 3, 4, 5].map(lvl => {
                     const count = words.filter(w => (w.srs_level || 0) === lvl).length;
                     return (
-                      <div key={lvl} className="bg-white border border-[var(--card-border)] p-2.5 rounded-xl text-center space-y-1">
+                      <div key={lvl} className="bg-white border border-[var(--card-border)] p-2 rounded-xl text-center space-y-1">
                         <div className="flex justify-center">{renderSrsChip(lvl)}</div>
-                        <div className="text-base font-bold text-[var(--indigo-deep)]">{count} <span className="text-[10px] font-normal text-gray-500">từ</span></div>
+                        <div className="text-sm sm:text-base font-bold text-[var(--indigo-deep)]">{count} <span className="text-[10px] font-normal text-gray-500">từ</span></div>
                       </div>
                     );
                   })}
@@ -1040,12 +1175,12 @@ export default function Home() {
               </div>
 
               {/* SRS Multi-selection Folder Filter */}
-              <div className="flex gap-1.5 flex-wrap items-center pt-2 border-t border-[var(--card-border)]/60">
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 whitespace-nowrap pt-2 border-t border-[var(--card-border)]/60">
                 <button
                   onClick={() => setSrsFolderIds(['all'])}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition shrink-0 ${
                     srsFolderIds.includes('all')
-                      ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-xs'
+                      ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-2xs'
                       : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
                   }`}
                 >
@@ -1059,9 +1194,9 @@ export default function Home() {
                     <button
                       key={f.id}
                       onClick={() => toggleSrsFolder(f.id)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition flex items-center gap-1 ${
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition shrink-0 flex items-center gap-1 ${
                         isSelected
-                          ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-xs'
+                          ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-2xs'
                           : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
                       }`}
                     >
@@ -1129,7 +1264,7 @@ export default function Home() {
                   <div className="inline-flex p-4 bg-emerald-100 text-emerald-700 rounded-full">
                     <Trophy className="w-8 h-8" />
                   </div>
-                  <h3 className="text-xl font-bold text-[var(--indigo-deep)]">Tuyệt vời! Đã hoàn thành ôn tập SRS hôm nay!</h3>
+                  <h3 className="text-xl font-bold text-[var(--indigo-deep)]">Tuyệt vời! Bạn đã hoàn thành tất cả các từ cần ôn hôm nay!</h3>
                   <p className="text-sm text-[var(--ink-soft)] max-w-sm mx-auto">
                     Bạn không còn từ nào đến hạn cần ôn tập. Hãy quay lại vào ngày mai để tiếp tục duy trì trí nhớ nhé!
                   </p>
@@ -1143,7 +1278,7 @@ export default function Home() {
               ) : currentSrsCard ? (
                 <>
                   <div className="flex justify-between items-center text-xs text-[var(--ink-soft)] font-semibold border-b border-[var(--card-border)] pb-3">
-                    <span>Thẻ ôn SRS: {srsCurrentIndex} / {srsTotalCount}</span>
+                    <span>Từ cần ôn: {srsCurrentIndex} / {srsTotalCount}</span>
                     <div>{renderSrsChip(currentSrsCard.srs_level, isWordSrsDue(currentSrsCard))}</div>
                   </div>
 
@@ -1291,7 +1426,7 @@ export default function Home() {
                   )}
                 </>
               ) : (
-                <p className="text-sm text-[var(--ink-soft)] py-8">Chưa có từ vựng đến hạn cần ôn tập trong SRS.</p>
+                <p className="text-sm text-[var(--ink-soft)] py-8">Chưa có từ vựng nào cần ôn tập hôm nay!</p>
               )}
             </div>
           </section>
@@ -1301,12 +1436,12 @@ export default function Home() {
         {activeTab === 'quiz' && (
           <section className="space-y-4">
             {/* Quiz Mode Tabs with Icons */}
-            <div className="flex gap-1.5 bg-[#FFFDF9] p-1.5 border border-[var(--card-border)] rounded-lg overflow-x-auto">
+            <div className="flex gap-1.5 bg-[#FFFDF9] p-1.5 border border-[var(--card-border)] rounded-2xl overflow-x-auto no-scrollbar whitespace-nowrap">
               <button
                 onClick={() => setQuizMode('jp2romaji')}
-                className={`px-3 py-2 text-xs font-semibold rounded-md transition whitespace-nowrap flex items-center gap-1.5 ${
+                className={`px-3.5 py-2 text-xs font-semibold rounded-xl transition whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
                   quizMode === 'jp2romaji'
-                    ? 'bg-[var(--indigo)] text-white shadow-xs'
+                    ? 'bg-[var(--indigo)] text-white shadow-2xs'
                     : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'
                 }`}
               >
@@ -1315,9 +1450,9 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setQuizMode('romaji2jp')}
-                className={`px-3 py-2 text-xs font-semibold rounded-md transition whitespace-nowrap flex items-center gap-1.5 ${
+                className={`px-3.5 py-2 text-xs font-semibold rounded-xl transition whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
                   quizMode === 'romaji2jp'
-                    ? 'bg-[var(--indigo)] text-white shadow-xs'
+                    ? 'bg-[var(--indigo)] text-white shadow-2xs'
                     : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'
                 }`}
               >
@@ -1326,9 +1461,9 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setQuizMode('mcq')}
-                className={`px-3 py-2 text-xs font-semibold rounded-md transition whitespace-nowrap flex items-center gap-1.5 ${
+                className={`px-3.5 py-2 text-xs font-semibold rounded-xl transition whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
                   quizMode === 'mcq'
-                    ? 'bg-[var(--indigo)] text-white shadow-xs'
+                    ? 'bg-[var(--indigo)] text-white shadow-2xs'
                     : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'
                 }`}
               >
@@ -1337,9 +1472,9 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setQuizMode('audio')}
-                className={`px-3 py-2 text-xs font-semibold rounded-md transition whitespace-nowrap flex items-center gap-1.5 ${
+                className={`px-3.5 py-2 text-xs font-semibold rounded-xl transition whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
                   quizMode === 'audio'
-                    ? 'bg-[var(--indigo)] text-white shadow-xs'
+                    ? 'bg-[var(--indigo)] text-white shadow-2xs'
                     : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'
                 }`}
               >
@@ -1348,9 +1483,9 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setQuizMode('match')}
-                className={`px-3 py-2 text-xs font-semibold rounded-md transition whitespace-nowrap flex items-center gap-1.5 ${
+                className={`px-3.5 py-2 text-xs font-semibold rounded-xl transition whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
                   quizMode === 'match'
-                    ? 'bg-[var(--indigo)] text-white shadow-xs'
+                    ? 'bg-[var(--indigo)] text-white shadow-2xs'
                     : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'
                 }`}
               >
@@ -1361,12 +1496,12 @@ export default function Home() {
 
             {/* Multi-selection Folder Filter & Controls */}
             <div className="flex flex-col space-y-2">
-              <div className="flex gap-1.5 flex-wrap items-center">
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 whitespace-nowrap">
                 <button
                   onClick={() => setQuizFolderIds(['all'])}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition shrink-0 ${
                     quizFolderIds.includes('all')
-                      ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-xs'
+                      ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-2xs'
                       : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
                   }`}
                 >
@@ -1380,9 +1515,9 @@ export default function Home() {
                     <button
                       key={f.id}
                       onClick={() => toggleQuizFolder(f.id)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition flex items-center gap-1 ${
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition shrink-0 flex items-center gap-1 ${
                         isSelected
-                          ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-xs'
+                          ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-2xs'
                           : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
                       }`}
                     >
@@ -1875,187 +2010,349 @@ export default function Home() {
           </section>
         )}
 
-        {/* TAB 6: LÝ THUYẾT TRƯỜNG ÂM */}
-        {activeTab === 'choonRule' && (
-          <section className="space-y-6 bg-[#FFFDF9] border border-[var(--card-border)] p-6 rounded-2xl shadow-xs">
-            <div className="border-b border-[var(--card-border)] pb-4">
-              <h2 className="text-xl font-bold text-[var(--indigo-deep)] flex items-center gap-2">
-                <GraduationCap className="w-6 h-6 text-[var(--indigo)]" />
-                Quy tắc Trường âm (長音 - Chōon)
-              </h2>
-              <p className="text-xs text-[var(--ink-soft)] mt-1">
-                Trường âm là việc kéo dài phát âm của nguyên âm đứng trước gấp 2 lần thời lượng (2 nhịp/phách).
-              </p>
-            </div>
+        {/* TAB 6: LÝ THUYẾT TIẾNG NHẬT (TỔNG HỢP MULTI-SUBTABS) */}
+        {activeTab === 'theory' && (
+          <section className="space-y-5 bg-[#FFFDF9] border border-[var(--card-border)] p-6 rounded-2xl shadow-xs">
+            {/* Header & Subtab Navigation */}
+            <div className="space-y-4 border-b border-[var(--card-border)] pb-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-[var(--indigo-deep)] flex items-center gap-2">
+                  <GraduationCap className="w-6 h-6 text-[var(--indigo)]" />
+                  Lý thuyết
+                </h2>
+              </div>
 
-            {/* Section 1: Quy tắc Hiragana */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-bold text-[var(--indigo-deep)] uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-600" />
-                1. Quy tắc 5 Hàng âm (Hiragana)
-              </h3>
-              
-              <div className="overflow-x-auto border border-[var(--card-border)] rounded-xl bg-white">
-                <table className="w-full text-xs text-left">
-                  <thead className="bg-[#EEF2F7] text-[var(--indigo-deep)] font-bold border-b border-[var(--card-border)]">
-                    <tr>
-                      <th className="p-3">Hàng âm</th>
-                      <th className="p-3">Quy tắc (Chữ đi sau)</th>
-                      <th className="p-3">Ví dụ</th>
-                      <th className="p-3">Cách đọc ngân</th>
-                      <th className="p-3">Nghĩa</th>
-                      <th className="p-3 text-center">Nghe</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[var(--card-border)]">
-                    <tr className="hover:bg-amber-50/40">
-                      <td className="p-3 font-semibold">Hàng A (あ)</td>
-                      <td className="p-3 font-bold text-amber-700">Thêm あ</td>
-                      <td className="p-3 font-jp text-sm">おかあさん</td>
-                      <td className="p-3 font-jetbrains font-semibold text-[var(--indigo)]">Okāsan</td>
-                      <td className="p-3 text-gray-600">Mẹ</td>
-                      <td className="p-3 text-center">
-                        <button onClick={() => speakJapanese('おかあさん')} className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50">
-                          <Volume2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-amber-50/40">
-                      <td className="p-3 font-semibold">Hàng I (い)</td>
-                      <td className="p-3 font-bold text-amber-700">Thêm い</td>
-                      <td className="p-3 font-jp text-sm">おじいさん</td>
-                      <td className="p-3 font-jetbrains font-semibold text-[var(--indigo)]">Ojīsan</td>
-                      <td className="p-3 text-gray-600">Ông</td>
-                      <td className="p-3 text-center">
-                        <button onClick={() => speakJapanese('おじいさん')} className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50">
-                          <Volume2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-amber-50/40">
-                      <td className="p-3 font-semibold">Hàng U (う)</td>
-                      <td className="p-3 font-bold text-amber-700">Thêm う</td>
-                      <td className="p-3 font-jp text-sm">くうき</td>
-                      <td className="p-3 font-jetbrains font-semibold text-[var(--indigo)]">Kūki</td>
-                      <td className="p-3 text-gray-600">Không khí</td>
-                      <td className="p-3 text-center">
-                        <button onClick={() => speakJapanese('くうき')} className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50">
-                          <Volume2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-amber-50/40">
-                      <td className="p-3 font-semibold">Hàng E (え)</td>
-                      <td className="p-3 font-bold text-emerald-700">Thêm い (95%)</td>
-                      <td className="p-3 font-jp text-sm">えいが</td>
-                      <td className="p-3 font-jetbrains font-semibold text-[var(--indigo)]">Ēga (Eiga)</td>
-                      <td className="p-3 text-gray-600">Phim điện ảnh</td>
-                      <td className="p-3 text-center">
-                        <button onClick={() => speakJapanese('えいが')} className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50">
-                          <Volume2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-amber-50/40">
-                      <td className="p-3 font-semibold">Hàng O (お)</td>
-                      <td className="p-3 font-bold text-emerald-700">Thêm う (95%)</td>
-                      <td className="p-3 font-jp text-sm">おとうさん</td>
-                      <td className="p-3 font-jetbrains font-semibold text-[var(--indigo)]">Otōsan (Otousan)</td>
-                      <td className="p-3 text-gray-600">Bố</td>
-                      <td className="p-3 text-center">
-                        <button onClick={() => speakJapanese('おとうさん')} className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50">
-                          <Volume2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              {/* Subtabs Selector */}
+              <div className="flex items-center gap-1.5 bg-[#EEF2F7] p-1.5 rounded-xl overflow-x-auto no-scrollbar whitespace-nowrap text-xs font-semibold">
+                <button
+                  onClick={() => setTheorySubTab('choon')}
+                  className={`px-4 py-2 rounded-lg transition shrink-0 ${
+                    theorySubTab === 'choon'
+                      ? 'bg-[var(--indigo)] text-white shadow-2xs'
+                      : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'
+                  }`}
+                >
+                  Trường âm (長音)
+                </button>
+                <button
+                  onClick={() => setTheorySubTab('suuji')}
+                  className={`px-4 py-2 rounded-lg transition shrink-0 ${
+                    theorySubTab === 'suuji'
+                      ? 'bg-[var(--indigo)] text-white shadow-2xs'
+                      : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'
+                  }`}
+                >
+                  Số đếm (数字)
+                </button>
               </div>
             </div>
 
-            {/* Section 2: Katakana */}
-            <div className="space-y-2 p-4 bg-indigo-50/60 border border-indigo-100 rounded-xl">
-              <h3 className="text-sm font-bold text-[var(--indigo-deep)] flex items-center gap-1.5">
-                📌 Trường âm trong Katakana (Từ mượn tiếng Anh)
-              </h3>
-              <p className="text-xs text-[var(--ink-soft)] leading-relaxed">
-                Tất cả trường âm trong Katakana đều dùng duy nhất một dấu gạch ngang <strong>ー</strong>.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-xs">
-                <div className="p-2 bg-white rounded-lg border border-indigo-200 flex items-center justify-between">
-                  <span>ケーキ (Kēki - Bánh)</span>
-                  <button onClick={() => speakJapanese('ケーキ')} className="text-[var(--indigo)]"><Volume2 className="w-3.5 h-3.5" /></button>
+            {/* SUBTAB 1: TRƯỜNG ÂM */}
+            {theorySubTab === 'choon' && (
+              <div className="space-y-6 animate-in fade-in duration-200">
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-[var(--indigo-deep)]">Quy tắc Trường âm (長音 - Chōon)</h3>
+                  <p className="text-xs text-[var(--ink-soft)]">
+                    Trường âm là việc kéo dài phát âm của nguyên âm đứng trước gấp 2 lần thời lượng (2 nhịp/phách).
+                  </p>
                 </div>
-                <div className="p-2 bg-white rounded-lg border border-indigo-200 flex items-center justify-between">
-                  <span>コーヒー (Kōhī - Cà phê)</span>
-                  <button onClick={() => speakJapanese('コーヒー')} className="text-[var(--indigo)]"><Volume2 className="w-3.5 h-3.5" /></button>
+
+                {/* Section 1: Quy tắc Hiragana */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-[var(--indigo-deep)] uppercase tracking-wider">
+                    1. Quy tắc 5 Hàng âm (Hiragana)
+                  </h4>
+                  
+                  <div className="overflow-x-auto border border-[var(--card-border)] rounded-xl bg-white">
+                    <table className="w-full text-xs text-left">
+                      <thead className="bg-[#EEF2F7] text-[var(--indigo-deep)] font-bold border-b border-[var(--card-border)]">
+                        <tr>
+                          <th className="p-3">Hàng âm</th>
+                          <th className="p-3">Quy tắc (Chữ đi sau)</th>
+                          <th className="p-3">Ví dụ</th>
+                          <th className="p-3">Cách đọc ngân</th>
+                          <th className="p-3">Nghĩa</th>
+                          <th className="p-3 text-center">Nghe</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[var(--card-border)]">
+                        <tr className="hover:bg-amber-50/40">
+                          <td className="p-3 font-semibold">Hàng A (あ)</td>
+                          <td className="p-3 font-bold text-amber-700">Thêm あ</td>
+                          <td className="p-3 font-jp text-sm">おかあさん</td>
+                          <td className="p-3 font-jetbrains font-semibold text-[var(--indigo)]">Okāsan</td>
+                          <td className="p-3 text-gray-600">Mẹ</td>
+                          <td className="p-3 text-center">
+                            <button onClick={() => speakJapanese('おかあさん')} className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50">
+                              <Volume2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                        <tr className="hover:bg-amber-50/40">
+                          <td className="p-3 font-semibold">Hàng I (い)</td>
+                          <td className="p-3 font-bold text-amber-700">Thêm い</td>
+                          <td className="p-3 font-jp text-sm">おじいさん</td>
+                          <td className="p-3 font-jetbrains font-semibold text-[var(--indigo)]">Ojīsan</td>
+                          <td className="p-3 text-gray-600">Ông</td>
+                          <td className="p-3 text-center">
+                            <button onClick={() => speakJapanese('おじいさん')} className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50">
+                              <Volume2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                        <tr className="hover:bg-amber-50/40">
+                          <td className="p-3 font-semibold">Hàng U (う)</td>
+                          <td className="p-3 font-bold text-amber-700">Thêm う</td>
+                          <td className="p-3 font-jp text-sm">くうき</td>
+                          <td className="p-3 font-jetbrains font-semibold text-[var(--indigo)]">Kūki</td>
+                          <td className="p-3 text-gray-600">Không khí</td>
+                          <td className="p-3 text-center">
+                            <button onClick={() => speakJapanese('くうき')} className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50">
+                              <Volume2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                        <tr className="hover:bg-amber-50/40">
+                          <td className="p-3 font-semibold">Hàng E (え)</td>
+                          <td className="p-3 font-bold text-emerald-700">Thêm い (95%)</td>
+                          <td className="p-3 font-jp text-sm">えいが</td>
+                          <td className="p-3 font-jetbrains font-semibold text-[var(--indigo)]">Ēga (Eiga)</td>
+                          <td className="p-3 text-gray-600">Phim điện ảnh</td>
+                          <td className="p-3 text-center">
+                            <button onClick={() => speakJapanese('えいが')} className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50">
+                              <Volume2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                        <tr className="hover:bg-amber-50/40">
+                          <td className="p-3 font-semibold">Hàng O (お)</td>
+                          <td className="p-3 font-bold text-emerald-700">Thêm う (95%)</td>
+                          <td className="p-3 font-jp text-sm">おとうさん</td>
+                          <td className="p-3 font-jetbrains font-semibold text-[var(--indigo)]">Otōsan (Otousan)</td>
+                          <td className="p-3 text-gray-600">Bố</td>
+                          <td className="p-3 text-center">
+                            <button onClick={() => speakJapanese('おとうさん')} className="p-1 rounded-full text-[var(--indigo)] hover:bg-indigo-50">
+                              <Volume2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-                <div className="p-2 bg-white rounded-lg border border-indigo-200 flex items-center justify-between">
-                  <span>スーパー (Sūpā - Siêu thị)</span>
-                  <button onClick={() => speakJapanese('スーパー')} className="text-[var(--indigo)]"><Volume2 className="w-3.5 h-3.5" /></button>
+
+                {/* Section 2: Katakana */}
+                <div className="space-y-2 p-4 bg-indigo-50/60 border border-indigo-100 rounded-xl">
+                  <h4 className="text-xs font-bold text-[var(--indigo-deep)]">
+                    Trường âm trong Katakana (Từ mượn tiếng Anh)
+                  </h4>
+                  <p className="text-xs text-[var(--ink-soft)] leading-relaxed">
+                    Tất cả trường âm trong Katakana đều dùng duy nhất một dấu gạch ngang <strong>ー</strong>.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-xs">
+                    <div className="p-2 bg-white rounded-lg border border-indigo-200 flex items-center justify-between">
+                      <span>ケーキ (Kēki - Bánh)</span>
+                      <button onClick={() => speakJapanese('ケーキ')} className="text-[var(--indigo)]"><Volume2 className="w-3.5 h-3.5" /></button>
+                    </div>
+                    <div className="p-2 bg-white rounded-lg border border-indigo-200 flex items-center justify-between">
+                      <span>コーヒー (Kōhī - Cà phê)</span>
+                      <button onClick={() => speakJapanese('コーヒー')} className="text-[var(--indigo)]"><Volume2 className="w-3.5 h-3.5" /></button>
+                    </div>
+                    <div className="p-2 bg-white rounded-lg border border-indigo-200 flex items-center justify-between">
+                      <span>スーパー (Sūpā - Siêu thị)</span>
+                      <button onClick={() => speakJapanese('スーパー')} className="text-[var(--indigo)]"><Volume2 className="w-3.5 h-3.5" /></button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Cặp từ dễ nhầm lẫn */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-[var(--indigo-deep)] uppercase tracking-wider flex items-center gap-1.5">
+                    Các cặp từ dễ nhầm lẫn nhất (Âm ngắn vs Trường âm)
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="p-3 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
+                      <div className="flex justify-between items-center text-rose-700 font-semibold">
+                        <span>おじさん (Ojisan - Âm ngắn 1 nhịp)</span>
+                        <span className="text-gray-500">Chú / Bác</span>
+                        <button onClick={() => speakJapanese('おじさん')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
+                      </div>
+                      <div className="border-t border-dashed border-gray-200 pt-2 flex justify-between items-center text-emerald-700 font-semibold">
+                        <span>おじいさん (Ojīsan - Dài 2 nhịp)</span>
+                        <span className="text-gray-500">Ông</span>
+                        <button onClick={() => speakJapanese('おじいさん')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
+                      <div className="flex justify-between items-center text-rose-700 font-semibold">
+                        <span>おばさん (Obasan - Âm ngắn 1 nhịp)</span>
+                        <span className="text-gray-500">Cô / Dì</span>
+                        <button onClick={() => speakJapanese('obasan')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
+                      </div>
+                      <div className="border-t border-dashed border-gray-200 pt-2 flex justify-between items-center text-emerald-700 font-semibold">
+                        <span>おばあさん (Obāsan - Dài 2 nhịp)</span>
+                        <span className="text-gray-500">Bà</span>
+                        <button onClick={() => speakJapanese('おばあさん')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Section 3: Cặp từ dễ nhầm lẫn */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-bold text-[var(--indigo-deep)] uppercase tracking-wider flex items-center gap-1.5">
-                ⚠️ Các cặp từ dễ nhầm lẫn nhất (Âm ngắn vs Trường âm)
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-3 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
-                  <div className="flex justify-between items-center text-rose-700 font-semibold">
-                    <span>おじさん (Ojisan - Âm ngắn 1 nhịp)</span>
-                    <span className="text-gray-500">Chú / Bác</span>
-                    <button onClick={() => speakJapanese('おじさん')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
-                  </div>
-                  <div className="border-t border-dashed border-gray-200 pt-2 flex justify-between items-center text-emerald-700 font-semibold">
-                    <span>おじいさん (Ojīsan - Dài 2 nhịp)</span>
-                    <span className="text-gray-500">Ông</span>
-                    <button onClick={() => speakJapanese('おじいさん')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
+            {/* SUBTAB 2: SỐ ĐẾM (ĐẦY ĐỦ CÁC QUY TẮC) */}
+            {theorySubTab === 'suuji' && (
+              <div className="space-y-6 animate-in fade-in duration-200">
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-[var(--indigo-deep)]">Quy tắc Số đếm & Trợ từ đếm (数字 - Sūji)</h3>
+                  <p className="text-xs text-[var(--ink-soft)]">
+                    Tổng hợp số đếm cơ bản, các đơn vị hàng chục/trăm/nghìn/vạn và các quy tắc trợ từ đếm thông dụng trong tiếng Nhật.
+                  </p>
+                </div>
+
+                {/* Phần 1: Số đếm cơ bản 1-10 */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-[var(--indigo-deep)] uppercase tracking-wider">
+                    1. Số đếm cơ bản (1 đến 10)
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+                    {[
+                      { num: '1', jp: 'いち', romaji: 'ichi' },
+                      { num: '2', jp: 'に', romaji: 'ni' },
+                      { num: '3', jp: 'さん', romaji: 'san' },
+                      { num: '4', jp: 'よん / し', romaji: 'yon / shi' },
+                      { num: '5', jp: 'ご', romaji: 'go' },
+                      { num: '6', jp: 'ろく', romaji: 'roku' },
+                      { num: '7', jp: 'なな / しち', romaji: 'nana / shichi' },
+                      { num: '8', jp: 'はち', romaji: 'hachi' },
+                      { num: '9', jp: 'きゅう / く', romaji: 'kyuu / ku' },
+                      { num: '10', jp: 'じゅう', romaji: 'juu' },
+                    ].map(item => (
+                      <div key={item.num} className="p-2.5 bg-white border border-[var(--card-border)] rounded-xl text-center space-y-0.5 shadow-2xs hover:border-[var(--indigo)] transition">
+                        <div className="text-[11px] font-bold text-amber-700">Số {item.num}</div>
+                        <div className="text-base font-jp font-bold text-[var(--indigo-deep)]">{item.jp}</div>
+                        <div className="text-[10px] font-jetbrains text-gray-500">{item.romaji}</div>
+                        <button onClick={() => speakJapanese(item.jp.split('/')[0].trim())} className="p-0.5 text-[var(--indigo)] hover:bg-indigo-50 rounded-full mt-1">
+                          <Volume2 className="w-3.5 h-3.5 mx-auto" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                <div className="p-3 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
-                  <div className="flex justify-between items-center text-rose-700 font-semibold">
-                    <span>おばさん (Obasan - Âm ngắn 1 nhịp)</span>
-                    <span className="text-gray-500">Cô / Dì</span>
-                    <button onClick={() => speakJapanese('おばさん')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
-                  </div>
-                  <div className="border-t border-dashed border-gray-200 pt-2 flex justify-between items-center text-emerald-700 font-semibold">
-                    <span>おばあさん (Obāsan - Dài 2 nhịp)</span>
-                    <span className="text-gray-500">Bà</span>
-                    <button onClick={() => speakJapanese('おばあさん')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
+                {/* Phần 2: Đơn vị Hàng chục, Trăm, Nghìn, Vạn */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-[var(--indigo-deep)] uppercase tracking-wider">
+                    2. Hàng Trăm, Nghìn & Vạn (Chú ý các âm đặc biệt)
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    {/* Hàng Trăm */}
+                    <div className="p-3.5 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
+                      <div className="font-bold text-[var(--indigo-deep)] border-b border-gray-100 pb-1.5 flex justify-between items-center">
+                        <span>Hàng Trăm (百 - Hyaku)</span>
+                        <span className="text-[10px] text-amber-700 font-normal">100 - 900</span>
+                      </div>
+                      <div className="space-y-1 text-[11px]">
+                        <div className="flex justify-between"><span>100: ひゃく</span><span className="font-jetbrains text-gray-500">hyaku</span></div>
+                        <div className="flex justify-between text-rose-700 font-bold"><span>300: さんびゃく</span><span className="font-jetbrains">sambyaku</span></div>
+                        <div className="flex justify-between text-rose-700 font-bold"><span>600: ろっぴゃく</span><span className="font-jetbrains">roppyaku</span></div>
+                        <div className="flex justify-between text-rose-700 font-bold"><span>800: はっぴゃく</span><span className="font-jetbrains">happyaku</span></div>
+                      </div>
+                    </div>
+
+                    {/* Hàng Nghìn */}
+                    <div className="p-3.5 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
+                      <div className="font-bold text-[var(--indigo-deep)] border-b border-gray-100 pb-1.5 flex justify-between items-center">
+                        <span>Hàng Nghìn (千 - Sen)</span>
+                        <span className="text-[10px] text-amber-700 font-normal">1.000 - 9.000</span>
+                      </div>
+                      <div className="space-y-1 text-[11px]">
+                        <div className="flex justify-between"><span>1.000: せん</span><span className="font-jetbrains text-gray-500">sen</span></div>
+                        <div className="flex justify-between text-rose-700 font-bold"><span>3.000: さんぜん</span><span className="font-jetbrains">sanzen</span></div>
+                        <div className="flex justify-between text-rose-700 font-bold"><span>8.000: はっせん</span><span className="font-jetbrains">hassen</span></div>
+                      </div>
+                    </div>
+
+                    {/* Hàng Vạn */}
+                    <div className="p-3.5 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
+                      <div className="font-bold text-[var(--indigo-deep)] border-b border-gray-100 pb-1.5 flex justify-between items-center">
+                        <span>Hàng Vạn (万 - Man)</span>
+                        <span className="text-[10px] text-amber-700 font-normal">10.000 (4 số 0)</span>
+                      </div>
+                      <div className="space-y-1 text-[11px]">
+                        <div className="flex justify-between"><span>10.000: いちまん</span><span className="font-jetbrains text-gray-500">ichiman</span></div>
+                        <div className="flex justify-between"><span>100.000: じゅうまん</span><span className="font-jetbrains text-gray-500">juuman</span></div>
+                        <p className="text-[10px] text-amber-800 pt-1 leading-tight">
+                          Tiếng Nhật nhóm 4 số 0 (万 - Vạn) làm 1 đơn vị, không dùng hàng nghìn như tiếng Việt.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="p-3 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
-                  <div className="flex justify-between items-center text-rose-700 font-semibold">
-                    <span>ゆき (Yuki - Âm ngắn 1 nhịp)</span>
-                    <span className="text-gray-500">Tuyết</span>
-                    <button onClick={() => speakJapanese('ゆき')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
-                  </div>
-                  <div className="border-t border-dashed border-gray-200 pt-2 flex justify-between items-center text-emerald-700 font-semibold">
-                    <span>ゆうき (Yūki - Dài 2 nhịp)</span>
-                    <span className="text-gray-500">Dũng khí</span>
-                    <button onClick={() => speakJapanese('ゆうき')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
-                  </div>
-                </div>
+                {/* Phần 3: Trợ từ đếm thông dụng */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-[var(--indigo-deep)] uppercase tracking-wider">
+                    3. Quy tắc Trợ từ đếm thông dụng (Biến âm & Trường hợp đặc biệt)
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    {/* Đếm Tuổi */}
+                    <div className="p-3.5 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
+                      <div className="font-bold text-[var(--indigo-deep)] flex justify-between items-center">
+                        <span>Đếm Tuổi (-歳 / さい - Sai)</span>
+                      </div>
+                      <div className="space-y-1 text-[11px] text-[var(--ink-soft)]">
+                        <div className="flex justify-between"><span>1 tuổi: いっさい (Issai)</span><span className="text-rose-600 font-bold">Biến âm</span></div>
+                        <div className="flex justify-between"><span>8 tuổi: はっさい (Hassai)</span><span className="text-rose-600 font-bold">Biến âm</span></div>
+                        <div className="flex justify-between"><span>10 tuổi: じゅっさい (Jussai)</span><span className="text-rose-600 font-bold">Biến âm</span></div>
+                        <div className="flex justify-between font-bold text-amber-700"><span>20 tuổi: はたち (Hatachi)</span><span>Đặc biệt</span></div>
+                      </div>
+                    </div>
 
-                <div className="p-3 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
-                  <div className="flex justify-between items-center text-rose-700 font-semibold">
-                    <span>とる (Toru - Âm ngắn 1 nhịp)</span>
-                    <span className="text-gray-500">Chụp / Lấy</span>
-                    <button onClick={() => speakJapanese('とる')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
-                  </div>
-                  <div className="border-t border-dashed border-gray-200 pt-2 flex justify-between items-center text-emerald-700 font-semibold">
-                    <span>とおる (Tōru - Dài 2 nhịp)</span>
-                    <span className="text-gray-500">Đi qua</span>
-                    <button onClick={() => speakJapanese('とおる')} className="text-[var(--indigo)]"><Volume2 className="w-4 h-4" /></button>
+                    {/* Đếm Giờ & Phút */}
+                    <div className="p-3.5 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
+                      <div className="font-bold text-[var(--indigo-deep)] flex justify-between items-center">
+                        <span>Đếm Giờ & Phút (-時 / じ & -分 / ふん)</span>
+                      </div>
+                      <div className="space-y-1 text-[11px] text-[var(--ink-soft)]">
+                        <div className="flex justify-between"><span>4 giờ: よじ (Yoji)</span><span className="text-rose-600 font-bold">Không đọc yonji</span></div>
+                        <div className="flex justify-between"><span>7 giờ: しちじ (Shichiji)</span><span className="text-rose-600 font-bold">Không đọc nanaji</span></div>
+                        <div className="flex justify-between"><span>9 giờ: くじ (Kuji)</span><span className="text-rose-600 font-bold">Không đọc kyuuji</span></div>
+                        <div className="flex justify-between text-emerald-700 font-semibold"><span>1,3,4,6,8,10 phút: Đọc là -pun (ぷん)</span><span>Biến âm</span></div>
+                      </div>
+                    </div>
+
+                    {/* Đếm Người */}
+                    <div className="p-3.5 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
+                      <div className="font-bold text-[var(--indigo-deep)] flex justify-between items-center">
+                        <span>Đếm Người (-人 / にん - Nin)</span>
+                      </div>
+                      <div className="space-y-1 text-[11px] text-[var(--ink-soft)]">
+                        <div className="flex justify-between font-bold text-amber-700"><span>1 người: ひとり (Hitori)</span><span>Đặc biệt</span></div>
+                        <div className="flex justify-between font-bold text-amber-700"><span>2 người: ふたり (Futari)</span><span>Đặc biệt</span></div>
+                        <div className="flex justify-between"><span>4 người: よんにん (Yonnin)</span><span className="text-rose-600 font-bold">Yonnin</span></div>
+                        <div className="flex justify-between"><span>Từ 3 người trở lên: Số + にん</span><span>Bình thường</span></div>
+                      </div>
+                    </div>
+
+                    {/* Đếm Đồ vật nhỏ */}
+                    <div className="p-3.5 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
+                      <div className="font-bold text-[var(--indigo-deep)] flex justify-between items-center">
+                        <span>Đếm Đồ vật nhỏ (-個 / こ - Ko)</span>
+                      </div>
+                      <div className="space-y-1 text-[11px] text-[var(--ink-soft)]">
+                        <div className="flex justify-between"><span>1 cái: いっこ (Ikko)</span><span className="text-rose-600 font-bold">Âm ngắt</span></div>
+                        <div className="flex justify-between"><span>6 cái: ろっこ (Rokko)</span><span className="text-rose-600 font-bold">Âm ngắt</span></div>
+                        <div className="flex justify-between"><span>8 cái: はっこ (Hakko)</span><span className="text-rose-600 font-bold">Âm ngắt</span></div>
+                        <div className="flex justify-between"><span>10 cái: じゅっこ (Jukko)</span><span className="text-rose-600 font-bold">Âm ngắt</span></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </section>
         )}
       </main>
