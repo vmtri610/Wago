@@ -40,8 +40,6 @@ create table if not exists public.words (
   jp text not null,
   romaji text not null,
   vi text not null,
-  srs_level integer default 0,
-  next_review_at timestamp with time zone default timezone('utc'::text, now()),
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
@@ -78,6 +76,8 @@ alter table public.profiles drop column if exists daily_goal cascade;
 
 alter table public.folders drop column if exists user_ids cascade;
 alter table public.words drop column if exists user_ids cascade;
+alter table public.words drop column if exists srs_level cascade;
+alter table public.words drop column if exists next_review_at cascade;
 
 -- -------------------------------------------------------------
 -- 7. THIẾT LẬP RLS POLICIES MỚI
@@ -158,4 +158,26 @@ create policy "Users can access owned reports"
   on public.word_reports for all 
   using (auth.uid() = user_id) 
   with check (auth.uid() = user_id);
+
+-- -------------------------------------------------------------
+-- 10. BẢNG USER_WORD_PROGRESS (TIẾN TRÌNH SRS CÁ NHÂN THEO USER)
+-- -------------------------------------------------------------
+create table if not exists public.user_word_progress (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade default auth.uid(),
+  word_id uuid references public.words(id) on delete cascade not null,
+  srs_level integer default 0 not null,
+  next_review_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  unique(user_id, word_id)
+);
+
+alter table public.user_word_progress enable row level security;
+
+drop policy if exists "Users can access their own srs progress" on public.user_word_progress;
+create policy "Users can access their own srs progress" 
+  on public.user_word_progress for all 
+  using (auth.uid() = user_id) 
+  with check (auth.uid() = user_id);
+
 

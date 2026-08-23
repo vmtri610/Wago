@@ -183,11 +183,37 @@ export default function Home() {
       }
 
       setFolders(fData || []);
-      setWords((wData || []).map((w: any) => ({
-        ...w,
-        srs_level: w.srs_level ?? 0,
-        next_review_at: w.next_review_at || null
-      })));
+
+      // Fetch user-specific SRS progress if logged in
+      let progressMap: Record<string, { srs_level: number; next_review_at: string | null }> = {};
+      if (user?.id) {
+        try {
+          const { data: pData } = await supabase
+            .from('user_word_progress')
+            .select('word_id, srs_level, next_review_at')
+            .eq('user_id', user.id);
+
+          if (pData) {
+            pData.forEach((p: any) => {
+              progressMap[p.word_id] = {
+                srs_level: p.srs_level,
+                next_review_at: p.next_review_at || null
+              };
+            });
+          }
+        } catch (pErr) {
+          console.warn('Không thể tải tiến trình SRS cá nhân:', pErr);
+        }
+      }
+
+      setWords((wData || []).map((w: any) => {
+        const prog = progressMap[w.id];
+        return {
+          ...w,
+          srs_level: prog ? prog.srs_level : (w.srs_level ?? 0),
+          next_review_at: prog ? prog.next_review_at : (w.next_review_at || null)
+        };
+      }));
       setSyncStatus({ mode: 'supabase', message: 'Supabase DB Live' });
 
       // Fetch pending reports
@@ -344,8 +370,6 @@ export default function Home() {
         romaji: newWord.romaji,
         vi: newWord.vi,
         folder_id: newWord.folder_id,
-        srs_level: 0,
-        next_review_at: newWord.next_review_at,
         ...(user ? { user_id: user.id } : {})
       }]);
     } catch (e) {
@@ -525,10 +549,15 @@ export default function Home() {
     setWords(updatedWords);
 
     try {
-      await supabase.from('words').update({
-        srs_level: newLevel,
-        next_review_at: nextReviewIso
-      }).eq('id', updatedWord.id);
+      if (user?.id) {
+        await supabase.from('user_word_progress').upsert({
+          user_id: user.id,
+          word_id: updatedWord.id,
+          srs_level: newLevel,
+          next_review_at: nextReviewIso,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id,word_id' });
+      }
     } catch (e) {
       console.error('Lỗi cập nhật SRS lên Supabase DB:', e);
     }
@@ -678,10 +707,15 @@ export default function Home() {
     setWords(updatedWords);
 
     try {
-      await supabase.from('words').update({
-        srs_level: newLevel,
-        next_review_at: nextReviewIso
-      }).eq('id', updatedWord.id);
+      if (user?.id) {
+        await supabase.from('user_word_progress').upsert({
+          user_id: user.id,
+          word_id: updatedWord.id,
+          srs_level: newLevel,
+          next_review_at: nextReviewIso,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id,word_id' });
+      }
     } catch (e) {
       console.error('Lỗi cập nhật SRS lên Supabase DB:', e);
     }
