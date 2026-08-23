@@ -10,7 +10,7 @@ import {
   BookOpen, Plus, List, Brain, Search, Trash2, Edit2, 
   Sparkles, CheckCircle2, AlertCircle, RefreshCw, FolderPlus, Check, X, RotateCcw,
   Trophy, ArrowRight, Volume2, VolumeX, Grid, Table, Menu, PanelLeftClose, PanelLeftOpen,
-  GraduationCap, Headphones, Type, Keyboard, CheckSquare, Layers, Clock, Flame, Zap, Share2
+  GraduationCap, Headphones, Type, Keyboard, CheckSquare, Layers, Clock, Flame, Zap, Share2, Flag
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
@@ -18,6 +18,8 @@ import UserMenu from '@/components/auth/UserMenu';
 import AuthLanding from '@/components/auth/AuthLanding';
 import UserProfileDropdown from '@/components/auth/UserProfileDropdown';
 import ShareFolderModal from '@/components/folder/ShareFolderModal';
+import ReportWordModal from '@/components/report/ReportWordModal';
+import ReportListModal from '@/components/report/ReportListModal';
 
 export interface Folder {
   id: string;
@@ -39,6 +41,18 @@ export interface Word {
   shared_with?: string[];
 }
 
+export interface WordReport {
+  id: string;
+  user_id?: string;
+  word_id: string;
+  word_jp: string;
+  word_romaji: string;
+  word_vi: string;
+  reason?: string;
+  status?: 'pending' | 'resolved';
+  created_at?: string;
+}
+
 // SRS Intervals in hours for Level 0..5
 const SRS_INTERVAL_HOURS = [0, 4, 24, 72, 168, 336];
 
@@ -53,9 +67,16 @@ export default function Home() {
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [sharingFolder, setSharingFolder] = useState<Folder | null>(null);
 
+  // Report State
+  const [reports, setReports] = useState<WordReport[]>([]);
+  const [reportingWord, setReportingWord] = useState<Word | null>(null);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportListModalOpen, setReportListModalOpen] = useState(false);
+
   // Navigation State
   const [activeTab, setActiveTab] = useState<'add' | 'list' | 'srs' | 'quiz' | 'kana' | 'theory'>('srs');
   const [theorySubTab, setTheorySubTab] = useState<'choon' | 'suuji'>('choon');
+  const [suujiTab, setSuujiTab] = useState<'basic' | 'combine' | 'counters'>('basic');
   const [words, setWords] = useState<Word[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [activeFolder, setActiveFolder] = useState<string>('all');
@@ -150,7 +171,7 @@ export default function Home() {
   };
 
   // -------------------------------------------------------------
-  // Load data DIRECTLY from Supabase Database (No LocalStorage)
+  // Load data DIRECTLY from Supabase Database (with local storage fallback for reports)
   // -------------------------------------------------------------
   const fetchData = async () => {
     try {
@@ -168,15 +189,94 @@ export default function Home() {
         next_review_at: w.next_review_at || null
       })));
       setSyncStatus({ mode: 'supabase', message: 'Supabase DB Live' });
+
+      // Fetch pending reports
+      try {
+        const { data: rData, error: rError } = await supabase
+          .from('word_reports')
+          .select('*')
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false });
+        if (!rError && rData) {
+          setReports(rData as WordReport[]);
+        } else {
+          const local = localStorage.getItem('wago_reports');
+          if (local) setReports(JSON.parse(local));
+        }
+      } catch (rErr) {
+        const local = localStorage.getItem('wago_reports');
+        if (local) setReports(JSON.parse(local));
+      }
     } catch (err: any) {
       console.error('Lỗi kết nối Supabase DB:', err?.message);
       setSyncStatus({ mode: 'local', message: 'Lỗi Supabase DB' });
+      const local = localStorage.getItem('wago_reports');
+      if (local) setReports(JSON.parse(local));
     }
   };
 
   useEffect(() => {
     fetchData();
   }, [user]);
+
+  // Report Handling Functions
+  const handleSubmitReport = async (word: Word, reason: string) => {
+    const newReport: WordReport = {
+      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+      user_id: user?.id,
+      word_id: word.id,
+      word_jp: word.jp,
+      word_romaji: word.romaji,
+      word_vi: word.vi,
+      reason,
+      status: 'pending',
+      created_at: new Date().toISOString(),
+    };
+
+    const updated = [newReport, ...reports];
+    setReports(updated);
+    localStorage.setItem('wago_reports', JSON.stringify(updated));
+
+    try {
+      await supabase.from('word_reports').insert({
+        word_id: word.id,
+        word_jp: word.jp,
+        word_romaji: word.romaji,
+        word_vi: word.vi,
+        reason,
+        status: 'pending',
+      });
+    } catch (err) {
+      console.error('Lỗi gửi báo cáo lên Supabase DB:', err);
+    }
+  };
+
+  const handleResolveReport = async (reportId: string) => {
+    const updated = reports.filter(r => r.id !== reportId);
+    setReports(updated);
+    localStorage.setItem('wago_reports', JSON.stringify(updated));
+
+    try {
+      await supabase.from('word_reports').update({ status: 'resolved' }).eq('id', reportId);
+    } catch (err) {
+      console.error('Lỗi giải quyết báo cáo trên Supabase DB:', err);
+    }
+  };
+
+  const handleUpdateWordFromReport = async (updatedWord: Word) => {
+    const updatedWords = words.map(w => w.id === updatedWord.id ? updatedWord : w);
+    setWords(updatedWords);
+
+    try {
+      await supabase.from('words').update({
+        jp: updatedWord.jp,
+        romaji: updatedWord.romaji,
+        vi: updatedWord.vi,
+      }).eq('id', updatedWord.id);
+    } catch (e) {
+      console.error('Lỗi cập nhật từ vựng từ báo cáo:', e);
+    }
+  };
 
   // -------------------------------------------------------------
   // Add Word & Auto Lookup
@@ -1242,18 +1342,29 @@ export default function Home() {
                   </button>
                 </div>
 
-                <button
-                  onClick={() => setAutoSpeak(!autoSpeak)}
-                  className={`px-3 py-2 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1.5 transition shrink-0 ${
-                    autoSpeak
-                      ? 'bg-indigo-50 border-[var(--indigo)] text-[var(--indigo)]'
-                      : 'bg-white border-gray-300 text-gray-400'
-                  }`}
-                  title="Tự động đọc phát âm từ tiếng Nhật khi mở thẻ mới"
-                >
-                  {autoSpeak ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-                  Tự động đọc
-                </button>
+                <div className="flex gap-1.5 shrink-0">
+                  <button
+                    onClick={() => setAutoSpeak(!autoSpeak)}
+                    className={`px-3 py-2 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1.5 transition ${
+                      autoSpeak
+                        ? 'bg-indigo-50 border-[var(--indigo)] text-[var(--indigo)]'
+                        : 'bg-white border-gray-300 text-gray-400'
+                    }`}
+                    title="Tự động đọc phát âm từ tiếng Nhật khi mở thẻ mới"
+                  >
+                    {autoSpeak ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+                    Tự động đọc
+                  </button>
+
+                  <button
+                    onClick={() => setReportListModalOpen(true)}
+                    className="px-3 py-2 rounded-lg text-xs font-semibold border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 transition flex items-center justify-center gap-1.5 shrink-0"
+                    title="Xem lại các từ bị báo cáo lỗi nhập liệu"
+                  >
+                    <Flag className="w-3.5 h-3.5 text-rose-600" />
+                    Báo cáo lỗi {reports.length > 0 && <span className="px-1.5 py-0.2 bg-rose-600 text-white text-[10px] font-bold rounded-full">{reports.length}</span>}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1279,7 +1390,17 @@ export default function Home() {
                 <>
                   <div className="flex justify-between items-center text-xs text-[var(--ink-soft)] font-semibold border-b border-[var(--card-border)] pb-3">
                     <span>Từ cần ôn: {srsCurrentIndex} / {srsTotalCount}</span>
-                    <div>{renderSrsChip(currentSrsCard.srs_level, isWordSrsDue(currentSrsCard))}</div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => { setReportingWord(currentSrsCard); setReportModalOpen(true); }}
+                        className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition flex items-center gap-1"
+                        title="Báo cáo lỗi nhập liệu từ này"
+                      >
+                        <Flag className="w-4 h-4" />
+                        <span className="text-[10px] hidden sm:inline font-medium">Báo lỗi</span>
+                      </button>
+                      {renderSrsChip(currentSrsCard.srs_level, isWordSrsDue(currentSrsCard))}
+                    </div>
                   </div>
 
                   {srsQuizMode === 'jp2romaji' && (
@@ -1528,22 +1649,33 @@ export default function Home() {
                 })}
               </div>
 
-              {/* Progress & Speaker Toggle */}
-              <div className="flex items-center justify-between pt-2">
-                {quizMode !== 'match' && (
+              {/* Progress & Speaker Toggle & Report List Button */}
+              <div className="flex items-center justify-between pt-2 gap-2">
+                <div className="flex items-center gap-2">
+                  {quizMode !== 'match' && (
+                    <button
+                      onClick={() => setAutoSpeak(!autoSpeak)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold border flex items-center gap-1.5 transition ${
+                        autoSpeak
+                          ? 'bg-indigo-50 border-[var(--indigo)] text-[var(--indigo)]'
+                          : 'bg-white border-gray-300 text-gray-400'
+                      }`}
+                      title="Tự động đọc phát âm từ tiếng Nhật khi mở thẻ mới"
+                    >
+                      {autoSpeak ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+                      Tự động đọc
+                    </button>
+                  )}
+
                   <button
-                    onClick={() => setAutoSpeak(!autoSpeak)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border flex items-center gap-1.5 transition ${
-                      autoSpeak
-                        ? 'bg-indigo-50 border-[var(--indigo)] text-[var(--indigo)]'
-                        : 'bg-white border-gray-300 text-gray-400'
-                    }`}
-                    title="Tự động đọc phát âm từ tiếng Nhật khi mở thẻ mới"
+                    onClick={() => setReportListModalOpen(true)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 transition flex items-center gap-1.5"
+                    title="Xem lại các từ bị báo cáo lỗi nhập liệu"
                   >
-                    {autoSpeak ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-                    Tự động đọc
+                    <Flag className="w-3.5 h-3.5 text-rose-600" />
+                    Báo cáo lỗi {reports.length > 0 && <span className="px-1.5 py-0.2 bg-rose-600 text-white text-[10px] font-bold rounded-full">{reports.length}</span>}
                   </button>
-                )}
+                </div>
 
                 {!quizCompletedDeck && quizTotalCount > 0 && (
                   <div className="px-3 py-1.5 bg-indigo-50 border border-indigo-200 text-indigo-800 rounded-lg text-xs font-semibold flex items-center gap-1.5 shrink-0 ml-auto">
@@ -1575,9 +1707,19 @@ export default function Home() {
                   </div>
                 ) : currentQuizCard ? (
                   <>
-                    {/* SRS Level Chip Indicator */}
-                    <div className="flex justify-center mb-1">
-                      {renderSrsChip(currentQuizCard.srs_level, isWordSrsDue(currentQuizCard))}
+                    {/* SRS Level Chip & Report Icon */}
+                    <div className="flex justify-between items-center mb-2 pb-2 border-b border-[var(--card-border)]/50">
+                      <button
+                        onClick={() => { setReportingWord(currentQuizCard); setReportModalOpen(true); }}
+                        className="p-1 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition flex items-center gap-1 text-xs font-semibold"
+                        title="Báo cáo lỗi nhập liệu từ này"
+                      >
+                        <Flag className="w-4 h-4" />
+                        <span className="text-[11px] font-medium text-gray-500 hover:text-rose-600">Báo lỗi</span>
+                      </button>
+                      <div>
+                        {renderSrsChip(currentQuizCard.srs_level, isWordSrsDue(currentQuizCard))}
+                      </div>
                     </div>
 
                     {quizMode === 'jp2romaji' ? (
@@ -2201,161 +2343,390 @@ export default function Home() {
               </div>
             )}
 
-            {/* SUBTAB 2: SỐ ĐẾM (ĐẦY ĐỦ CÁC QUY TẮC) */}
+            {/* SUBTAB 2: SỐ ĐẾM (GỌN GÀNG - DỄ NHÌN) */}
             {theorySubTab === 'suuji' && (
-              <div className="space-y-6 animate-in fade-in duration-200">
-                <div className="space-y-1">
-                  <h3 className="text-base font-bold text-[var(--indigo-deep)]">Quy tắc Số đếm & Trợ từ đếm (数字 - Sūji)</h3>
-                  <p className="text-xs text-[var(--ink-soft)]">
-                    Tổng hợp số đếm cơ bản, các đơn vị hàng chục/trăm/nghìn/vạn và các quy tắc trợ từ đếm thông dụng trong tiếng Nhật.
-                  </p>
-                </div>
+              <div className="space-y-4 animate-in fade-in duration-200">
+                {/* Header & Sub-pills */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-[#FFFDF9] p-4 border border-[var(--card-border)] rounded-2xl shadow-xs">
+                  <div>
+                    <h3 className="text-base font-bold text-[var(--indigo-deep)]">Quy tắc Số đếm & Trợ từ đếm (数字 - Sūji)</h3>
+                    <p className="text-xs text-[var(--ink-soft)] font-medium">Chọn chủ đề bên dưới để xem từng phần rành mạch, không bị ngợp:</p>
+                  </div>
 
-                {/* Phần 1: Số đếm cơ bản 1-10 */}
-                <div className="space-y-3">
-                  <h4 className="text-xs font-bold text-[var(--indigo-deep)] uppercase tracking-wider">
-                    1. Số đếm cơ bản (1 đến 10)
-                  </h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
-                    {[
-                      { num: '1', jp: 'いち', romaji: 'ichi' },
-                      { num: '2', jp: 'に', romaji: 'ni' },
-                      { num: '3', jp: 'さん', romaji: 'san' },
-                      { num: '4', jp: 'よん / し', romaji: 'yon / shi' },
-                      { num: '5', jp: 'ご', romaji: 'go' },
-                      { num: '6', jp: 'ろく', romaji: 'roku' },
-                      { num: '7', jp: 'なな / しち', romaji: 'nana / shichi' },
-                      { num: '8', jp: 'はち', romaji: 'hachi' },
-                      { num: '9', jp: 'きゅう / く', romaji: 'kyuu / ku' },
-                      { num: '10', jp: 'じゅう', romaji: 'juu' },
-                    ].map(item => (
-                      <div key={item.num} className="p-2.5 bg-white border border-[var(--card-border)] rounded-xl text-center space-y-0.5 shadow-2xs hover:border-[var(--indigo)] transition">
-                        <div className="text-[11px] font-bold text-amber-700">Số {item.num}</div>
-                        <div className="text-base font-jp font-bold text-[var(--indigo-deep)]">{item.jp}</div>
-                        <div className="text-[10px] font-jetbrains text-gray-500">{item.romaji}</div>
-                        <button onClick={() => speakJapanese(item.jp.split('/')[0].trim())} className="p-0.5 text-[var(--indigo)] hover:bg-indigo-50 rounded-full mt-1">
-                          <Volume2 className="w-3.5 h-3.5 mx-auto" />
-                        </button>
-                      </div>
-                    ))}
+                  <div className="flex gap-1 bg-[#EEF2F7] p-1 rounded-xl shrink-0 w-full sm:w-auto">
+                    <button
+                      onClick={() => setSuujiTab('basic')}
+                      className={`flex-1 sm:flex-none px-3 py-1.5 text-xs font-bold rounded-lg transition ${
+                        suujiTab === 'basic'
+                          ? 'bg-[var(--indigo)] text-white shadow-2xs'
+                          : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'
+                      }`}
+                    >
+                      Số 1 ~ 10
+                    </button>
+                    <button
+                      onClick={() => setSuujiTab('combine')}
+                      className={`flex-1 sm:flex-none px-3 py-1.5 text-xs font-bold rounded-lg transition ${
+                        suujiTab === 'combine'
+                          ? 'bg-[var(--indigo)] text-white shadow-2xs'
+                          : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'
+                      }`}
+                    >
+                      Ghép số lớn
+                    </button>
+                    <button
+                      onClick={() => setSuujiTab('counters')}
+                      className={`flex-1 sm:flex-none px-3 py-1.5 text-xs font-bold rounded-lg transition ${
+                        suujiTab === 'counters'
+                          ? 'bg-[var(--indigo)] text-white shadow-2xs'
+                          : 'text-[var(--ink-soft)] hover:text-[var(--indigo)]'
+                      }`}
+                    >
+                      Trợ từ đếm
+                    </button>
                   </div>
                 </div>
 
-                {/* Phần 2: Đơn vị Hàng chục, Trăm, Nghìn, Vạn */}
-                <div className="space-y-3">
-                  <h4 className="text-xs font-bold text-[var(--indigo-deep)] uppercase tracking-wider">
-                    2. Hàng Trăm, Nghìn & Vạn (Chú ý các âm đặc biệt)
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                    {/* Hàng Trăm */}
-                    <div className="p-3.5 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
-                      <div className="font-bold text-[var(--indigo-deep)] border-b border-gray-100 pb-1.5 flex justify-between items-center">
-                        <span>Hàng Trăm (百 - Hyaku)</span>
-                        <span className="text-[10px] text-amber-700 font-normal">100 - 900</span>
-                      </div>
-                      <div className="space-y-1 text-[11px]">
-                        <div className="flex justify-between"><span>100: ひゃく</span><span className="font-jetbrains text-gray-500">hyaku</span></div>
-                        <div className="flex justify-between text-rose-700 font-bold"><span>300: さんびゃく</span><span className="font-jetbrains">sambyaku</span></div>
-                        <div className="flex justify-between text-rose-700 font-bold"><span>600: ろっぴゃく</span><span className="font-jetbrains">roppyaku</span></div>
-                        <div className="flex justify-between text-rose-700 font-bold"><span>800: はっぴゃく</span><span className="font-jetbrains">happyaku</span></div>
-                      </div>
+                {/* TAB 1: SỐ ĐẾM CƠ BẢN 1 - 10 */}
+                {suujiTab === 'basic' && (
+                  <div className="space-y-3 animate-in fade-in duration-150">
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                      {[
+                        { num: '1', jp: 'いち', romaji: 'ichi' },
+                        { num: '2', jp: 'に', romaji: 'ni' },
+                        { num: '3', jp: 'さん', romaji: 'san' },
+                        { num: '4', jp: 'よん / し', romaji: 'yon / shi' },
+                        { num: '5', jp: 'ご', romaji: 'go' },
+                        { num: '6', jp: 'ろく', romaji: 'roku' },
+                        { num: '7', jp: 'なな / しち', romaji: 'nana / shichi' },
+                        { num: '8', jp: 'はち', romaji: 'hachi' },
+                        { num: '9', jp: 'きゅう / く', romaji: 'kyuu / ku' },
+                        { num: '10', jp: 'じゅう', romaji: 'juu' },
+                      ].map(item => (
+                        <div key={item.num} className="p-3 bg-white border border-[var(--card-border)] rounded-2xl text-center space-y-1 shadow-2xs hover:border-[var(--indigo)] transition">
+                          <div className="text-[11px] font-bold text-amber-700">Số {item.num}</div>
+                          <div className="text-lg font-jp font-bold text-[var(--indigo-deep)]">{item.jp}</div>
+                          <div className="text-[11px] font-jetbrains text-gray-500">{item.romaji}</div>
+                          <button onClick={() => speakJapanese(item.jp.split('/')[0].trim())} className="p-1 text-[var(--indigo)] hover:bg-indigo-50 rounded-full mt-1">
+                            <Volume2 className="w-4 h-4 mx-auto" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB 2: CÁCH GHÉP SỐ LỚN (11 ~ VẠN) */}
+                {suujiTab === 'combine' && (
+                  <div className="space-y-3 animate-in fade-in duration-150 text-xs">
+                    <div className="p-3 bg-indigo-50/70 border border-indigo-200 rounded-xl text-indigo-900 font-medium">
+                      💡 <strong>Công thức ghép chung:</strong> <code className="bg-white px-2 py-0.5 rounded border border-indigo-200 font-bold text-[var(--indigo-deep)]">[Số] + [Đơn vị hàng] + [Số tiếp theo]</code>
                     </div>
 
-                    {/* Hàng Nghìn */}
-                    <div className="p-3.5 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
-                      <div className="font-bold text-[var(--indigo-deep)] border-b border-gray-100 pb-1.5 flex justify-between items-center">
-                        <span>Hàng Nghìn (千 - Sen)</span>
-                        <span className="text-[10px] text-amber-700 font-normal">1.000 - 9.000</span>
+                    <div className="grid grid-cols-1 gap-3">
+                      {/* Hàng chục */}
+                      <div className="p-4 bg-white border border-[var(--card-border)] rounded-2xl space-y-2 shadow-2xs">
+                        <div className="font-bold text-sm text-[var(--indigo-deep)] border-b pb-1.5 flex justify-between items-center">
+                          <span>Hàng chục (11 ~ 99)</span>
+                          <span className="text-xs font-jetbrains font-normal text-amber-700">じゅう (juu)</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[var(--ink-soft)] pt-1">
+                          <div className="space-y-1">
+                            <div className="flex justify-between items-center"><span>• 15 (10 + 5):</span> <div><strong className="font-jp text-sm text-[var(--ink)]">じゅうご</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (juu-go)</span></div></div>
+                            <div className="flex justify-between items-center"><span>• 23 (2x10 + 3):</span> <div><strong className="font-jp text-sm text-[var(--ink)]">にじゅうさん</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (ni-juu-san)</span></div></div>
+                          </div>
+                          <div className="space-y-1 sm:border-l sm:pl-3 border-gray-100">
+                            <div className="flex justify-between items-center"><span>• 47 (4x10 + 7):</span> <div><strong className="font-jp text-sm text-[var(--ink)]">よんじゅうなな</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (yon-juu-nana)</span></div></div>
+                            <div className="flex justify-between items-center"><span>• 99 (9x10 + 9):</span> <div><strong className="font-jp text-sm text-[var(--ink)]">きゅうじゅうきゅう</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (kyuu-juu-kyuu)</span></div></div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="space-y-1 text-[11px]">
-                        <div className="flex justify-between"><span>1.000: せん</span><span className="font-jetbrains text-gray-500">sen</span></div>
-                        <div className="flex justify-between text-rose-700 font-bold"><span>3.000: さんぜん</span><span className="font-jetbrains">sanzen</span></div>
-                        <div className="flex justify-between text-rose-700 font-bold"><span>8.000: はっせん</span><span className="font-jetbrains">hassen</span></div>
-                      </div>
-                    </div>
 
-                    {/* Hàng Vạn */}
-                    <div className="p-3.5 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
-                      <div className="font-bold text-[var(--indigo-deep)] border-b border-gray-100 pb-1.5 flex justify-between items-center">
-                        <span>Hàng Vạn (万 - Man)</span>
-                        <span className="text-[10px] text-amber-700 font-normal">10.000 (4 số 0)</span>
+                      {/* Hàng trăm */}
+                      <div className="p-4 bg-white border border-[var(--card-border)] rounded-2xl space-y-2 shadow-2xs">
+                        <div className="font-bold text-sm text-[var(--indigo-deep)] border-b pb-1.5 flex justify-between items-center">
+                          <span>Hàng trăm (100 ~ 999)</span>
+                          <span className="text-xs font-jetbrains font-normal text-amber-700">ひゃく (hyaku)</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[var(--ink-soft)] pt-1">
+                          {/* Trái: Đọc bình thường */}
+                          <div className="space-y-1.5">
+                            <div className="text-emerald-700 font-bold text-[11px] border-b border-emerald-100 pb-1">• Đọc bình thường:</div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between items-center"><span>• 200:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">にひゃく</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (ni-hyaku)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 152:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">ひゃくごじゅうに</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (hyaku-go-juu-ni)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 425:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">よんひゃくにじゅうご</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (yon-hyaku-ni-juu-go)</span></div></div>
+                            </div>
+                          </div>
+
+                          {/* Phải: Biến âm */}
+                          <div className="space-y-1.5 sm:border-l sm:pl-3 border-gray-100">
+                            <div className="text-rose-700 font-bold text-[11px] border-b border-rose-100 pb-1">• Biến âm:</div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between items-center"><span>• 300:</span> <div><strong className="font-jp text-sm text-rose-900">さんびゃく</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (sam-byaku)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 600:</span> <div><strong className="font-jp text-sm text-rose-900">ろっぴゃく</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (ro-ppyaku)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 800:</span> <div><strong className="font-jp text-sm text-rose-900">はっぴゃく</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (ha-ppyaku)</span></div></div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="space-y-1 text-[11px]">
-                        <div className="flex justify-between"><span>10.000: いちまん</span><span className="font-jetbrains text-gray-500">ichiman</span></div>
-                        <div className="flex justify-between"><span>100.000: じゅうまん</span><span className="font-jetbrains text-gray-500">juuman</span></div>
-                        <p className="text-[10px] text-amber-800 pt-1 leading-tight">
-                          Tiếng Nhật nhóm 4 số 0 (万 - Vạn) làm 1 đơn vị, không dùng hàng nghìn như tiếng Việt.
-                        </p>
+
+                      {/* Hàng nghìn */}
+                      <div className="p-4 bg-white border border-[var(--card-border)] rounded-2xl space-y-2 shadow-2xs">
+                        <div className="font-bold text-sm text-[var(--indigo-deep)] border-b pb-1.5 flex justify-between items-center">
+                          <span>Hàng nghìn (1.000 ~ 9.999)</span>
+                          <span className="text-xs font-jetbrains font-normal text-amber-700">せん (sen)</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[var(--ink-soft)] pt-1">
+                          {/* Trái: Đọc bình thường */}
+                          <div className="space-y-1.5">
+                            <div className="text-emerald-700 font-bold text-[11px] border-b border-emerald-100 pb-1">• Đọc bình thường:</div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between items-center"><span>• 2000:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">にせん</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (ni-sen)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 2026:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">にせんにじゅうろく</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (ni-sen-ni-juu-roku)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 1995:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">せんきゅうひゃくきゅうじゅうご</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (sen-kyuu-hyaku-kyuu-juu-go)</span></div></div>
+                            </div>
+                          </div>
+
+                          {/* Phải: Biến âm */}
+                          <div className="space-y-1.5 sm:border-l sm:pl-3 border-gray-100">
+                            <div className="text-rose-700 font-bold text-[11px] border-b border-rose-100 pb-1">• Biến âm:</div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between items-center"><span>• 3000:</span> <div><strong className="font-jp text-sm text-rose-900">さんぜん</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (san-zen)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 8000:</span> <div><strong className="font-jp text-sm text-rose-900">はっせん</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (has-sen)</span></div></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Hàng vạn */}
+                      <div className="p-4 bg-white border border-[var(--card-border)] rounded-2xl space-y-2 shadow-2xs">
+                        <div className="font-bold text-sm text-[var(--indigo-deep)] border-b pb-1.5 flex justify-between items-center">
+                          <span>Hàng vạn (10.000+)</span>
+                          <span className="text-xs font-jetbrains font-normal text-amber-700">万 (まん - man)</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[var(--ink-soft)] pt-1">
+                          <div className="space-y-1">
+                            <div className="flex justify-between items-center"><span>• 10.000 (1 Vạn):</span> <div><strong className="font-jp text-sm text-[var(--ink)]">いちまん</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (ichi-man)</span></div></div>
+                            <div className="flex justify-between items-center"><span>• 25.000 (2 Vạn 5k):</span> <div><strong className="font-jp text-sm text-[var(--ink)]">にまんごせん</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (ni-man-go-sen)</span></div></div>
+                          </div>
+                          <div className="space-y-1 sm:border-l sm:pl-3 border-gray-100">
+                            <div className="flex justify-between items-center"><span>• 100.000 (10 Vạn):</span> <div><strong className="font-jp text-sm text-[var(--ink)]">じゅうまん</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (juu-man)</span></div></div>
+                            <div className="flex justify-between items-center"><span>• 1.000.000 (100 Vạn):</span> <div><strong className="font-jp text-sm text-[var(--ink)]">ひゃくまん</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (hyaku-man)</span></div></div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
 
-                {/* Phần 3: Trợ từ đếm thông dụng */}
-                <div className="space-y-3">
-                  <h4 className="text-xs font-bold text-[var(--indigo-deep)] uppercase tracking-wider">
-                    3. Quy tắc Trợ từ đếm thông dụng (Biến âm & Trường hợp đặc biệt)
-                  </h4>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                    {/* Đếm Tuổi */}
-                    <div className="p-3.5 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
-                      <div className="font-bold text-[var(--indigo-deep)] flex justify-between items-center">
-                        <span>Đếm Tuổi (-歳 / さい - Sai)</span>
-                      </div>
-                      <div className="space-y-1 text-[11px] text-[var(--ink-soft)]">
-                        <div className="flex justify-between"><span>1 tuổi: いっさい (Issai)</span><span className="text-rose-600 font-bold">Biến âm</span></div>
-                        <div className="flex justify-between"><span>8 tuổi: はっさい (Hassai)</span><span className="text-rose-600 font-bold">Biến âm</span></div>
-                        <div className="flex justify-between"><span>10 tuổi: じゅっさい (Jussai)</span><span className="text-rose-600 font-bold">Biến âm</span></div>
-                        <div className="flex justify-between font-bold text-amber-700"><span>20 tuổi: はたち (Hatachi)</span><span>Đặc biệt</span></div>
-                      </div>
+                {/* TAB 3: TRỢ TỪ ĐẾM THÔNG DỤNG (KEY-VALUE ALIGNED ROW LAYOUT) */}
+                {suujiTab === 'counters' && (
+                  <div className="space-y-3 animate-in fade-in duration-150 text-xs">
+                    <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl text-emerald-900 font-medium">
+                      💡 <strong>Quy tắc ghép đếm chuẩn:</strong> Cột Trái là cách đọc ghép trực tiếp <code className="bg-white px-2 py-0.5 rounded border border-emerald-300 font-bold text-emerald-800">Số cơ bản + Trợ từ</code>. Cột Phải ghi nhận các trường hợp biến âm / đặc biệt.
                     </div>
 
-                    {/* Đếm Giờ & Phút */}
-                    <div className="p-3.5 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
-                      <div className="font-bold text-[var(--indigo-deep)] flex justify-between items-center">
-                        <span>Đếm Giờ & Phút (-時 / じ & -分 / ふん)</span>
-                      </div>
-                      <div className="space-y-1 text-[11px] text-[var(--ink-soft)]">
-                        <div className="flex justify-between"><span>4 giờ: よじ (Yoji)</span><span className="text-rose-600 font-bold">Không đọc yonji</span></div>
-                        <div className="flex justify-between"><span>7 giờ: しちじ (Shichiji)</span><span className="text-rose-600 font-bold">Không đọc nanaji</span></div>
-                        <div className="flex justify-between"><span>9 giờ: くじ (Kuji)</span><span className="text-rose-600 font-bold">Không đọc kyuuji</span></div>
-                        <div className="flex justify-between text-emerald-700 font-semibold"><span>1,3,4,6,8,10 phút: Đọc là -pun (ぷん)</span><span>Biến âm</span></div>
-                      </div>
-                    </div>
+                    <div className="grid grid-cols-1 gap-3">
+                      {/* Đếm Tuổi */}
+                      <div className="p-4 bg-white border border-[var(--card-border)] rounded-2xl space-y-2 shadow-2xs">
+                        <div className="font-bold text-sm text-[var(--indigo-deep)] border-b pb-1.5 flex justify-between items-center">
+                          <span>1. Đếm Tuổi (-歳 / さい)</span>
+                          <span className="text-xs font-jetbrains font-semibold text-[var(--indigo)]">sai</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[var(--ink-soft)] pt-1">
+                          {/* Trái: Đếm bình thường */}
+                          <div className="space-y-1.5">
+                            <div className="text-emerald-700 font-bold text-[11px] border-b border-emerald-100 pb-1">• Đếm bình thường:</div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between items-center"><span>• 2歳:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">にさい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (ni-sai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 3歳:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">さんさい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (san-sai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 4歳:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">よんさい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (yon-sai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 5歳:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">ごさい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (go-sai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 6歳:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">ろくさい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (roku-sai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 7歳:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">ななさい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (nana-sai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 9歳:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">きゅうさい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (kyuu-sai)</span></div></div>
+                            </div>
+                          </div>
 
-                    {/* Đếm Người */}
-                    <div className="p-3.5 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
-                      <div className="font-bold text-[var(--indigo-deep)] flex justify-between items-center">
-                        <span>Đếm Người (-人 / にん - Nin)</span>
+                          {/* Phải: Biến âm & Đặc biệt */}
+                          <div className="space-y-1.5 sm:border-l sm:pl-3 border-gray-100">
+                            <div className="text-rose-700 font-bold text-[11px] border-b border-rose-100 pb-1">• Biến âm & Đặc biệt:</div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between items-center"><span>• 1歳:</span> <div><strong className="font-jp text-sm text-rose-900">いっさい</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (is-sai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 8歳:</span> <div><strong className="font-jp text-sm text-rose-900">はっさい</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (has-sai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 10歳:</span> <div><strong className="font-jp text-sm text-rose-900">じゅっさい</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (jus-sai)</span></div></div>
+                              <div className="flex justify-between items-center pt-1 border-t border-dashed"><span>• 20歳 (Đặc biệt):</span> <div><strong className="font-jp text-sm text-amber-900">はたち</strong> <span className="font-jetbrains text-amber-700 text-xs font-semibold"> (hatachi)</span></div></div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="space-y-1 text-[11px] text-[var(--ink-soft)]">
-                        <div className="flex justify-between font-bold text-amber-700"><span>1 người: ひとり (Hitori)</span><span>Đặc biệt</span></div>
-                        <div className="flex justify-between font-bold text-amber-700"><span>2 người: ふたり (Futari)</span><span>Đặc biệt</span></div>
-                        <div className="flex justify-between"><span>4 người: よんにん (Yonnin)</span><span className="text-rose-600 font-bold">Yonnin</span></div>
-                        <div className="flex justify-between"><span>Từ 3 người trở lên: Số + にん</span><span>Bình thường</span></div>
-                      </div>
-                    </div>
 
-                    {/* Đếm Đồ vật nhỏ */}
-                    <div className="p-3.5 bg-white border border-[var(--card-border)] rounded-xl space-y-2">
-                      <div className="font-bold text-[var(--indigo-deep)] flex justify-between items-center">
-                        <span>Đếm Đồ vật nhỏ (-個 / こ - Ko)</span>
+                      {/* Đếm Người */}
+                      <div className="p-4 bg-white border border-[var(--card-border)] rounded-2xl space-y-2 shadow-2xs">
+                        <div className="font-bold text-sm text-[var(--indigo-deep)] border-b pb-1.5 flex justify-between items-center">
+                          <span>2. Đếm Người (-人 / にん)</span>
+                          <span className="text-xs font-jetbrains font-semibold text-[var(--indigo)]">nin</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[var(--ink-soft)] pt-1">
+                          {/* Trái: Đếm bình thường */}
+                          <div className="space-y-1.5">
+                            <div className="text-emerald-700 font-bold text-[11px] border-b border-emerald-100 pb-1">• Đếm bình thường (từ 3 người):</div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between items-center"><span>• 3人:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">場所にん $\rightarrow$ さんにん</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (san-nin)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 4人:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">よんにん</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (yon-nin)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 5人:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">ごにん</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (go-nin)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 6人:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">ろくにん</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (roku-nin)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 7人:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">ななにん</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (nana-nin)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 8人:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">はちにん</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (hachi-nin)</span></div></div>
+                            </div>
+                          </div>
+
+                          {/* Phải: Đặc biệt */}
+                          <div className="space-y-1.5 sm:border-l sm:pl-3 border-gray-100">
+                            <div className="text-amber-800 font-bold text-[11px] border-b border-amber-100 pb-1">• Đặc biệt (Thuần Nhật):</div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between items-center"><span>• 1 người:</span> <div><strong className="font-jp text-sm text-amber-900">ひとり</strong> <span className="font-jetbrains text-amber-700 text-xs font-semibold"> (hitori)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 2 người:</span> <div><strong className="font-jp text-sm text-amber-900">ふたり</strong> <span className="font-jetbrains text-amber-700 text-xs font-semibold"> (futari)</span></div></div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="space-y-1 text-[11px] text-[var(--ink-soft)]">
-                        <div className="flex justify-between"><span>1 cái: いっこ (Ikko)</span><span className="text-rose-600 font-bold">Âm ngắt</span></div>
-                        <div className="flex justify-between"><span>6 cái: ろっこ (Rokko)</span><span className="text-rose-600 font-bold">Âm ngắt</span></div>
-                        <div className="flex justify-between"><span>8 cái: はっこ (Hakko)</span><span className="text-rose-600 font-bold">Âm ngắt</span></div>
-                        <div className="flex justify-between"><span>10 cái: じゅっこ (Jukko)</span><span className="text-rose-600 font-bold">Âm ngắt</span></div>
+
+                      {/* Đếm Giờ & Phút */}
+                      <div className="p-4 bg-white border border-[var(--card-border)] rounded-2xl space-y-2 shadow-2xs">
+                        <div className="font-bold text-sm text-[var(--indigo-deep)] border-b pb-1.5 flex justify-between items-center">
+                          <span>3. Đếm Giờ & Phút (-時 & -分)</span>
+                          <span className="text-xs font-jetbrains font-semibold text-[var(--indigo)]">ji / fun-pun</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[var(--ink-soft)] pt-1">
+                          {/* Trái: Tiêu chuẩn */}
+                          <div className="space-y-2">
+                            <div className="space-y-1">
+                              <div className="text-emerald-700 font-bold text-[11px] border-b border-emerald-100 pb-1">• Giờ bình thường (-時 / ji):</div>
+                              <div className="flex justify-between items-center"><span>• 1時:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">いちじ</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (ichi-ji)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 2時:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">にじ</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (ni-ji)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 3時:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">さんじ</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (san-ji)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 5時:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">ごじ</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (go-ji)</span></div></div>
+                            </div>
+                            <div className="space-y-1 pt-1 border-t border-dashed">
+                              <div className="text-emerald-700 font-bold text-[11px] border-b border-emerald-100 pb-1">• Phút bình thường (-fun):</div>
+                              <div className="flex justify-between items-center"><span>• 2分:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">にふん</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (ni-fun)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 5分:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">ごふん</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (go-fun)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 7分:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">ななふん</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (nana-fun)</span></div></div>
+                            </div>
+                          </div>
+
+                          {/* Phải: Chú ý & Biến âm */}
+                          <div className="space-y-2 sm:border-l sm:pl-3 border-gray-100">
+                            <div className="space-y-1">
+                              <div className="text-rose-700 font-bold text-[11px] border-b border-rose-100 pb-1">• Giờ chú ý:</div>
+                              <div className="flex justify-between items-center"><span>• 4時:</span> <div><strong className="font-jp text-sm text-rose-900">よじ</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (yo-ji)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 7時:</span> <div><strong className="font-jp text-sm text-rose-900">しちじ</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (shichi-ji)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 9時:</span> <div><strong className="font-jp text-sm text-rose-900">くじ</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (ku-ji)</span></div></div>
+                            </div>
+                            <div className="space-y-1 pt-1 border-t border-dashed">
+                              <div className="text-rose-700 font-bold text-[11px] border-b border-rose-100 pb-1">• Phút biến âm (-pun):</div>
+                              <div className="flex justify-between items-center"><span>• 1分:</span> <div><strong className="font-jp text-sm text-rose-900">いっぷん</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (ip-pun)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 3分:</span> <div><strong className="font-jp text-sm text-rose-900">さんぷん</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (sam-pun)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 6分:</span> <div><strong className="font-jp text-sm text-rose-900">ろっぷん</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (rop-pun)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 8分:</span> <div><strong className="font-jp text-sm text-rose-900">はっぷん</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (hap-pun)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 10分:</span> <div><strong className="font-jp text-sm text-rose-900">じゅっぷん</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (jup-pun)</span></div></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Vật mỏng & Máy móc */}
+                      <div className="p-4 bg-white border border-[var(--card-border)] rounded-2xl space-y-2 shadow-2xs">
+                        <div className="font-bold text-sm text-[var(--indigo-deep)] border-b pb-1.5 flex justify-between items-center">
+                          <span>4. Vật mỏng (-枚) & Máy móc (-台)</span>
+                          <span className="text-xs font-jetbrains font-semibold text-emerald-700">100% Đếm bình thường</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[var(--ink-soft)] pt-1">
+                          {/* Trái: Vật mỏng */}
+                          <div className="space-y-1.5">
+                            <div className="text-emerald-700 font-bold text-[11px] border-b border-emerald-100 pb-1">• Đếm vật mỏng (-枚 / mai):</div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between items-center"><span>• 1枚:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">いちまい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (ichi-mai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 2枚:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">にまい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (ni-mai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 3枚:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">さんまい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (san-mai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 4枚:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">よんまい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (yon-mai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 5枚:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">ごまい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (go-mai)</span></div></div>
+                            </div>
+                          </div>
+                          {/* Phải: Máy móc */}
+                          <div className="space-y-1.5 sm:border-l sm:pl-3 border-gray-100">
+                            <div className="text-emerald-700 font-bold text-[11px] border-b border-emerald-100 pb-1">• Đếm xe cộ/máy móc (-台 / dai):</div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between items-center"><span>• 1台:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">いちだい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (ichi-dai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 2台:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">にだい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (ni-dai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 3台:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">さんだい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (san-dai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 4台:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">よんだい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (yon-dai)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 5台:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">ごだい</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (go-dai)</span></div></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Đếm Đồ vật nhỏ */}
+                      <div className="p-4 bg-white border border-[var(--card-border)] rounded-2xl space-y-2 shadow-2xs">
+                        <div className="font-bold text-sm text-[var(--indigo-deep)] border-b pb-1.5 flex justify-between items-center">
+                          <span>5. Đếm Đồ vật nhỏ (-個 / こ)</span>
+                          <span className="text-xs font-jetbrains font-semibold text-[var(--indigo)]">ko</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[var(--ink-soft)] pt-1">
+                          {/* Trái */}
+                          <div className="space-y-1.5">
+                            <div className="text-emerald-700 font-bold text-[11px] border-b border-emerald-100 pb-1">• Đếm bình thường (-ko):</div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between items-center"><span>• 2個:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">にこ</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (ni-ko)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 3個:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">さんこ</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (san-ko)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 4個:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">よんこ</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (yon-ko)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 5個:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">ごこ</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (go-ko)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 7個:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">ななこ</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (nana-ko)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 9個:</span> <div><strong className="font-jp text-sm text-[var(--ink)]">きゅうこ</strong> <span className="font-jetbrains text-[var(--indigo)] text-xs font-semibold"> (kyuu-ko)</span></div></div>
+                            </div>
+                          </div>
+                          {/* Phải */}
+                          <div className="space-y-1.5 sm:border-l sm:pl-3 border-gray-100">
+                            <div className="text-rose-700 font-bold text-[11px] border-b border-rose-100 pb-1">• Âm ngắt chú ý (-kko):</div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between items-center"><span>• 1個:</span> <div><strong className="font-jp text-sm text-rose-900">いっこ</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (ik-ko)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 6個:</span> <div><strong className="font-jp text-sm text-rose-900">ろっこ</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (rok-ko)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 8個:</span> <div><strong className="font-jp text-sm text-rose-900">はっこ</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (hak-ko)</span></div></div>
+                              <div className="flex justify-between items-center"><span>• 10個:</span> <div><strong className="font-jp text-sm text-rose-900">じゅっこ</strong> <span className="font-jetbrains text-rose-700 text-xs font-semibold"> (juk-ko)</span></div></div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
           </section>
         )}
       </main>
+
+      {/* Report Word Modal */}
+      <ReportWordModal
+        isOpen={reportModalOpen}
+        onClose={() => { setReportModalOpen(false); setReportingWord(null); }}
+        word={reportingWord}
+        onSubmitReport={handleSubmitReport}
+      />
+
+      {/* Report List Modal */}
+      <ReportListModal
+        isOpen={reportListModalOpen}
+        onClose={() => setReportListModalOpen(false)}
+        reports={reports}
+        words={words}
+        onUpdateWord={handleUpdateWordFromReport}
+        onResolveReport={handleResolveReport}
+        onDeleteWord={handleDeleteWord}
+      />
     </div>
   );
 }

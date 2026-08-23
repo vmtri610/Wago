@@ -135,3 +135,27 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- -------------------------------------------------------------
+-- 9. BẢNG WORD_REPORTS (BÁO CÁO LỖI NHẬP LIỆU TỪ VỰNG)
+-- -------------------------------------------------------------
+create table if not exists public.word_reports (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade default auth.uid(),
+  word_id uuid references public.words(id) on delete cascade,
+  word_jp text not null,
+  word_romaji text not null,
+  word_vi text not null,
+  reason text,
+  status text default 'pending',
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.word_reports enable row level security;
+
+drop policy if exists "Users can access owned reports" on public.word_reports;
+create policy "Users can access owned reports" 
+  on public.word_reports for all 
+  using (auth.uid() = user_id) 
+  with check (auth.uid() = user_id);
+
