@@ -11,22 +11,35 @@ export function useAuth() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Fetch Profile record from Supabase 'profiles' table
-  const fetchProfile = useCallback(async (userId: string) => {
+  // Fetch Profile record from Supabase 'profiles' table with metadata fallback
+  const fetchProfile = useCallback(async (currentUser: User) => {
+    // Default fallback from user metadata
+    const fallbackProfile: UserProfile = {
+      id: currentUser.id,
+      email: currentUser.email || '',
+      full_name: currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'User',
+      avatar_url: currentUser.user_metadata?.avatar_url || null,
+      created_at: currentUser.created_at || new Date().toISOString()
+    };
+
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('id', currentUser.id)
         .maybeSingle();
 
       if (error) {
-        console.error('Lỗi lấy profile:', error.message);
+        console.warn('Lưu ý khi lấy profile DB (sử dụng metadata fallback):', error.message);
+        setProfile(fallbackProfile);
       } else if (data) {
         setProfile(data as UserProfile);
+      } else {
+        setProfile(fallbackProfile);
       }
     } catch (err) {
-      console.error('Fetch profile error:', err);
+      console.warn('Fetch profile error, fallback to user metadata:', err);
+      setProfile(fallbackProfile);
     }
   }, [supabase]);
 
@@ -35,7 +48,7 @@ export function useAuth() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
       if (user) {
-        fetchProfile(user.id);
+        fetchProfile(user);
       }
       setLoading(false);
     });
@@ -45,7 +58,7 @@ export function useAuth() {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) {
-        await fetchProfile(currentUser.id);
+        await fetchProfile(currentUser);
       } else {
         setProfile(null);
       }

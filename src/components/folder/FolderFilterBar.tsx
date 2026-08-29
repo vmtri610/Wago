@@ -101,7 +101,7 @@ export default function FolderFilterBar({
                 {f.name} ({count})
               </button>
 
-              {onShareFolder && (
+              {onShareFolder && !f.id.startsWith('lesson-') && (
                 <button
                   onClick={() => onShareFolder(f)}
                   className="px-2 py-1.5 opacity-60 hover:opacity-100 border-l border-current/20 hover:text-amber-300"
@@ -111,7 +111,7 @@ export default function FolderFilterBar({
                 </button>
               )}
 
-              {onRenameFolder && (
+              {onRenameFolder && !f.id.startsWith('lesson-') && (
                 <button
                   onClick={() => onRenameFolder(f)}
                   className="px-2 py-1.5 opacity-60 hover:opacity-100 border-l border-current/20"
@@ -121,7 +121,7 @@ export default function FolderFilterBar({
                 </button>
               )}
 
-              {onDeleteFolder && (
+              {onDeleteFolder && !f.id.startsWith('lesson-') && (
                 <button
                   onClick={() => onDeleteFolder(f.id)}
                   className="px-2 py-1.5 opacity-60 hover:opacity-100 text-rose-300 hover:text-rose-100 border-l border-current/20"

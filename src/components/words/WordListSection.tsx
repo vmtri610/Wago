@@ -62,7 +62,10 @@ export default function WordListSection({
   };
 
   const filteredWords = words.filter(w => {
-    const matchesFolder = activeFolderId === 'all' || w.folder_id === activeFolderId;
+    const matchesFolder =
+      activeFolderId === 'all' ||
+      w.folder_id === activeFolderId ||
+      (w.lesson_id && activeFolderId === `lesson-${w.lesson_id}`);
     if (!matchesFolder) return false;
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase().trim();

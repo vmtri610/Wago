@@ -65,7 +65,7 @@ export default function QuizPracticeCard({
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
           <button
             onClick={() => onModeChange('flashcard')}
-            className={`py-2 px-3.5 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 shrink-0 ${
+            className={`py-1.5 sm:py-2 px-3 sm:px-3.5 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 shrink-0 ${
               quizMode === 'flashcard'
                 ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-xs'
                 : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
@@ -76,7 +76,7 @@ export default function QuizPracticeCard({
 
           <button
             onClick={() => onModeChange('vi2jp')}
-            className={`py-2 px-3.5 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 shrink-0 ${
+            className={`py-1.5 sm:py-2 px-3 sm:px-3.5 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 shrink-0 ${
               quizMode === 'vi2jp'
                 ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-xs'
                 : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
@@ -87,7 +87,7 @@ export default function QuizPracticeCard({
 
           <button
             onClick={() => onModeChange('mcq')}
-            className={`py-2 px-3.5 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 shrink-0 ${
+            className={`py-1.5 sm:py-2 px-3 sm:px-3.5 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 shrink-0 ${
               quizMode === 'mcq'
                 ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-xs'
                 : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
@@ -98,7 +98,7 @@ export default function QuizPracticeCard({
 
           <button
             onClick={() => onModeChange('audio')}
-            className={`py-2 px-3.5 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 shrink-0 ${
+            className={`py-1.5 sm:py-2 px-3 sm:px-3.5 text-xs font-bold rounded-lg border transition flex items-center justify-center gap-1.5 shrink-0 ${
               quizMode === 'audio'
                 ? 'bg-[var(--indigo)] text-white border-[var(--indigo)] shadow-xs'
                 : 'bg-white text-[var(--ink-soft)] border-[var(--card-border)] hover:border-[var(--indigo)]'
@@ -118,20 +118,20 @@ export default function QuizPracticeCard({
           title="Tự động phát âm"
         >
           {autoSpeak ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-          Tự động đọc
+          <span className="text-[11px]">Tự động đọc</span>
         </button>
       </div>
 
       {/* Card Practice Container */}
-      <div className="bg-[#FFFDF9] border border-[var(--card-border)] p-6 rounded-xl text-center space-y-4 shadow-2xs">
+      <div className="bg-[#FFFDF9] border border-[var(--card-border)] p-4 sm:p-6 rounded-2xl text-center space-y-4 shadow-2xs">
         {completedDeck ? (
           <div className="py-8 space-y-4">
-            <h3 className="text-xl font-bold text-[var(--indigo-deep)]">Hoàn thành</h3>
+            <h3 className="text-lg sm:text-xl font-bold text-[var(--indigo-deep)]">Hoàn thành bài luyện tập!</h3>
             <button
               onClick={onRestartDeck}
-              className="px-6 py-2.5 bg-[var(--indigo)] text-white text-xs font-bold rounded-lg hover:bg-[var(--indigo-deep)] inline-flex items-center gap-2 shadow"
+              className="px-6 py-2.5 bg-[var(--indigo)] text-white text-xs font-bold rounded-xl hover:bg-[var(--indigo-deep)] inline-flex items-center gap-2 shadow"
             >
-              <RotateCcw className="w-4 h-4" /> Làm lại
+              <RotateCcw className="w-4 h-4" /> Làm lại từ đầu
             </button>
           </div>
         ) : currentCard ? (
@@ -145,7 +145,7 @@ export default function QuizPracticeCard({
                   className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition flex items-center gap-1"
                   title="Báo lỗi"
                 >
-                  <Flag className="w-4 h-4" />
+                  <Flag className="w-3.5 h-3.5" />
                   <span className="text-[10px] hidden sm:inline font-medium">Báo lỗi</span>
                 </button>
                 {renderSrsChip(currentCard.srs_level)}
@@ -154,47 +154,55 @@ export default function QuizPracticeCard({
 
             {/* MODE 1: FLASHCARD MODE */}
             {quizMode === 'flashcard' && (
-              <div className="py-4 space-y-5">
+              <div className="py-2 sm:py-4 space-y-4 sm:space-y-5">
                 <div
                   onClick={() => setIsFlipped(!isFlipped)}
-                  className="min-h-[200px] border border-[var(--card-border)] hover:border-[var(--indigo)] rounded-2xl p-6 bg-white flex flex-col items-center justify-center cursor-pointer transition shadow-xs hover:shadow-md relative select-none"
+                  className="min-h-[170px] sm:min-h-[220px] border border-[var(--card-border)] hover:border-[var(--indigo)] rounded-2xl p-4 sm:p-6 bg-white flex flex-col items-center justify-center cursor-pointer transition shadow-xs hover:shadow-md relative select-none"
                 >
                   {!isFlipped ? (
                     /* FRONT: TIẾNG NHẬT */
-                    <div className="space-y-3 text-center my-auto">
-                      <div className="text-4xl font-medium font-jp text-[var(--indigo-deep)] flex items-center justify-center gap-3">
-                        <span>{currentCard.jp}</span>
+                    <div className="space-y-2 sm:space-y-3 text-center my-auto w-full px-2">
+                      <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+                        <span className="text-xl sm:text-2xl md:text-3xl font-medium font-jp text-[var(--indigo-deep)] leading-relaxed break-words max-w-full">
+                          {currentCard.jp}
+                        </span>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             speakJapanese(currentCard.jp);
                           }}
-                          className="p-2 text-[var(--indigo)] hover:bg-indigo-50 rounded-full transition"
+                          className="p-1.5 sm:p-2 text-[var(--indigo)] hover:bg-indigo-50 rounded-full transition shrink-0"
                           title="Nghe phát âm"
                         >
-                          <Volume2 className="w-6 h-6" />
+                          <Volume2 className="w-5 h-5 sm:w-6 sm:h-6" />
                         </button>
                       </div>
-                      <div className="text-base font-jetbrains font-semibold text-[var(--indigo)]">{currentCard.romaji}</div>
+                      {currentCard.romaji && (
+                        <div className="text-xs sm:text-sm font-jetbrains font-semibold text-[var(--indigo)] break-words">
+                          {currentCard.romaji}
+                        </div>
+                      )}
                     </div>
                   ) : (
-                    /* BACK: TIẾNG VIỆT */
-                    <div className="space-y-2 text-center my-auto">
-                      <div className="text-3xl font-extrabold text-[var(--ink)]">{currentCard.vi}</div>
+                    /* BACK: TIẾNG VIỆT (Chỉ hiển thị nghĩa Tiếng Việt) */
+                    <div className="text-center my-auto w-full px-2">
+                      <div className="text-lg sm:text-2xl md:text-3xl font-bold text-[var(--ink)] leading-snug break-words max-w-full">
+                        {currentCard.vi}
+                      </div>
                     </div>
                   )}
                 </div>
 
-                <div className="flex gap-3 justify-center">
+                <div className="flex gap-2 sm:gap-3 justify-center">
                   <button
                     onClick={() => setIsFlipped(!isFlipped)}
-                    className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-[var(--ink)] font-bold text-xs rounded-xl transition flex items-center gap-1.5"
+                    className="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-[var(--ink)] font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5"
                   >
                     <RefreshCw className="w-4 h-4" /> Lật thẻ
                   </button>
                   <button
                     onClick={onAdvanceCard}
-                    className="px-6 py-2.5 bg-[var(--indigo)] hover:bg-[var(--indigo-deep)] text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5 shadow"
+                    className="flex-1 sm:flex-none px-5 sm:px-6 py-2.5 bg-[var(--indigo)] hover:bg-[var(--indigo-deep)] text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow"
                   >
                     Tiếp theo <ArrowRight className="w-4 h-4" />
                   </button>
@@ -205,14 +213,16 @@ export default function QuizPracticeCard({
             {/* MODE 2: VI2JP (Gõ chữ) */}
             {quizMode === 'vi2jp' && (
               <>
-                <div className="py-4 space-y-1">
-                  <div className="text-3xl font-bold text-[var(--ink)]">{currentCard.vi}</div>
+                <div className="py-3 sm:py-4 space-y-1">
+                  <div className="text-base sm:text-xl md:text-2xl font-bold text-[var(--ink)] leading-snug break-words px-2">
+                    {currentCard.vi}
+                  </div>
                   {quizFeedback && (
-                    <div className="text-base font-medium font-jp text-[var(--indigo-deep)] mt-3 flex items-center justify-center gap-2">
+                    <div className="text-sm sm:text-base font-medium font-jp text-[var(--indigo-deep)] mt-3 flex items-center justify-center gap-2 flex-wrap">
                       <span>{currentCard.jp}</span>
                       <span className="font-jetbrains text-xs font-semibold text-[var(--indigo)]">({currentCard.romaji})</span>
-                      <button onClick={() => speakJapanese(currentCard.jp)} className="p-1.5 text-[var(--indigo)] hover:bg-indigo-50 rounded-full">
-                        <Volume2 className="w-5 h-5" />
+                      <button onClick={() => speakJapanese(currentCard.jp)} className="p-1 text-[var(--indigo)] hover:bg-indigo-50 rounded-full">
+                        <Volume2 className="w-4 h-4" />
                       </button>
                     </div>
                   )}
@@ -231,7 +241,8 @@ export default function QuizPracticeCard({
                       }
                     }
                   }}
-                  className="w-full text-center py-3 border border-[var(--card-border)] rounded-lg text-lg font-jp focus:outline-none focus:border-[var(--indigo)] bg-white shadow-2xs"
+                  placeholder="Nhập tiếng Nhật hoặc Romaji..."
+                  className="w-full text-center py-2.5 sm:py-3 border border-[var(--card-border)] rounded-xl text-base sm:text-lg font-jp focus:outline-none focus:border-[var(--indigo)] bg-white shadow-2xs"
                   autoFocus
                 />
               </>
@@ -240,22 +251,24 @@ export default function QuizPracticeCard({
             {/* MODE 3 & 4: MCQ / AUDIO */}
             {(quizMode === 'mcq' || quizMode === 'audio') && (
               <>
-                <div className="py-2 space-y-3 border-b border-[var(--card-border)] pb-4 flex flex-col items-center justify-center">
+                <div className="py-2 space-y-3 border-b border-[var(--card-border)] pb-3 flex flex-col items-center justify-center">
                   {quizMode === 'mcq' ? (
                     <div className="space-y-1">
-                      <div className="text-2xl font-bold text-[var(--ink)]">{currentCard.vi}</div>
+                      <div className="text-base sm:text-lg md:text-xl font-bold text-[var(--ink)] leading-snug break-words px-2">
+                        {currentCard.vi}
+                      </div>
                     </div>
                   ) : (
                     <>
                       <button
                         onClick={() => speakJapanese(currentCard.jp)}
-                        className="p-5 bg-indigo-50 border-2 border-[var(--indigo)] text-[var(--indigo)] rounded-full hover:bg-indigo-100 active:scale-95 transition shadow-sm inline-flex items-center justify-center"
+                        className="p-4 sm:p-5 bg-indigo-50 border-2 border-[var(--indigo)] text-[var(--indigo)] rounded-full hover:bg-indigo-100 active:scale-95 transition shadow-sm inline-flex items-center justify-center"
                         title="Nghe lại"
                       >
-                        <Volume2 className="w-8 h-8 animate-pulse text-[var(--indigo)]" />
+                        <Volume2 className="w-6 h-6 sm:w-8 sm:h-8 animate-pulse text-[var(--indigo)]" />
                       </button>
                       {quizFeedback && (
-                        <div className="text-lg font-bold font-jp text-[var(--indigo-deep)]">
+                        <div className="text-sm sm:text-base font-bold font-jp text-[var(--indigo-deep)] break-words">
                           {currentCard.jp}
                         </div>
                       )}
@@ -263,7 +276,7 @@ export default function QuizPracticeCard({
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 pt-2">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-2">
                   {quizMcqOptions.map((opt, idx) => {
                     const isSelected = selectedMcqWordId === opt.id;
                     const isTarget = opt.id === currentCard.id;
@@ -285,9 +298,11 @@ export default function QuizPracticeCard({
                         key={opt.id || idx}
                         onClick={() => onSelectMcqChoice(opt)}
                         disabled={quizFeedback !== null}
-                        className={`p-4 border-2 rounded-xl text-center min-h-[64px] flex flex-col items-center justify-center transition ${style}`}
+                        className={`p-2.5 sm:p-4 border-2 rounded-xl text-center min-h-[56px] sm:min-h-[64px] flex flex-col items-center justify-center transition ${style}`}
                       >
-                        <span className="text-2xl font-medium font-jp">{opt.jp}</span>
+                        <span className="text-xs sm:text-base font-medium font-jp break-words leading-tight">
+                          {opt.jp}
+                        </span>
                       </button>
                     );
                   })}
@@ -297,8 +312,8 @@ export default function QuizPracticeCard({
 
             {/* Feedback Message */}
             {quizFeedback && (
-              <div className="space-y-2 pt-2">
-                <div className={`text-sm font-semibold transition ${quizFeedback.type === 'ok' ? 'text-emerald-600' : 'text-rose-600'}`}>
+              <div className="space-y-1 pt-2">
+                <div className={`text-xs sm:text-sm font-semibold transition ${quizFeedback.type === 'ok' ? 'text-emerald-600' : 'text-rose-600'}`}>
                   {quizFeedback.msg}
                 </div>
               </div>
@@ -310,7 +325,7 @@ export default function QuizPracticeCard({
                 <button
                   onClick={onAdvanceCard}
                   autoFocus
-                  className="w-full py-3 bg-[var(--indigo)] text-white rounded-lg text-xs font-bold hover:bg-[var(--indigo-deep)] transition flex items-center justify-center gap-1.5 shadow"
+                  className="w-full py-3 bg-[var(--indigo)] text-white rounded-xl text-xs font-bold hover:bg-[var(--indigo-deep)] transition flex items-center justify-center gap-1.5 shadow"
                 >
                   Tiếp tục <ArrowRight className="w-4 h-4" />
                 </button>
@@ -319,13 +334,13 @@ export default function QuizPracticeCard({
               <div className="flex gap-2 pt-2">
                 <button
                   onClick={onAdvanceCard}
-                  className="px-4 py-2.5 border border-gray-300 text-[var(--ink-soft)] rounded-lg text-xs font-semibold hover:bg-gray-100"
+                  className="px-4 py-2.5 border border-gray-300 text-[var(--ink-soft)] rounded-xl text-xs font-semibold hover:bg-gray-100"
                 >
                   Bỏ qua
                 </button>
                 <button
                   onClick={onCheckGrade}
-                  className="flex-1 py-2.5 bg-[var(--indigo)] text-white rounded-lg text-xs font-bold hover:bg-[var(--indigo-deep)] transition shadow"
+                  className="flex-1 py-2.5 bg-[var(--indigo)] text-white rounded-xl text-xs font-bold hover:bg-[var(--indigo-deep)] transition shadow"
                 >
                   Kiểm tra
                 </button>
@@ -333,8 +348,8 @@ export default function QuizPracticeCard({
             )}
           </>
         ) : (
-          <div className="py-8 text-sm text-[var(--ink-soft)]">
-            Chưa có từ vựng phù hợp trong thư mục đã chọn.
+          <div className="py-8 text-xs sm:text-sm text-[var(--ink-soft)]">
+            Chưa có từ vựng phù hợp trong bài / thư mục đã chọn.
           </div>
         )}
       </div>

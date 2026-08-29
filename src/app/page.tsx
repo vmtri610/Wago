@@ -23,6 +23,8 @@ import FolderFilterBar from '@/components/folder/FolderFilterBar';
 import SrsReviewCard from '@/components/srs/SrsReviewCard';
 import QuizPracticeCard from '@/components/quiz/QuizPracticeCard';
 import WordListSection from '@/components/words/WordListSection';
+import LessonsTab from '@/components/lessons/LessonsTab';
+import { N5_LESSONS } from '@/data/lessonsData';
 
 export interface Folder {
   id: string;
@@ -34,6 +36,7 @@ export interface Folder {
 export interface Word {
   id: string;
   folder_id?: string | null;
+  lesson_id?: number | null;
   folder?: string | null;
   jp: string;
   romaji: string;
@@ -76,9 +79,13 @@ export default function Home() {
   const [reportListModalOpen, setReportListModalOpen] = useState(false);
 
   // Core App State
-  const [activeTab, setActiveTab] = useState<'srs' | 'quiz' | 'list' | 'add'>('srs');
+  const [activeTab, setActiveTab] = useState<'lessons' | 'srs' | 'quiz' | 'list' | 'add'>('lessons');
   const [words, setWords] = useState<Word[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
+  const [dbLessons, setDbLessons] = useState<any[]>([]);
+  const [lessonStatuses, setLessonStatuses] = useState<Record<number, 'not_started' | 'in_progress' | 'completed'>>({
+    1: 'in_progress'
+  });
   const [activeFolder, setActiveFolder] = useState<string>('all');
   const [syncStatus, setSyncStatus] = useState<{ mode: 'supabase' | 'local'; message: string }>({
     mode: 'local',
@@ -193,6 +200,25 @@ export default function Home() {
         };
       }));
       setSyncStatus({ mode: 'supabase', message: 'Supabase DB Live' });
+
+      // Fetch lessons and user lesson progress
+      try {
+        const { data: dbLessonsData } = await supabase.from('lessons').select('id, title, short_title').order('id', { ascending: true });
+        if (dbLessonsData && dbLessonsData.length > 0) {
+          setDbLessons(dbLessonsData);
+        }
+
+        if (user?.id) {
+          const { data: ulpData } = await supabase.from('user_lesson_progress').select('lesson_id, status').eq('user_id', user.id);
+          if (ulpData && ulpData.length > 0) {
+            const pMap: Record<number, 'not_started' | 'in_progress' | 'completed'> = { 1: 'in_progress' };
+            ulpData.forEach((row: any) => {
+              pMap[row.lesson_id] = row.status;
+            });
+            setLessonStatuses(pMap);
+          }
+        }
+      } catch (lErr) {}
 
       try {
         const { data: rData } = await supabase.from('word_reports').select('*').eq('status', 'pending');
@@ -357,11 +383,36 @@ export default function Home() {
     } catch (err) {}
   };
 
+  // In-progress lesson folders (Bài học nào ở chế độ Đang học thì tự động xuất hiện folder)
+  const inProgressLessonFolders: Folder[] = Object.entries(lessonStatuses)
+    .filter(([_, status]) => status === 'in_progress')
+    .map(([lIdStr]) => {
+      const lId = Number(lIdStr);
+      const l = dbLessons.find((item: any) => item.id === lId) || N5_LESSONS.find(item => item.id === lId);
+      return {
+        id: `lesson-${lId}`,
+        name: `${l?.short_title || `Bài ${lId}`}`
+      };
+    });
+
+  const combinedFolders: Folder[] = [...folders, ...inProgressLessonFolders];
+
+  // Chỉ bao gồm các từ trong folder tự tạo HOẶC thuộc bài học đang ở trạng thái 'in_progress'
+  const activeWords = words.filter(w => {
+    if (w.lesson_id) {
+      return lessonStatuses[w.lesson_id] === 'in_progress';
+    }
+    return true; // Các từ trong thư mục cá nhân
+  });
+
   // -------------------------------------------------------------
   // SRS ENGINE (Vie -> JP)
   // -------------------------------------------------------------
-  const dueSrsWords = words.filter(w => {
-    const matchesFolder = srsFolderIds.includes('all') || (w.folder_id && srsFolderIds.includes(w.folder_id));
+  const dueSrsWords = activeWords.filter(w => {
+    const matchesFolder =
+      srsFolderIds.includes('all') ||
+      (w.folder_id && srsFolderIds.includes(w.folder_id)) ||
+      (w.lesson_id && srsFolderIds.includes(`lesson-${w.lesson_id}`));
     return matchesFolder && isWordSrsDue(w);
   });
 
@@ -507,8 +558,12 @@ export default function Home() {
   // -------------------------------------------------------------
   // STANDALONE QUIZ / FLASHCARD ENGINE
   // -------------------------------------------------------------
-  const filteredQuizWords = words.filter(w => {
-    return quizFolderIds.includes('all') || (w.folder_id && quizFolderIds.includes(w.folder_id));
+  const filteredQuizWords = activeWords.filter(w => {
+    return (
+      quizFolderIds.includes('all') ||
+      (w.folder_id && quizFolderIds.includes(w.folder_id)) ||
+      (w.lesson_id && quizFolderIds.includes(`lesson-${w.lesson_id}`))
+    );
   });
 
   const toggleQuizFolder = (fId: string) => {
@@ -550,7 +605,7 @@ export default function Home() {
     setCurrentQuizCard(shuffled[0]);
 
     if (quizMode === 'mcq' || quizMode === 'audio') {
-      setQuizMcqOptions(generateMcqOptions(shuffled[0], words));
+      setQuizMcqOptions(generateMcqOptions(shuffled[0], activeWords));
     }
 
     if (quizMode !== 'flashcard' && (autoSpeak || quizMode === 'audio') && shuffled[0]?.jp) {
@@ -576,7 +631,7 @@ export default function Home() {
       setQuizCurrentIndex(prev => prev + 1);
 
       if (quizMode === 'mcq' || quizMode === 'audio') {
-        setQuizMcqOptions(generateMcqOptions(nextDeck[0], words));
+        setQuizMcqOptions(generateMcqOptions(nextDeck[0], activeWords));
       }
 
       if (quizMode !== 'flashcard' && (autoSpeak || quizMode === 'audio') && nextDeck[0]?.jp) {
@@ -613,16 +668,31 @@ export default function Home() {
     handleQuizGrade(option.id === currentQuizCard.id);
   };
 
-  // Maps for counts
+  // Maps for counts based on activeWords
   const wordsCountMap: Record<string, number> = {};
-  folders.forEach(f => {
-    wordsCountMap[f.id] = words.filter(w => w.folder_id === f.id).length;
+  combinedFolders.forEach(f => {
+    if (f.id.startsWith('lesson-')) {
+      const lId = Number(f.id.replace('lesson-', ''));
+      wordsCountMap[f.id] = activeWords.filter(w => w.lesson_id === lId || w.folder_id === f.id).length;
+    } else {
+      wordsCountMap[f.id] = activeWords.filter(w => w.folder_id === f.id).length;
+    }
   });
 
+  // Quick practice from lesson
+  const handlePracticeLesson = (lessonId: number) => {
+    // Ensure lesson status is in_progress so its folder appears
+    setLessonStatuses(prev => ({ ...prev, [lessonId]: 'in_progress' }));
+    setQuizFolderIds([`lesson-${lessonId}`]);
+    setQuizMode('flashcard');
+    setActiveTab('quiz');
+  };
+
   const navItems = [
+    { id: 'lessons' as const, label: 'Bài học N5', icon: BookOpen },
     { id: 'srs' as const, label: 'Ôn tập SRS', icon: Flame },
     { id: 'quiz' as const, label: 'Luyện tập', icon: Layers },
-    { id: 'list' as const, label: `Sổ từ vựng (${words.length})`, icon: List },
+    { id: 'list' as const, label: `Sổ từ vựng (${activeWords.length})`, icon: List },
     { id: 'add' as const, label: 'Thêm từ mới', icon: Plus },
   ];
 
@@ -801,6 +871,22 @@ export default function Home() {
 
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 px-4 md:px-8 py-6 max-w-4xl w-full mx-auto space-y-5">
+        {/* TAB 0: LESSONS N5 */}
+        {activeTab === 'lessons' && (
+          <section className="space-y-4">
+            <LessonsTab
+              userId={user?.id}
+              onPracticeLesson={handlePracticeLesson}
+              onStatusChange={(lId, st) => {
+                setLessonStatuses(prev => ({ ...prev, [lId]: st }));
+              }}
+              onInitialStatusesLoaded={(stMap) => {
+                setLessonStatuses(prev => ({ ...prev, ...stMap }));
+              }}
+            />
+          </section>
+        )}
+
         {/* TAB 1: SRS REVIEW */}
         {activeTab === 'srs' && (
           <section className="space-y-4">
@@ -824,7 +910,7 @@ export default function Home() {
                 <div className="text-xs font-semibold text-[var(--ink-soft)]">Cấp độ ghi nhớ:</div>
                 <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                   {[0, 1, 2, 3, 4, 5].map(lvl => {
-                    const count = words.filter(w => (w.srs_level || 0) === lvl).length;
+                    const count = activeWords.filter(w => (w.srs_level || 0) === lvl).length;
                     return (
                       <div key={lvl} className="bg-white border border-[var(--card-border)] p-2 rounded-xl text-center space-y-1">
                         <div className="flex justify-center">{renderSrsChip(lvl)}</div>
@@ -837,9 +923,9 @@ export default function Home() {
 
               {/* Folder Filter Bar */}
               <FolderFilterBar
-                folders={folders}
+                folders={combinedFolders}
                 wordsCountMap={wordsCountMap}
-                totalWordsCount={words.length}
+                totalWordsCount={activeWords.length}
                 activeFolderId={srsFolderIds}
                 onSelectFolder={toggleSrsFolder}
                 isMultiSelect={true}
@@ -904,9 +990,9 @@ export default function Home() {
 
               {/* Folder Filter Bar */}
               <FolderFilterBar
-                folders={folders}
+                folders={combinedFolders}
                 wordsCountMap={wordsCountMap}
-                totalWordsCount={words.length}
+                totalWordsCount={activeWords.length}
                 activeFolderId={quizFolderIds}
                 onSelectFolder={toggleQuizFolder}
                 isMultiSelect={true}
@@ -958,9 +1044,9 @@ export default function Home() {
 
             {/* Folder Filter Bar */}
             <FolderFilterBar
-              folders={folders}
+              folders={combinedFolders}
               wordsCountMap={wordsCountMap}
-              totalWordsCount={words.length}
+              totalWordsCount={activeWords.length}
               activeFolderId={activeFolder}
               onSelectFolder={setActiveFolder}
               onShareFolder={setSharingFolder}
@@ -975,8 +1061,8 @@ export default function Home() {
 
             {/* Word List Section */}
             <WordListSection
-              words={words}
-              folders={folders}
+              words={activeWords}
+              folders={combinedFolders}
               activeFolderId={activeFolder}
               searchQuery={listSearchQuery}
               onSearchChange={setListSearchQuery}
