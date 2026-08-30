@@ -31,12 +31,16 @@ export default function WordListSection({
   const [editVi, setEditVi] = useState<string>('');
   const [editFolderId, setEditFolderId] = useState<string>('');
 
+  // Filter to only include custom user folders (excluding lesson folders)
+  const userFolders = folders.filter(f => !f.id.startsWith('lesson-'));
+
   const startEdit = (word: Word) => {
+    if (word.lesson_id) return;
     setEditingWordId(word.id);
     setEditJp(word.jp);
     setEditRomaji(word.romaji);
     setEditVi(word.vi);
-    setEditFolderId(word.folder_id || (folders.length > 0 ? folders[0].id : ''));
+    setEditFolderId(word.folder_id || (userFolders.length > 0 ? userFolders[0].id : ''));
   };
 
   const cancelEdit = () => {
@@ -54,7 +58,8 @@ export default function WordListSection({
       jp: editJp.trim(),
       romaji: editRomaji.trim() || editJp.trim(),
       vi: editVi.trim(),
-      folder_id: editFolderId || originalWord.folder_id
+      folder_id: editFolderId && !editFolderId.startsWith('lesson-') ? editFolderId : (userFolders[0]?.id || null),
+      lesson_id: null
     };
 
     onUpdateWord(updated);
@@ -140,7 +145,7 @@ export default function WordListSection({
                         className="w-full px-2.5 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-[var(--indigo)] bg-gray-50"
                       />
                     </div>
-                    {folders.length > 0 && (
+                    {userFolders.length > 0 && (
                       <div>
                         <label className="block text-[10px] font-bold text-[var(--indigo)] uppercase">Thư mục</label>
                         <select
@@ -148,7 +153,7 @@ export default function WordListSection({
                           onChange={(e) => setEditFolderId(e.target.value)}
                           className="w-full px-2.5 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-[var(--indigo)] bg-gray-50 font-semibold text-[var(--indigo-deep)]"
                         >
-                          {folders.map(f => (
+                          {userFolders.map(f => (
                             <option key={f.id} value={f.id}>{f.name}</option>
                           ))}
                         </select>
@@ -188,22 +193,28 @@ export default function WordListSection({
                         <Volume2 className="w-4 h-4" />
                       </button>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => startEdit(w)}
-                        className="p-1.5 text-gray-400 hover:text-[var(--indigo)] hover:bg-indigo-50 rounded-lg transition"
-                        title="Chỉnh sửa từ vựng"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => onDeleteWord(w.id)}
-                        className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
-                        title="Xóa từ"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                    {w.lesson_id ? (
+                      <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200/80 shrink-0" title="Từ vựng bài học (chỉnh sửa trong tab Bài học)">
+                        Bài {w.lesson_id}
+                      </span>
+                    ) : (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => startEdit(w)}
+                          className="p-1.5 text-gray-400 hover:text-[var(--indigo)] hover:bg-indigo-50 rounded-lg transition"
+                          title="Chỉnh sửa từ vựng"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => onDeleteWord(w.id)}
+                          className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                          title="Xóa từ"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <div className="text-sm font-jetbrains text-[var(--indigo)] font-semibold mt-0.5">{w.romaji}</div>
                   <div className="text-sm text-[var(--ink-soft)] mt-1.5 font-medium">{w.vi}</div>

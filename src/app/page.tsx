@@ -265,13 +265,18 @@ export default function Home() {
   const handleSaveWord = async () => {
     if (!inJp.trim() || !inVi.trim()) return;
 
-    const folder_id = inFolderId || (folders.length > 0 ? folders[0].id : null);
+    const userFolders = folders.filter(f => !f.id.startsWith('lesson-'));
+    const folder_id = inFolderId && !inFolderId.startsWith('lesson-')
+      ? inFolderId
+      : (userFolders.length > 0 ? userFolders[0].id : null);
+
     const newWord: Word = {
       id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
       jp: inJp.trim(),
       romaji: inRomaji.trim() || inJp.trim(),
       vi: inVi.trim(),
       folder_id,
+      lesson_id: null, // Personal words are strictly not lesson words
       srs_level: 0,
       next_review_at: new Date().toISOString(),
       user_id: user?.id
@@ -876,6 +881,7 @@ export default function Home() {
           <section className="space-y-4">
             <LessonsTab
               userId={user?.id}
+              userEmail={user?.email}
               onPracticeLesson={handlePracticeLesson}
               onStatusChange={(lId, st) => {
                 setLessonStatuses(prev => ({ ...prev, [lId]: st }));
@@ -883,6 +889,7 @@ export default function Home() {
               onInitialStatusesLoaded={(stMap) => {
                 setLessonStatuses(prev => ({ ...prev, ...stMap }));
               }}
+              onWordUpdated={fetchData}
             />
           </section>
         )}
@@ -1062,7 +1069,7 @@ export default function Home() {
             {/* Word List Section */}
             <WordListSection
               words={activeWords}
-              folders={combinedFolders}
+              folders={folders.filter(f => !f.id.startsWith('lesson-'))}
               activeFolderId={activeFolder}
               searchQuery={listSearchQuery}
               onSearchChange={setListSearchQuery}
@@ -1135,7 +1142,7 @@ export default function Home() {
                 onChange={(e) => setInFolderId(e.target.value)}
                 className="w-full px-3.5 py-2.5 border border-[var(--card-border)] rounded-lg text-sm bg-white focus:outline-none focus:border-[var(--indigo)] font-semibold text-[var(--indigo-deep)]"
               >
-                {folders.map(f => (
+                {folders.filter(f => !f.id.startsWith('lesson-')).map(f => (
                   <option key={f.id} value={f.id}>{f.name}</option>
                 ))}
               </select>

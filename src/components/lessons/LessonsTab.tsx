@@ -7,15 +7,20 @@ import LessonGrid from './LessonGrid';
 import LessonDetail from './LessonDetail';
 import { RefreshCw } from 'lucide-react';
 
+import { isAdminEmail } from '@/lib/admin';
+
 interface LessonsTabProps {
   userId?: string;
+  userEmail?: string;
   onPracticeLesson: (lessonId: number) => void;
   onStatusChange?: (lessonId: number, status: LessonStatus) => void;
   onInitialStatusesLoaded?: (statuses: Record<number, LessonStatus>) => void;
+  onWordUpdated?: () => void;
 }
 
-export default function LessonsTab({ userId, onPracticeLesson, onStatusChange, onInitialStatusesLoaded }: LessonsTabProps) {
+export default function LessonsTab({ userId, userEmail, onPracticeLesson, onStatusChange, onInitialStatusesLoaded, onWordUpdated }: LessonsTabProps) {
   const supabase = createClient();
+  const isAdmin = isAdminEmail(userEmail);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [selectedLessonId, setSelectedLessonId] = useState<number | null>(null);
   const [lessonStatuses, setLessonStatuses] = useState<Record<number, LessonStatus>>({
@@ -76,6 +81,8 @@ export default function LessonsTab({ userId, onPracticeLesson, onStatusChange, o
         const lessonVocab: LessonVocab[] = (dbWords || [])
           .filter((w: any) => w.lesson_id === l.id)
           .map((w: any) => ({
+            id: w.id,
+            lesson_id: w.lesson_id,
             jp: w.jp,
             romaji: w.romaji,
             vi: w.vi
@@ -207,6 +214,239 @@ export default function LessonsTab({ userId, onPracticeLesson, onStatusChange, o
     }
   };
 
+  // 4. Update Lesson Vocabulary in DB and local state
+  const handleUpdateVocab = async (
+    lessonId: number,
+    vocabId: string,
+    updated: { jp: string; romaji: string; vi: string },
+    oldJp?: string
+  ): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/lesson-vocab', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update',
+          id: vocabId,
+          lesson_id: lessonId,
+          old_jp: oldJp,
+          jp: updated.jp,
+          romaji: updated.romaji,
+          vi: updated.vi,
+          user_email: userEmail
+        })
+      });
+
+      const resData = await res.json();
+      if (!resData.success) {
+        console.error('Lỗi cập nhật từ vựng bài học:', resData.error);
+        alert(resData.error || 'Lỗi khi lưu từ vựng bài học');
+        return false;
+      }
+
+      const returnedId = resData.data?.id || vocabId;
+
+      // Update local lessons state immediately
+      setLessons(prev =>
+        prev.map(l => {
+          if (l.id !== lessonId || !l.vocabulary) return l;
+          return {
+            ...l,
+            vocabulary: l.vocabulary.map(v =>
+              (v.id === returnedId || (vocabId && v.id === vocabId) || (oldJp && v.jp === oldJp))
+                ? { ...v, id: returnedId, ...updated }
+                : v
+            )
+          };
+        })
+      );
+
+      // Background re-fetch to ensure DB sync
+      fetchLessonsFromDb();
+      onWordUpdated?.();
+      return true;
+    } catch (err) {
+      console.error('Lỗi ngoại lệ khi sửa từ vựng:', err);
+      alert('Không thể kết nối đến máy chủ để lưu từ vựng.');
+      return false;
+    }
+  };
+
+  // 5. Add New Lesson Vocabulary (Admin Only)
+  const handleAddVocab = async (
+    lessonId: number,
+    newVocab: { jp: string; romaji: string; vi: string }
+  ): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/lesson-vocab', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'add',
+          lesson_id: lessonId,
+          jp: newVocab.jp,
+          romaji: newVocab.romaji,
+          vi: newVocab.vi,
+          user_email: userEmail
+        })
+      });
+
+      const resData = await res.json();
+      if (!resData.success) {
+        console.error('Lỗi thêm từ vựng bài học:', resData.error);
+        alert(resData.error || 'Lỗi khi thêm từ vựng bài học');
+        return false;
+      }
+
+      const inserted = resData.data;
+      const newVocabItem: LessonVocab = {
+        id: inserted?.id || typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        lesson_id: lessonId,
+        jp: inserted?.jp || newVocab.jp,
+        romaji: inserted?.romaji || newVocab.romaji,
+        vi: inserted?.vi || newVocab.vi
+      };
+
+      // Update local lessons state immediately
+      setLessons(prev =>
+        prev.map(l => {
+          if (l.id !== lessonId) return l;
+          return {
+            ...l,
+            vocabulary: [...(l.vocabulary || []), newVocabItem]
+          };
+        })
+      );
+
+      // Background re-fetch to ensure DB sync
+      fetchLessonsFromDb();
+      onWordUpdated?.();
+      return true;
+    } catch (err) {
+      console.error('Lỗi ngoại lệ khi thêm từ vựng:', err);
+      alert('Không thể kết nối đến máy chủ để thêm từ vựng.');
+      return false;
+    }
+  };
+
+  // 6. Delete Lesson Vocabulary (Admin Only)
+  const handleDeleteVocab = async (
+    lessonId: number,
+    vocabId: string,
+    oldJp?: string
+  ): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/lesson-vocab', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'delete',
+          id: vocabId,
+          lesson_id: lessonId,
+          old_jp: oldJp,
+          user_email: userEmail
+        })
+      });
+
+      const resData = await res.json();
+      if (!resData.success) {
+        console.error('Lỗi xóa từ vựng bài học:', resData.error);
+        alert(resData.error || 'Lỗi khi xóa từ vựng bài học');
+        return false;
+      }
+
+      // Update local lessons state immediately
+      setLessons(prev =>
+        prev.map(l => {
+          if (l.id !== lessonId || !l.vocabulary) return l;
+          return {
+            ...l,
+            vocabulary: l.vocabulary.filter(v =>
+              !(v.id === vocabId || (oldJp && v.jp === oldJp))
+            )
+          };
+        })
+      );
+
+      // Background re-fetch to ensure DB sync
+      fetchLessonsFromDb();
+      onWordUpdated?.();
+      return true;
+    } catch (err) {
+      console.error('Lỗi ngoại lệ khi xóa từ vựng:', err);
+      alert('Không thể kết nối đến máy chủ để xóa từ vựng.');
+      return false;
+    }
+  };
+
+  // 7. Update Lesson Grammar (Admin Only)
+  const handleUpdateGrammar = async (
+    lessonId: number,
+    grammarId: string,
+    updated: {
+      title: string;
+      meaning: string;
+      usage?: string;
+      formula?: string;
+      notes?: string[];
+      examples?: Array<{ id?: string; speaker?: string; jp: string; romaji?: string; vi: string }>;
+    }
+  ): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/lesson-grammar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update',
+          id: grammarId,
+          lesson_id: lessonId,
+          ...updated,
+          user_email: userEmail
+        })
+      });
+
+      const resData = await res.json();
+      if (!resData.success) {
+        console.error('Lỗi cập nhật ngữ pháp bài học:', resData.error);
+        alert(resData.error || 'Lỗi khi lưu ngữ pháp');
+        return false;
+      }
+
+      // Update local lessons state immediately
+      setLessons(prev =>
+        prev.map(l => {
+          if (l.id !== lessonId || !l.grammarPoints) return l;
+          return {
+            ...l,
+            grammarPoints: l.grammarPoints.map(g =>
+              g.id === grammarId
+                ? {
+                    ...g,
+                    ...updated,
+                    examples: (updated.examples || g.examples).map((ex, i) => ({
+                      id: ex.id || `${grammarId}-ex-${i}`,
+                      speaker: ex.speaker,
+                      jp: ex.jp,
+                      romaji: ex.romaji,
+                      vi: ex.vi
+                    }))
+                  }
+                : g
+            )
+          };
+        })
+      );
+
+      // Background re-fetch to ensure DB sync
+      fetchLessonsFromDb();
+      return true;
+    } catch (err) {
+      console.error('Lỗi ngoại lệ khi sửa ngữ pháp:', err);
+      alert('Không thể kết nối đến máy chủ để lưu ngữ pháp.');
+      return false;
+    }
+  };
+
   const selectedLesson = lessons.find(l => l.id === selectedLessonId);
 
   if (loading) {
@@ -220,16 +460,20 @@ export default function LessonsTab({ userId, onPracticeLesson, onStatusChange, o
 
   return (
     <div className="space-y-4">
-
       {selectedLesson ? (
         <LessonDetail
           lesson={selectedLesson}
           totalLessons={lessons.length}
           status={lessonStatuses[selectedLesson.id] || 'not_started'}
+          isAdmin={isAdmin}
           onBack={() => setSelectedLessonId(null)}
           onSelectLesson={(id) => setSelectedLessonId(id)}
           onUpdateStatus={handleUpdateStatus}
           onPracticeLesson={onPracticeLesson}
+          onUpdateVocab={handleUpdateVocab}
+          onAddVocab={handleAddVocab}
+          onDeleteVocab={handleDeleteVocab}
+          onUpdateGrammar={handleUpdateGrammar}
         />
       ) : (
         <LessonGrid

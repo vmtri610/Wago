@@ -37,6 +37,8 @@ export interface ExpansionItem {
 }
 
 export interface LessonVocab {
+  id?: string;
+  lesson_id?: number;
   jp: string;
   romaji: string;
   vi: string;

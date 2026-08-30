@@ -41,8 +41,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className={`${beVietnamPro.variable} ${notoSansJP.variable} ${jetbrainsMono.variable} ${shipporiMincho.variable}`}>
-      <body className="antialiased min-h-screen">
+    <html lang="vi" className={`${beVietnamPro.variable} ${notoSansJP.variable} ${jetbrainsMono.variable} ${shipporiMincho.variable}`} suppressHydrationWarning>
+      <body className="antialiased min-h-screen" suppressHydrationWarning>
         {children}
       </body>
     </html>
