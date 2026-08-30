@@ -941,17 +941,23 @@ export default function Home() {
 
             {/* SRS Review Card View */}
             {srsCompletedDeck ? (
-              <div className="bg-[#FFFDF9] border border-[var(--card-border)] p-8 rounded-xl text-center space-y-4 shadow-xs">
+              <div className="bg-[#FFFDF9] border border-[var(--card-border)] p-8 rounded-2xl text-center space-y-3 shadow-xs">
                 <div className="inline-flex p-4 bg-emerald-100 text-emerald-700 rounded-full">
                   <Trophy className="w-8 h-8" />
                 </div>
-                <h3 className="text-xl font-bold text-[var(--indigo-deep)]">Hoàn thành ôn tập</h3>
-                <button
-                  onClick={initSrsDeck}
-                  className="px-6 py-2.5 bg-[var(--indigo)] text-white text-xs font-bold rounded-lg hover:bg-[var(--indigo-deep)] inline-flex items-center gap-2 shadow"
-                >
-                  <RotateCcw className="w-4 h-4" /> Làm lại
-                </button>
+                <h3 className="text-xl font-bold text-[var(--indigo-deep)]">Hoàn thành ôn tập hôm nay! 🎉</h3>
+                <p className="text-xs text-[var(--ink-soft)] max-w-sm mx-auto leading-relaxed">
+                  Bạn đã hoàn thành tất cả các từ vựng đến hạn ôn tập. Hẹn gặp lại bạn ở phiên ôn tập tiếp theo!
+                </p>
+                <div className="pt-2">
+                  <button
+                    onClick={() => setActiveTab('quiz')}
+                    className="px-5 py-2.5 bg-[var(--indigo)] hover:bg-[var(--indigo-deep)] text-white text-xs font-bold rounded-xl transition inline-flex items-center gap-2 shadow-xs"
+                  >
+                    <Layers className="w-4 h-4" />
+                    <span>Luyện tập tự do (Flashcard)</span>
+                  </button>
+                </div>
               </div>
             ) : currentSrsCard ? (
               <SrsReviewCard
