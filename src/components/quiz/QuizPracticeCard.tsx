@@ -233,7 +233,7 @@ export default function QuizPracticeCard({
                   value={quizInput}
                   onChange={(e) => onInputChange(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
                       if (quizFeedback) {
                         onAdvanceCard();
                       } else {

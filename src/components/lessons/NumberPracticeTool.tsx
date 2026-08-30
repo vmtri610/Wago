@@ -98,7 +98,7 @@ export default function NumberPracticeTool() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
       if (feedback) {
         handleNext();
       } else {

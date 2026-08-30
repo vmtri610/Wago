@@ -137,7 +137,7 @@ export default function SrsReviewCard({
               value={srsInput}
               onChange={(e) => onInputChange(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
                   if (srsFeedback) {
                     onAdvanceCard();
                   } else {
