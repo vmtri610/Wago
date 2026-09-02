@@ -3,7 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 import { isAdminEmail } from '@/lib/admin';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ymedoqaxvomzxndtwhbt.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '';
+const DEFAULT_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltZWRvcWF4dm9tenhuZHR3aGJ0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NzA2MTU3NSwiZXhwIjoyMTAyNjM3NTc1fQ.XoRqaTKl1YxwJ7ZmiKfHqDzXYsnEEmlcmMpzjZoFy3c';
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || DEFAULT_SERVICE_ROLE_KEY;
 
 export async function POST(request: Request) {
   try {
@@ -89,6 +90,10 @@ export async function POST(request: Request) {
     if (error) {
       console.error('Supabase admin update grammar error:', error.message);
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+
+    if (!data || data.length === 0) {
+      return NextResponse.json({ success: false, error: 'Không tìm thấy điểm ngữ pháp trong cơ sở dữ liệu để cập nhật' }, { status: 404 });
     }
 
     // Handle updating examples if provided
