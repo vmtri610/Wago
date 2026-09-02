@@ -267,28 +267,24 @@ export default function QuizPracticeCard({
                   )}
                 </div>
 
-                <div className="flex gap-2 sm:gap-3 justify-center">
+                <div className="flex items-center justify-center gap-4 pt-1">
                   <button
                     onClick={onPrevCard}
                     disabled={!canGoPrev}
-                    className="flex-1 sm:flex-none px-3.5 sm:px-4 py-2.5 bg-white border border-[var(--card-border)] hover:bg-gray-50 disabled:opacity-40 disabled:pointer-events-none text-[var(--ink)] font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow-2xs"
+                    className="p-3 bg-white border border-[var(--card-border)] hover:bg-gray-50 hover:border-[var(--indigo)] text-[var(--ink)] disabled:opacity-30 disabled:pointer-events-none rounded-full transition flex items-center justify-center shadow-xs active:scale-95"
                     title="Quay lại thẻ trước (Phím ←)"
+                    aria-label="Quay lại thẻ trước"
                   >
-                    <ArrowLeft className="w-4 h-4" /> Quay lại
+                    <ArrowLeft className="w-5 h-5" />
                   </button>
-                  <button
-                    onClick={() => setIsFlipped(!isFlipped)}
-                    className="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-[var(--ink)] font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5"
-                    title="Lật thẻ (Phím Cách)"
-                  >
-                    <RefreshCw className="w-4 h-4" /> Lật thẻ
-                  </button>
+
                   <button
                     onClick={onAdvanceCard}
-                    className="flex-1 sm:flex-none px-5 sm:px-6 py-2.5 bg-[var(--indigo)] hover:bg-[var(--indigo-deep)] text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow"
-                    title="Tiếp theo (Phím → hoặc Enter)"
+                    className="p-3 bg-[var(--indigo)] hover:bg-[var(--indigo-deep)] text-white rounded-full transition flex items-center justify-center shadow active:scale-95"
+                    title={currentIndex >= totalCount ? 'Hoàn thành' : 'Tiếp theo (Phím → hoặc Enter)'}
+                    aria-label="Thẻ tiếp theo"
                   >
-                    {currentIndex >= totalCount ? 'Hoàn thành' : 'Tiếp theo'} <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-5 h-5" />
                   </button>
                 </div>
               </div>
