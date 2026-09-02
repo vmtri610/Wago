@@ -513,7 +513,7 @@ export default function Home() {
   const handleSrsGrade = async (ok: boolean) => {
     if (!currentSrsCard) return;
 
-    if (ok) speakJapanese(currentSrsCard.jp);
+    speakJapanese(currentSrsCard.jp);
 
     const oldLevel = currentSrsCard.srs_level || 0;
     const newLevel = ok ? Math.min(oldLevel + 1, 5) : 0;
@@ -719,7 +719,7 @@ export default function Home() {
 
   const handleQuizGrade = (ok: boolean) => {
     if (!currentQuizCard) return;
-    if (ok) speakJapanese(currentQuizCard.jp);
+    speakJapanese(currentQuizCard.jp);
 
     if (!ok) {
       if (!wrongWordsQueueRef.current.some(w => w.id === currentQuizCard.id)) {

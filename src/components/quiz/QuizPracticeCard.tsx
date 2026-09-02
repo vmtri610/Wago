@@ -209,9 +209,12 @@ export default function QuizPracticeCard({
             <div className="flex justify-between items-center text-xs text-[var(--ink-soft)] font-semibold border-b border-[var(--card-border)] pb-3">
               <div className="flex items-center gap-2">
                 {isReviewingWrong ? (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300 animate-pulse">
-                    <RotateCcw className="w-3 h-3 text-amber-600" />
-                    Ôn lại từ chưa đúng: {currentIndex} / {totalCount}
+                  <span 
+                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300"
+                    title="Ôn tập lại từ chưa đúng"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 text-amber-600 animate-spin-slow" />
+                    <span>{currentIndex} / {totalCount}</span>
                   </span>
                 ) : (
                   <span>Tiến độ: {currentIndex} / {totalCount}</span>

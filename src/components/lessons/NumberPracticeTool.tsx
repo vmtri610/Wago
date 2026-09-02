@@ -65,8 +65,9 @@ export default function NumberPracticeTool() {
     const isCorrect = checkNumberAnswer(userInput, currentNumber);
     const solution = numberToJapanese(currentNumber);
 
+    speakJapanese(solution.hiragana);
+
     if (isCorrect) {
-      speakJapanese(solution.hiragana);
       setStats(prev => {
         const nextStreak = prev.streak + 1;
         return {
