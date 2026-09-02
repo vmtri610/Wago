@@ -58,20 +58,6 @@ export default function NumberPracticeTool() {
     }
   }, [feedback]);
 
-  // Global keydown listener so pressing Enter when feedback is present immediately advances
-  useEffect(() => {
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && !e.isComposing) {
-        if (feedback) {
-          e.preventDefault();
-          handleNext();
-        }
-      }
-    };
-    window.addEventListener('keydown', handleGlobalKeyDown);
-    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [feedback, minRange, maxRange]);
-
   const handleSelectPreset = (min: number, max: number) => {
     setMinRange(min);
     setMaxRange(max);
@@ -121,6 +107,8 @@ export default function NumberPracticeTool() {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+      e.preventDefault();
+      e.stopPropagation();
       if (feedback) {
         handleNext();
       } else {

@@ -76,7 +76,7 @@ export default function QuizPracticeCard({
     }
   }, [quizFeedback]);
 
-  // Global keyboard shortcuts for flashcard and quiz feedback
+  // Global keyboard shortcuts for flashcard navigation
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       if (e.isComposing) return;
@@ -84,14 +84,7 @@ export default function QuizPracticeCard({
       const activeEl = document.activeElement;
       const isInputActive = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
 
-      // 1. Advance on Enter when quiz feedback is shown
-      if (quizFeedback && e.key === 'Enter') {
-        e.preventDefault();
-        onAdvanceCard();
-        return;
-      }
-
-      // 2. Flashcard navigation
+      // Flashcard navigation
       if (quizMode === 'flashcard' && !isInputActive) {
         if (e.key === 'ArrowLeft' && canGoPrev && onPrevCard) {
           e.preventDefault();
@@ -108,7 +101,7 @@ export default function QuizPracticeCard({
 
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [quizFeedback, quizMode, canGoPrev, onPrevCard, onAdvanceCard]);
+  }, [quizMode, canGoPrev, onPrevCard, onAdvanceCard]);
 
   return (
     <div className="space-y-4">
@@ -314,6 +307,8 @@ export default function QuizPracticeCard({
                   onChange={(e) => onInputChange(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                      e.preventDefault();
+                      e.stopPropagation();
                       if (quizFeedback) {
                         onAdvanceCard();
                       } else {
