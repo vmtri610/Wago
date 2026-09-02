@@ -63,18 +63,29 @@ export default function QuizPracticeCard({
 }: QuizPracticeCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const nextBtnRef = useRef<HTMLButtonElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Reset card flip when card changes
   useEffect(() => {
     setIsFlipped(false);
   }, [currentCard?.id]);
 
-  // Focus next button when feedback is shown
+  // Auto focus input when switching cards or resetting feedback in vi2jp mode
   useEffect(() => {
-    if (quizFeedback) {
+    if (quizMode === 'vi2jp' && !quizFeedback) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [currentCard?.id, quizMode, quizFeedback]);
+
+  // Focus next button when feedback is shown in MCQ/Audio modes
+  useEffect(() => {
+    if (quizFeedback && quizMode !== 'vi2jp') {
       nextBtnRef.current?.focus();
     }
-  }, [quizFeedback]);
+  }, [quizFeedback, quizMode]);
 
   // Global keyboard shortcuts for flashcard navigation
   useEffect(() => {
@@ -302,6 +313,7 @@ export default function QuizPracticeCard({
                 </div>
 
                 <input
+                  ref={inputRef}
                   type="text"
                   value={quizInput}
                   onChange={(e) => onInputChange(e.target.value)}

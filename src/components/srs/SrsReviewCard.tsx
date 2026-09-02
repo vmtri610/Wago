@@ -44,6 +44,16 @@ export default function SrsReviewCard({
   autoSpeak,
   onToggleAutoSpeak
 }: SrsReviewCardProps) {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (srsQuizMode === 'vi2jp' && !srsFeedback) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [currentCard?.id, srsQuizMode, srsFeedback]);
   return (
     <div className="space-y-4">
       {/* SRS Quiz Mode Switcher Header */}
@@ -133,11 +143,14 @@ export default function SrsReviewCard({
             </div>
 
             <input
+              ref={inputRef}
               type="text"
               value={srsInput}
               onChange={(e) => onInputChange(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                  e.preventDefault();
+                  e.stopPropagation();
                   if (srsFeedback) {
                     onAdvanceCard();
                   } else {
@@ -145,8 +158,11 @@ export default function SrsReviewCard({
                   }
                 }
               }}
+              readOnly={srsFeedback !== null}
               placeholder="Nhập tiếng Nhật hoặc Romaji..."
-              className="w-full text-center py-2.5 sm:py-3 border border-[var(--card-border)] rounded-xl text-base sm:text-lg font-jp focus:outline-none focus:border-[var(--indigo)] bg-white shadow-2xs"
+              className={`w-full text-center py-2.5 sm:py-3 border border-[var(--card-border)] rounded-xl text-base sm:text-lg font-jp focus:outline-none focus:border-[var(--indigo)] bg-white shadow-2xs ${
+                srsFeedback ? 'bg-gray-50/60 cursor-default' : ''
+              }`}
               autoFocus
             />
           </>

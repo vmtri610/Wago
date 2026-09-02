@@ -51,12 +51,7 @@ export default function NumberPracticeTool() {
     generateRandomNumber(minRange, maxRange);
   }, []);
 
-  // When feedback appears, ensure Next button receives focus
-  useEffect(() => {
-    if (feedback) {
-      nextButtonRef.current?.focus();
-    }
-  }, [feedback]);
+
 
   const handleSelectPreset = (min: number, max: number) => {
     setMinRange(min);
