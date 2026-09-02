@@ -32,6 +32,7 @@ export default function NumberPracticeTool() {
   });
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
 
   // Generate random number within range
   const generateRandomNumber = (min: number, max: number) => {
@@ -49,6 +50,27 @@ export default function NumberPracticeTool() {
   useEffect(() => {
     generateRandomNumber(minRange, maxRange);
   }, []);
+
+  // When feedback appears, ensure Next button receives focus
+  useEffect(() => {
+    if (feedback) {
+      nextButtonRef.current?.focus();
+    }
+  }, [feedback]);
+
+  // Global keydown listener so pressing Enter when feedback is present immediately advances
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.isComposing) {
+        if (feedback) {
+          e.preventDefault();
+          handleNext();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [feedback, minRange, maxRange]);
 
   const handleSelectPreset = (min: number, max: number) => {
     setMinRange(min);
@@ -213,9 +235,11 @@ export default function NumberPracticeTool() {
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            disabled={!!feedback}
+            readOnly={!!feedback}
             placeholder="Nhập tiếng Nhật hoặc Romaji..."
-            className="w-full text-center py-2.5 sm:py-3 border border-[var(--card-border)] rounded-xl text-base sm:text-lg font-jp focus:outline-none focus:border-[var(--indigo)] bg-white shadow-2xs"
+            className={`w-full text-center py-2.5 sm:py-3 border border-[var(--card-border)] rounded-xl text-base sm:text-lg font-jp focus:outline-none focus:border-[var(--indigo)] bg-white shadow-2xs ${
+              feedback ? 'bg-gray-50/60 cursor-default' : ''
+            }`}
             autoFocus
           />
 
@@ -245,9 +269,10 @@ export default function NumberPracticeTool() {
           {feedback ? (
             <div className="pt-1">
               <button
+                ref={nextButtonRef}
                 onClick={handleNext}
                 autoFocus
-                className="w-full py-2.5 bg-[var(--indigo)] text-white rounded-xl text-xs font-bold hover:bg-[var(--indigo-deep)] transition flex items-center justify-center gap-1.5 shadow"
+                className="w-full py-2.5 bg-[var(--indigo)] text-white rounded-xl text-xs font-bold hover:bg-[var(--indigo-deep)] transition flex items-center justify-center gap-1.5 shadow focus:ring-2 focus:ring-[var(--indigo)]"
               >
                 Tiếp tục <ArrowRight className="w-4 h-4" />
               </button>

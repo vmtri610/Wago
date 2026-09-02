@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect, useRef, useTransition } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { kanaToRomaji } from '@/lib/kana';
 import { speakJapanese } from '@/lib/audio';
@@ -128,6 +128,7 @@ export default function Home() {
   const [quizMode, setQuizMode] = useState<'flashcard' | 'vi2jp' | 'mcq' | 'audio'>('flashcard');
   const [quizFolderIds, setQuizFolderIds] = useState<string[]>(['all']);
   const [quizDeck, setQuizDeck] = useState<Word[]>([]);
+  const [quizHistory, setQuizHistory] = useState<Word[]>([]);
   const [quizTotalCount, setQuizTotalCount] = useState<number>(0);
   const [quizCurrentIndex, setQuizCurrentIndex] = useState<number>(0);
   const [currentQuizCard, setCurrentQuizCard] = useState<Word | null>(null);
@@ -136,6 +137,10 @@ export default function Home() {
   const [quizFeedback, setQuizFeedback] = useState<{ type: 'ok' | 'no'; msg: string; oldLevel?: number; newLevel?: number } | null>(null);
   const [quizMcqOptions, setQuizMcqOptions] = useState<Word[]>([]);
   const [selectedMcqWordId, setSelectedMcqWordId] = useState<string | null>(null);
+
+  const [isReviewingWrong, setIsReviewingWrong] = useState<boolean>(false);
+  const wrongWordsQueueRef = useRef<Word[]>([]);
+  const [sourceLessonId, setSourceLessonId] = useState<number | null>(null);
 
   // Check if SRS word is due
   const isWordSrsDue = (w: Word) => {
@@ -593,6 +598,9 @@ export default function Home() {
     setQuizInput('');
     setQuizCompletedDeck(false);
     setSelectedMcqWordId(null);
+    setIsReviewingWrong(false);
+    wrongWordsQueueRef.current = [];
+    setQuizHistory([]);
 
     if (filteredQuizWords.length === 0) {
       setQuizDeck([]);
@@ -624,11 +632,71 @@ export default function Home() {
     }
   }, [activeTab, quizMode, quizFolderIds]);
 
+  // Navigate back to previous flashcard
+  const goToPrevQuizCard = () => {
+    if (quizHistory.length === 0 || !currentQuizCard) return;
+
+    const prevCard = quizHistory[quizHistory.length - 1];
+    const newHistory = quizHistory.slice(0, -1);
+    setQuizHistory(newHistory);
+
+    // Prepend currentQuizCard to quizDeck
+    setQuizDeck(prev => [prevCard, ...prev]);
+    setCurrentQuizCard(prevCard);
+    setQuizCurrentIndex(prev => Math.max(1, prev - 1));
+    setQuizFeedback(null);
+    setQuizInput('');
+    setSelectedMcqWordId(null);
+
+    if (autoSpeak && prevCard?.jp) {
+      speakJapanese(prevCard.jp);
+    }
+  };
+
   const advanceQuizCard = () => {
+    if (!currentQuizCard) return;
+
+    // 1. Record history for Flashcard or track wrong words for Quiz
+    if (quizMode === 'flashcard') {
+      setQuizHistory(prev => [...prev, currentQuizCard]);
+    } else {
+      // In Quiz modes: check if this card was incorrect or skipped
+      const wasIncorrect = quizFeedback?.type === 'no' || (quizFeedback === null && quizMode === 'vi2jp');
+      if (wasIncorrect) {
+        if (!wrongWordsQueueRef.current.some(w => w.id === currentQuizCard.id)) {
+          wrongWordsQueueRef.current.push(currentQuizCard);
+        }
+      }
+    }
+
+    // 2. Check if current deck is finishing
     if (quizDeck.length <= 1) {
-      setQuizDeck([]);
-      setCurrentQuizCard(null);
-      setQuizCompletedDeck(true);
+      // For Quiz modes: if there are wrong words from this round, circle back to them!
+      if (quizMode !== 'flashcard' && wrongWordsQueueRef.current.length > 0) {
+        const retryWords = [...wrongWordsQueueRef.current];
+        wrongWordsQueueRef.current = []; // Clear for the review round
+
+        const shuffledRetry = [...retryWords].sort(() => Math.random() - 0.5);
+        setQuizDeck(shuffledRetry);
+        setCurrentQuizCard(shuffledRetry[0]);
+        setQuizTotalCount(shuffledRetry.length);
+        setQuizCurrentIndex(1);
+        setIsReviewingWrong(true);
+
+        if (quizMode === 'mcq' || quizMode === 'audio') {
+          setQuizMcqOptions(generateMcqOptions(shuffledRetry[0], activeWords));
+        }
+
+        if ((autoSpeak || quizMode === 'audio') && shuffledRetry[0]?.jp) {
+          speakJapanese(shuffledRetry[0].jp);
+        }
+      } else {
+        // Complete deck
+        setQuizDeck([]);
+        setCurrentQuizCard(null);
+        setQuizCompletedDeck(true);
+        setIsReviewingWrong(false);
+      }
     } else {
       const nextDeck = quizDeck.slice(1);
       setQuizDeck(nextDeck);
@@ -643,6 +711,7 @@ export default function Home() {
         speakJapanese(nextDeck[0].jp);
       }
     }
+
     setQuizFeedback(null);
     setQuizInput('');
     setSelectedMcqWordId(null);
@@ -651,6 +720,12 @@ export default function Home() {
   const handleQuizGrade = (ok: boolean) => {
     if (!currentQuizCard) return;
     if (ok) speakJapanese(currentQuizCard.jp);
+
+    if (!ok) {
+      if (!wrongWordsQueueRef.current.some(w => w.id === currentQuizCard.id)) {
+        wrongWordsQueueRef.current.push(currentQuizCard);
+      }
+    }
 
     setQuizFeedback({
       type: ok ? 'ok' : 'no',
@@ -689,6 +764,7 @@ export default function Home() {
     setLessonStatuses(prev => ({ ...prev, [lessonId]: 'in_progress' }));
     setQuizFolderIds([`lesson-${lessonId}`]);
     setQuizMode('flashcard');
+    setSourceLessonId(lessonId);
     setActiveTab('quiz');
   };
 
@@ -1026,6 +1102,11 @@ export default function Home() {
               onSelectMcqChoice={handleQuizMcqChoiceSelect}
               onCheckGrade={handleCheckQuizGrade}
               onAdvanceCard={advanceQuizCard}
+              onPrevCard={goToPrevQuizCard}
+              canGoPrev={quizHistory.length > 0}
+              isReviewingWrong={isReviewingWrong}
+              sourceLessonId={sourceLessonId}
+              onBackToLesson={() => setActiveTab('lessons')}
               onRestartDeck={initQuizDeck}
               onOpenReportModal={(w) => { setReportingWord(w); setReportModalOpen(true); }}
               renderSrsChip={renderSrsChip}

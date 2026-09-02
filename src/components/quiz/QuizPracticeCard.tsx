@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Word } from '@/app/page';
 import { speakJapanese } from '@/lib/audio';
 import { 
-  Volume2, VolumeX, Flag, ArrowRight, BookOpen, Layers, CheckSquare, 
+  Volume2, VolumeX, Flag, ArrowRight, ArrowLeft, BookOpen, Layers, CheckSquare, 
   Headphones, RotateCcw, RefreshCw 
 } from 'lucide-react';
 
@@ -23,6 +23,11 @@ interface QuizPracticeCardProps {
   onSelectMcqChoice: (option: Word) => void;
   onCheckGrade: () => void;
   onAdvanceCard: () => void;
+  onPrevCard?: () => void;
+  canGoPrev?: boolean;
+  isReviewingWrong?: boolean;
+  sourceLessonId?: number | null;
+  onBackToLesson?: () => void;
   onRestartDeck: () => void;
   onOpenReportModal: (word: Word) => void;
   renderSrsChip: (level?: number, isDue?: boolean) => React.ReactNode;
@@ -45,6 +50,11 @@ export default function QuizPracticeCard({
   onSelectMcqChoice,
   onCheckGrade,
   onAdvanceCard,
+  onPrevCard,
+  canGoPrev = false,
+  isReviewingWrong = false,
+  sourceLessonId,
+  onBackToLesson,
   onRestartDeck,
   onOpenReportModal,
   renderSrsChip,
@@ -52,11 +62,53 @@ export default function QuizPracticeCard({
   onToggleAutoSpeak
 }: QuizPracticeCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const nextBtnRef = useRef<HTMLButtonElement>(null);
 
   // Reset card flip when card changes
-  React.useEffect(() => {
+  useEffect(() => {
     setIsFlipped(false);
   }, [currentCard?.id]);
+
+  // Focus next button when feedback is shown
+  useEffect(() => {
+    if (quizFeedback) {
+      nextBtnRef.current?.focus();
+    }
+  }, [quizFeedback]);
+
+  // Global keyboard shortcuts for flashcard and quiz feedback
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.isComposing) return;
+
+      const activeEl = document.activeElement;
+      const isInputActive = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+
+      // 1. Advance on Enter when quiz feedback is shown
+      if (quizFeedback && e.key === 'Enter') {
+        e.preventDefault();
+        onAdvanceCard();
+        return;
+      }
+
+      // 2. Flashcard navigation
+      if (quizMode === 'flashcard' && !isInputActive) {
+        if (e.key === 'ArrowLeft' && canGoPrev && onPrevCard) {
+          e.preventDefault();
+          onPrevCard();
+        } else if (e.key === 'ArrowRight' || e.key === 'Enter') {
+          e.preventDefault();
+          onAdvanceCard();
+        } else if (e.key === ' ') {
+          e.preventDefault();
+          setIsFlipped(prev => !prev);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [quizFeedback, quizMode, canGoPrev, onPrevCard, onAdvanceCard]);
 
   return (
     <div className="space-y-4">
@@ -122,11 +174,24 @@ export default function QuizPracticeCard({
         </button>
       </div>
 
+      {/* Back to Lesson shortcut if opened from a specific lesson */}
+      {sourceLessonId && onBackToLesson && (
+        <div className="flex items-center pb-0.5">
+          <button
+            onClick={onBackToLesson}
+            className="text-xs font-semibold text-[var(--indigo)] hover:underline flex items-center gap-1.5 py-1 px-2 rounded-lg hover:bg-indigo-50/70 transition"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" /> Quay lại Bài học {sourceLessonId}
+          </button>
+        </div>
+      )}
+
       {/* Card Practice Container */}
       <div className="bg-[#FFFDF9] border border-[var(--card-border)] p-4 sm:p-6 rounded-2xl text-center space-y-4 shadow-2xs">
         {completedDeck ? (
           <div className="py-8 space-y-4">
             <h3 className="text-lg sm:text-xl font-bold text-[var(--indigo-deep)]">Hoàn thành bài luyện tập!</h3>
+            <p className="text-xs text-[var(--ink-soft)]">Bạn đã hoàn thành tất cả các từ vựng trong danh sách.</p>
             <button
               onClick={onRestartDeck}
               className="px-6 py-2.5 bg-[var(--indigo)] text-white text-xs font-bold rounded-xl hover:bg-[var(--indigo-deep)] inline-flex items-center gap-2 shadow"
@@ -138,7 +203,16 @@ export default function QuizPracticeCard({
           <>
             {/* Header info */}
             <div className="flex justify-between items-center text-xs text-[var(--ink-soft)] font-semibold border-b border-[var(--card-border)] pb-3">
-              <span>Tiến độ: {currentIndex} / {totalCount}</span>
+              <div className="flex items-center gap-2">
+                {isReviewingWrong ? (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300 animate-pulse">
+                    <RotateCcw className="w-3 h-3 text-amber-600" />
+                    Ôn lại từ chưa đúng: {currentIndex} / {totalCount}
+                  </span>
+                ) : (
+                  <span>Tiến độ: {currentIndex} / {totalCount}</span>
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => onOpenReportModal(currentCard)}
@@ -195,16 +269,26 @@ export default function QuizPracticeCard({
 
                 <div className="flex gap-2 sm:gap-3 justify-center">
                   <button
+                    onClick={onPrevCard}
+                    disabled={!canGoPrev}
+                    className="flex-1 sm:flex-none px-3.5 sm:px-4 py-2.5 bg-white border border-[var(--card-border)] hover:bg-gray-50 disabled:opacity-40 disabled:pointer-events-none text-[var(--ink)] font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow-2xs"
+                    title="Quay lại thẻ trước (Phím ←)"
+                  >
+                    <ArrowLeft className="w-4 h-4" /> Quay lại
+                  </button>
+                  <button
                     onClick={() => setIsFlipped(!isFlipped)}
                     className="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-[var(--ink)] font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5"
+                    title="Lật thẻ (Phím Cách)"
                   >
                     <RefreshCw className="w-4 h-4" /> Lật thẻ
                   </button>
                   <button
                     onClick={onAdvanceCard}
                     className="flex-1 sm:flex-none px-5 sm:px-6 py-2.5 bg-[var(--indigo)] hover:bg-[var(--indigo-deep)] text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow"
+                    title="Tiếp theo (Phím → hoặc Enter)"
                   >
-                    Tiếp theo <ArrowRight className="w-4 h-4" />
+                    {currentIndex >= totalCount ? 'Hoàn thành' : 'Tiếp theo'} <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -241,8 +325,11 @@ export default function QuizPracticeCard({
                       }
                     }
                   }}
+                  readOnly={quizFeedback !== null}
                   placeholder="Nhập tiếng Nhật hoặc Romaji..."
-                  className="w-full text-center py-2.5 sm:py-3 border border-[var(--card-border)] rounded-xl text-base sm:text-lg font-jp focus:outline-none focus:border-[var(--indigo)] bg-white shadow-2xs"
+                  className={`w-full text-center py-2.5 sm:py-3 border border-[var(--card-border)] rounded-xl text-base sm:text-lg font-jp focus:outline-none focus:border-[var(--indigo)] bg-white shadow-2xs ${
+                    quizFeedback ? 'bg-gray-50/60 cursor-default' : ''
+                  }`}
                   autoFocus
                 />
               </>
@@ -323,9 +410,10 @@ export default function QuizPracticeCard({
             {quizFeedback ? (
               <div className="pt-2">
                 <button
+                  ref={nextBtnRef}
                   onClick={onAdvanceCard}
                   autoFocus
-                  className="w-full py-3 bg-[var(--indigo)] text-white rounded-xl text-xs font-bold hover:bg-[var(--indigo-deep)] transition flex items-center justify-center gap-1.5 shadow"
+                  className="w-full py-3 bg-[var(--indigo)] text-white rounded-xl text-xs font-bold hover:bg-[var(--indigo-deep)] transition flex items-center justify-center gap-1.5 shadow focus:ring-2 focus:ring-[var(--indigo)]"
                 >
                   Tiếp tục <ArrowRight className="w-4 h-4" />
                 </button>
