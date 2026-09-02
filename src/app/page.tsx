@@ -25,6 +25,7 @@ import QuizPracticeCard from '@/components/quiz/QuizPracticeCard';
 import WordListSection from '@/components/words/WordListSection';
 import LessonsTab from '@/components/lessons/LessonsTab';
 import { N5_LESSONS } from '@/data/lessonsData';
+import { checkWordAnswer } from '@/lib/answerValidator';
 
 export interface Folder {
   id: string;
@@ -549,8 +550,7 @@ export default function Home() {
 
   const handleCheckSrsGrade = () => {
     if (!currentSrsCard) return;
-    const inputClean = srsInput.trim().toLowerCase();
-    const isCorrect = inputClean === currentSrsCard.jp.toLowerCase() || inputClean === currentSrsCard.romaji.toLowerCase();
+    const isCorrect = checkWordAnswer(srsInput, currentSrsCard);
     handleSrsGrade(isCorrect);
   };
 
@@ -662,8 +662,7 @@ export default function Home() {
 
   const handleCheckQuizGrade = () => {
     if (!currentQuizCard) return;
-    const inputClean = quizInput.trim().toLowerCase();
-    const isCorrect = inputClean === currentQuizCard.jp.toLowerCase() || inputClean === currentQuizCard.romaji.toLowerCase();
+    const isCorrect = checkWordAnswer(quizInput, currentQuizCard);
     handleQuizGrade(isCorrect);
   };
 
