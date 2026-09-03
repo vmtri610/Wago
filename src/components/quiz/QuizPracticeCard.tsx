@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Word } from '@/app/page';
 import { speakJapanese } from '@/lib/audio';
+import { PitchAccentText } from '@/components/ui/PitchAccentText';
 import { 
   Volume2, VolumeX, Flag, ArrowRight, ArrowLeft, BookOpen, Layers, CheckSquare, 
   Headphones, RotateCcw, RefreshCw 
@@ -242,11 +243,11 @@ export default function QuizPracticeCard({
                 >
                   {!isFlipped ? (
                     /* FRONT: TIẾNG NHẬT */
-                    <div className="space-y-2 sm:space-y-3 text-center my-auto w-full px-2">
+                    <div className="space-y-2 text-center my-auto w-full px-2">
                       <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
-                        <span className="text-xl sm:text-2xl md:text-3xl font-medium font-jp text-[var(--indigo-deep)] leading-relaxed break-words max-w-full">
-                          {currentCard.jp}
-                        </span>
+                        <div className="text-base sm:text-lg font-bold font-jp text-[var(--indigo-deep)] leading-relaxed break-words max-w-full">
+                          <PitchAccentText text={currentCard.jp} pitch={currentCard.pitch_accent} size="md" />
+                        </div>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -255,7 +256,7 @@ export default function QuizPracticeCard({
                           className="p-1.5 sm:p-2 text-[var(--indigo)] hover:bg-indigo-50 rounded-full transition shrink-0"
                           title="Nghe phát âm"
                         >
-                          <Volume2 className="w-5 h-5 sm:w-6 sm:h-6" />
+                          <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
                       </div>
                       {currentCard.romaji && (
@@ -267,7 +268,7 @@ export default function QuizPracticeCard({
                   ) : (
                     /* BACK: TIẾNG VIỆT (Chỉ hiển thị nghĩa Tiếng Việt) */
                     <div className="text-center my-auto w-full px-2">
-                      <div className="text-lg sm:text-2xl md:text-3xl font-bold text-[var(--ink)] leading-snug break-words max-w-full">
+                      <div className="text-base sm:text-lg font-bold text-[var(--ink)] leading-snug break-words max-w-full">
                         {currentCard.vi}
                       </div>
                     </div>
@@ -300,13 +301,13 @@ export default function QuizPracticeCard({
             {/* MODE 2: VI2JP (Gõ chữ) */}
             {quizMode === 'vi2jp' && (
               <>
-                <div className="py-3 sm:py-4 space-y-1">
-                  <div className="text-base sm:text-xl md:text-2xl font-bold text-[var(--ink)] leading-snug break-words px-2">
+                <div className="py-2.5 sm:py-3 space-y-1">
+                  <div className="text-base sm:text-lg font-bold text-[var(--ink)] leading-snug break-words px-2">
                     {currentCard.vi}
                   </div>
                   {quizFeedback && (
-                    <div className="text-sm sm:text-base font-medium font-jp text-[var(--indigo-deep)] mt-3 flex items-center justify-center gap-2 flex-wrap">
-                      <span>{currentCard.jp}</span>
+                    <div className="text-sm sm:text-base font-medium font-jp text-[var(--indigo-deep)] mt-2.5 flex items-center justify-center gap-2 flex-wrap">
+                      <PitchAccentText text={currentCard.jp} pitch={currentCard.pitch_accent} size="md" />
                       <span className="font-jetbrains text-xs font-semibold text-[var(--indigo)]">({currentCard.romaji})</span>
                       <button onClick={() => speakJapanese(currentCard.jp)} className="p-1 text-[var(--indigo)] hover:bg-indigo-50 rounded-full">
                         <Volume2 className="w-4 h-4" />
@@ -333,7 +334,7 @@ export default function QuizPracticeCard({
                   }}
                   readOnly={quizFeedback !== null}
                   placeholder="Nhập tiếng Nhật hoặc Romaji..."
-                  className={`w-full text-center py-2.5 sm:py-3 border border-[var(--card-border)] rounded-xl text-base sm:text-lg font-jp focus:outline-none focus:border-[var(--indigo)] bg-white shadow-2xs ${
+                  className={`w-full text-center py-2 sm:py-2.5 border border-[var(--card-border)] rounded-xl text-base font-jp focus:outline-none focus:border-[var(--indigo)] bg-white shadow-2xs ${
                     quizFeedback ? 'bg-gray-50/60 cursor-default' : ''
                   }`}
                   autoFocus
@@ -344,10 +345,10 @@ export default function QuizPracticeCard({
             {/* MODE 3 & 4: MCQ / AUDIO */}
             {(quizMode === 'mcq' || quizMode === 'audio') && (
               <>
-                <div className="py-2 space-y-3 border-b border-[var(--card-border)] pb-3 flex flex-col items-center justify-center">
+                <div className="py-2 space-y-2 border-b border-[var(--card-border)] pb-2.5 flex flex-col items-center justify-center">
                   {quizMode === 'mcq' ? (
                     <div className="space-y-1">
-                      <div className="text-base sm:text-lg md:text-xl font-bold text-[var(--ink)] leading-snug break-words px-2">
+                      <div className="text-base sm:text-lg font-bold text-[var(--ink)] leading-snug break-words px-2">
                         {currentCard.vi}
                       </div>
                     </div>
@@ -362,7 +363,7 @@ export default function QuizPracticeCard({
                       </button>
                       {quizFeedback && (
                         <div className="text-sm sm:text-base font-bold font-jp text-[var(--indigo-deep)] break-words">
-                          {currentCard.jp}
+                          <PitchAccentText text={currentCard.jp} pitch={currentCard.pitch_accent} size="md" />
                         </div>
                       )}
                     </>

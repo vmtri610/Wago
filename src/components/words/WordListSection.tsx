@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Word, Folder } from '@/app/page';
 import { speakJapanese } from '@/lib/audio';
+import { PitchAccentText } from '@/components/ui/PitchAccentText';
 import { Search, X, Volume2, Trash2, Edit2, Check, Save } from 'lucide-react';
 
 interface WordListSectionProps {
@@ -183,8 +184,10 @@ export default function WordListSection({
               <div key={w.id} className="bg-[#FFFDF9] border border-[var(--card-border)] p-4 rounded-xl relative shadow-xs hover:border-[var(--indigo)] transition flex flex-col justify-between space-y-2 group">
                 <div>
                   <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-2">
-                      <div className="text-2xl font-medium font-jp text-[var(--ink)]">{w.jp}</div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <div className="text-base sm:text-lg font-bold font-jp text-[var(--indigo-deep)]">
+                        <PitchAccentText text={w.jp} pitch={w.pitch_accent} size="md" />
+                      </div>
                       <button
                         onClick={() => speakJapanese(w.jp)}
                         title="Nghe phát âm"

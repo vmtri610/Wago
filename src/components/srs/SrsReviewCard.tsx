@@ -3,6 +3,7 @@
 import React from 'react';
 import { Word } from '@/app/page';
 import { speakJapanese } from '@/lib/audio';
+import { PitchAccentText } from '@/components/ui/PitchAccentText';
 import { Volume2, VolumeX, Flag, ArrowRight, BookOpen, CheckSquare, Headphones } from 'lucide-react';
 
 interface SrsReviewCardProps {
@@ -127,13 +128,13 @@ export default function SrsReviewCard({
         {/* MODE 1: VI2JP (Default Gõ chữ) */}
         {srsQuizMode === 'vi2jp' && (
           <>
-            <div className="py-3 sm:py-4 space-y-1">
-              <div className="text-base sm:text-xl md:text-2xl font-bold text-[var(--ink)] leading-snug break-words px-2">
+            <div className="py-2.5 sm:py-3 space-y-1">
+              <div className="text-base sm:text-lg font-bold text-[var(--ink)] leading-snug break-words px-2">
                 {currentCard.vi}
               </div>
               {srsFeedback && (
-                <div className="text-sm sm:text-base font-medium font-jp text-[var(--indigo-deep)] mt-3 flex items-center justify-center gap-2 flex-wrap">
-                  <span>{currentCard.jp}</span>
+                <div className="text-sm sm:text-base font-medium font-jp text-[var(--indigo-deep)] mt-2.5 flex items-center justify-center gap-2 flex-wrap">
+                  <PitchAccentText text={currentCard.jp} pitch={currentCard.pitch_accent} size="md" />
                   <span className="font-jetbrains text-xs font-semibold text-[var(--indigo)]">({currentCard.romaji})</span>
                   <button onClick={() => speakJapanese(currentCard.jp)} className="p-1 text-[var(--indigo)] hover:bg-indigo-50 rounded-full">
                     <Volume2 className="w-4 h-4" />
@@ -160,7 +161,7 @@ export default function SrsReviewCard({
               }}
               readOnly={srsFeedback !== null}
               placeholder="Nhập tiếng Nhật hoặc Romaji..."
-              className={`w-full text-center py-2.5 sm:py-3 border border-[var(--card-border)] rounded-xl text-base sm:text-lg font-jp focus:outline-none focus:border-[var(--indigo)] bg-white shadow-2xs ${
+              className={`w-full text-center py-2 sm:py-2.5 border border-[var(--card-border)] rounded-xl text-base font-jp focus:outline-none focus:border-[var(--indigo)] bg-white shadow-2xs ${
                 srsFeedback ? 'bg-gray-50/60 cursor-default' : ''
               }`}
               autoFocus
@@ -171,10 +172,10 @@ export default function SrsReviewCard({
         {/* MODE 2 & 3: MCQ / AUDIO */}
         {(srsQuizMode === 'mcq' || srsQuizMode === 'audio') && (
           <>
-            <div className="py-2 space-y-3 border-b border-[var(--card-border)] pb-3 flex flex-col items-center justify-center">
+            <div className="py-2 space-y-2 border-b border-[var(--card-border)] pb-2.5 flex flex-col items-center justify-center">
               {srsQuizMode === 'mcq' ? (
                 <div className="space-y-1">
-                  <div className="text-base sm:text-lg md:text-xl font-bold text-[var(--ink)] leading-snug break-words px-2">
+                  <div className="text-base sm:text-lg font-bold text-[var(--ink)] leading-snug break-words px-2">
                     {currentCard.vi}
                   </div>
                 </div>
@@ -189,7 +190,7 @@ export default function SrsReviewCard({
                   </button>
                   {srsFeedback && (
                     <div className="text-sm sm:text-base font-bold font-jp text-[var(--indigo-deep)] break-words">
-                      {currentCard.jp}
+                      <PitchAccentText text={currentCard.jp} pitch={currentCard.pitch_accent} size="md" />
                     </div>
                   )}
                 </>

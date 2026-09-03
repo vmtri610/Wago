@@ -43,6 +43,7 @@ export interface LessonVocab {
   romaji: string;
   vi: string;
   type?: string;
+  pitch_accent?: number;
 }
 
 export interface Lesson {

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Lesson, LessonStatus } from '@/types/lesson';
 import { speakJapanese } from '@/lib/audio';
+import { PitchAccentText } from '@/components/ui/PitchAccentText';
 import { 
   ArrowLeft, BookOpen, Volume2, CheckCircle2, Clock, 
   Circle, Eye, EyeOff, Layers, MessageSquare, Sparkles, AlertCircle, ChevronLeft, ChevronRight, Dices,
@@ -548,8 +549,10 @@ export default function LessonDetail({
                   key={v.id || idx}
                   className="bg-white border border-[var(--card-border)] p-3 rounded-xl flex items-center justify-between hover:border-[var(--indigo)] transition group"
                 >
-                  <div className="space-y-0.5">
-                    <div className="text-sm sm:text-base font-bold font-jp text-[var(--indigo-deep)]">{v.jp}</div>
+                  <div className="space-y-1">
+                    <div className="text-sm sm:text-base font-bold font-jp text-[var(--indigo-deep)]">
+                      <PitchAccentText text={v.jp} pitch={v.pitch_accent} size="md" />
+                    </div>
                     {showRomaji && (
                       <div className="text-[11px] font-jetbrains text-[var(--indigo)] font-semibold">{v.romaji}</div>
                     )}

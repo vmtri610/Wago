@@ -42,6 +42,7 @@ export interface Word {
   jp: string;
   romaji: string;
   vi: string;
+  pitch_accent?: number;
   srs_level?: number;
   next_review_at?: string | null;
   user_id?: string;
