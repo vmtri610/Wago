@@ -20,7 +20,6 @@ import ReportWordModal from '@/components/report/ReportWordModal';
 import ReportListModal from '@/components/report/ReportListModal';
 
 import FolderFilterBar from '@/components/folder/FolderFilterBar';
-import SrsReviewCard from '@/components/srs/SrsReviewCard';
 import QuizPracticeCard from '@/components/quiz/QuizPracticeCard';
 import WordListSection from '@/components/words/WordListSection';
 import LessonsTab from '@/components/lessons/LessonsTab';
@@ -82,7 +81,7 @@ export default function Home() {
   const [reportListModalOpen, setReportListModalOpen] = useState(false);
 
   // Core App State
-  const [activeTab, setActiveTab] = useState<'lessons' | 'kanji' | 'srs' | 'quiz' | 'list' | 'add'>('lessons');
+  const [activeTab, setActiveTab] = useState<'lessons' | 'kanji' | 'quiz' | 'list' | 'add'>('lessons');
   const [words, setWords] = useState<Word[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [dbLessons, setDbLessons] = useState<any[]>([]);
@@ -108,21 +107,6 @@ export default function Home() {
   const [renameInputValue, setRenameInputValue] = useState('');
   const [listSearchQuery, setListSearchQuery] = useState('');
   const [autoSpeak, setAutoSpeak] = useState<boolean>(true);
-
-  // -------------------------------------------------------------
-  // SRS TAB STATE (Default Mode: vi2jp)
-  // -------------------------------------------------------------
-  const [srsQuizMode, setSrsQuizMode] = useState<'vi2jp' | 'mcq' | 'audio'>('vi2jp');
-  const [srsFolderIds, setSrsFolderIds] = useState<string[]>(['all']);
-  const [srsDeck, setSrsDeck] = useState<Word[]>([]);
-  const [srsTotalCount, setSrsTotalCount] = useState<number>(0);
-  const [srsCurrentIndex, setSrsCurrentIndex] = useState<number>(0);
-  const [currentSrsCard, setCurrentSrsCard] = useState<Word | null>(null);
-  const [srsCompletedDeck, setSrsCompletedDeck] = useState<boolean>(false);
-  const [srsInput, setSrsInput] = useState('');
-  const [srsFeedback, setSrsFeedback] = useState<{ type: 'ok' | 'no'; msg: string; oldLevel?: number; newLevel?: number } | null>(null);
-  const [srsMcqOptions, setSrsMcqOptions] = useState<Word[]>([]);
-  const [selectedSrsMcqWordId, setSelectedSrsMcqWordId] = useState<string | null>(null);
 
   // -------------------------------------------------------------
   // STANDALONE QUIZ / FLASHCARD TAB STATE (Default Mode: flashcard)
@@ -199,14 +183,40 @@ export default function Home() {
         } catch (pErr) {}
       }
 
-      setWords((wData || []).map((w: any) => {
+      const dbWordList = (wData || []).map((w: any) => {
         const prog = progressMap[w.id];
         return {
           ...w,
           srs_level: prog ? prog.srs_level : (w.srs_level ?? 0),
           next_review_at: prog ? prog.next_review_at : (w.next_review_at || null)
         };
-      }));
+      });
+
+      // Tự động nạp toàn bộ từ vựng Bài 1 & Bài 2 từ N5_LESSONS vào hệ thống nếu chưa có trong DB
+      const dbKeys = new Set(dbWordList.filter(w => w.lesson_id).map(w => `${w.lesson_id}-${w.jp}`));
+      const staticLessonWords: Word[] = [];
+      N5_LESSONS.forEach(lesson => {
+        (lesson.vocabulary || []).forEach((v, idx) => {
+          const key = `${lesson.id}-${v.jp}`;
+          if (!dbKeys.has(key)) {
+            const tempId = `l${lesson.id}-vocab-${idx}-${v.jp}`;
+            const prog = progressMap[tempId];
+            staticLessonWords.push({
+              id: tempId,
+              user_id: user?.id,
+              lesson_id: lesson.id,
+              jp: v.jp,
+              romaji: v.romaji,
+              vi: v.vi,
+              pitch_accent: v.pitch_accent,
+              srs_level: prog ? prog.srs_level : 0,
+              next_review_at: prog ? prog.next_review_at : null
+            });
+          }
+        });
+      });
+
+      setWords([...dbWordList, ...staticLessonWords]);
       setSyncStatus({ mode: 'supabase', message: 'Supabase DB Live' });
 
       // Fetch lessons and user lesson progress
@@ -218,13 +228,13 @@ export default function Home() {
 
         if (user?.id) {
           const { data: ulpData } = await supabase.from('user_lesson_progress').select('lesson_id, status').eq('user_id', user.id);
+          const pMap: Record<number, 'not_started' | 'in_progress' | 'completed'> = { 1: 'in_progress', 2: 'in_progress' };
           if (ulpData && ulpData.length > 0) {
-            const pMap: Record<number, 'not_started' | 'in_progress' | 'completed'> = { 1: 'in_progress' };
             ulpData.forEach((row: any) => {
               pMap[row.lesson_id] = row.status;
             });
-            setLessonStatuses(pMap);
           }
+          setLessonStatuses(pMap);
         }
       } catch (lErr) {}
 
@@ -418,153 +428,10 @@ export default function Home() {
     return true; // Các từ trong thư mục cá nhân
   });
 
-  // -------------------------------------------------------------
-  // SRS ENGINE (Vie -> JP)
-  // -------------------------------------------------------------
-  const dueSrsWords = activeWords.filter(w => {
-    const matchesFolder =
-      srsFolderIds.includes('all') ||
-      (w.folder_id && srsFolderIds.includes(w.folder_id)) ||
-      (w.lesson_id && srsFolderIds.includes(`lesson-${w.lesson_id}`));
-    return matchesFolder && isWordSrsDue(w);
-  });
-
-  const toggleSrsFolder = (fId: string) => {
-    if (fId === 'all') {
-      setSrsFolderIds(['all']);
-      return;
-    }
-    let next: string[];
-    if (srsFolderIds.includes('all')) {
-      next = [fId];
-    } else if (srsFolderIds.includes(fId)) {
-      next = srsFolderIds.filter(id => id !== fId);
-      if (next.length === 0) next = ['all'];
-    } else {
-      next = [...srsFolderIds, fId];
-    }
-    setSrsFolderIds(next);
-  };
-
   const generateMcqOptions = (targetCard: Word, pool: Word[]) => {
     const distractors = pool.filter(w => w.id !== targetCard.id);
     const shuffledDistractors = [...distractors].sort(() => Math.random() - 0.5).slice(0, 3);
     return [targetCard, ...shuffledDistractors].sort(() => Math.random() - 0.5);
-  };
-
-  const initSrsDeck = () => {
-    setSrsFeedback(null);
-    setSrsInput('');
-    setSrsCompletedDeck(false);
-    setSelectedSrsMcqWordId(null);
-
-    if (dueSrsWords.length === 0) {
-      setSrsDeck([]);
-      setSrsTotalCount(0);
-      setSrsCurrentIndex(0);
-      setCurrentSrsCard(null);
-      setSrsCompletedDeck(true);
-      return;
-    }
-
-    const shuffled = [...dueSrsWords].sort(() => Math.random() - 0.5);
-    setSrsDeck(shuffled);
-    setSrsTotalCount(shuffled.length);
-    setSrsCurrentIndex(1);
-    setCurrentSrsCard(shuffled[0]);
-
-    if (srsQuizMode === 'mcq' || srsQuizMode === 'audio') {
-      setSrsMcqOptions(generateMcqOptions(shuffled[0], words));
-    }
-
-    if ((autoSpeak || srsQuizMode === 'audio') && shuffled[0]?.jp) {
-      speakJapanese(shuffled[0].jp);
-    }
-  };
-
-  useEffect(() => {
-    if (activeTab === 'srs') {
-      initSrsDeck();
-    }
-  }, [activeTab, srsQuizMode, srsFolderIds]);
-
-  const advanceSrsCard = () => {
-    if (srsDeck.length <= 1) {
-      setSrsDeck([]);
-      setCurrentSrsCard(null);
-      setSrsCompletedDeck(true);
-    } else {
-      const nextDeck = srsDeck.slice(1);
-      setSrsDeck(nextDeck);
-      setCurrentSrsCard(nextDeck[0]);
-      setSrsCurrentIndex(prev => prev + 1);
-
-      if (srsQuizMode === 'mcq' || srsQuizMode === 'audio') {
-        setSrsMcqOptions(generateMcqOptions(nextDeck[0], words));
-      }
-
-      if ((autoSpeak || srsQuizMode === 'audio') && nextDeck[0]?.jp) {
-        speakJapanese(nextDeck[0].jp);
-      }
-    }
-    setSrsFeedback(null);
-    setSrsInput('');
-    setSelectedSrsMcqWordId(null);
-  };
-
-  const handleSrsGrade = async (ok: boolean) => {
-    if (!currentSrsCard) return;
-
-    speakJapanese(currentSrsCard.jp);
-
-    const oldLevel = currentSrsCard.srs_level || 0;
-    const newLevel = ok ? Math.min(oldLevel + 1, 5) : 0;
-    const hoursToAdd = SRS_INTERVAL_HOURS[newLevel] || 0;
-
-    const nextDate = new Date();
-    nextDate.setHours(nextDate.getHours() + hoursToAdd);
-    const nextReviewIso = nextDate.toISOString();
-
-    const updatedWord: Word = {
-      ...currentSrsCard,
-      srs_level: newLevel,
-      next_review_at: nextReviewIso
-    };
-
-    setWords(words.map(w => w.id === updatedWord.id ? updatedWord : w));
-
-    try {
-      if (user?.id) {
-        await supabase.from('user_word_progress').upsert({
-          user_id: user.id,
-          word_id: updatedWord.id,
-          srs_level: newLevel,
-          next_review_at: nextReviewIso,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id,word_id' });
-      }
-    } catch (e) {}
-
-    setSrsFeedback({
-      type: ok ? 'ok' : 'no',
-      msg: ok 
-        ? `Chính xác — ${currentSrsCard.jp} (${currentSrsCard.romaji})`
-        : `Chưa đúng — ${currentSrsCard.jp} (${currentSrsCard.romaji})`,
-      oldLevel,
-      newLevel
-    });
-  };
-
-  const handleCheckSrsGrade = () => {
-    if (!currentSrsCard) return;
-    const isCorrect = checkWordAnswer(srsInput, currentSrsCard);
-    handleSrsGrade(isCorrect);
-  };
-
-  const handleSrsMcqChoiceSelect = (option: Word) => {
-    if (!currentSrsCard || srsFeedback) return;
-    setSelectedSrsMcqWordId(option.id);
-    handleSrsGrade(option.id === currentSrsCard.id);
   };
 
   // -------------------------------------------------------------
@@ -773,7 +640,6 @@ export default function Home() {
   const navItems = [
     { id: 'lessons' as const, label: 'Bài học N5', icon: BookOpen },
     { id: 'kanji' as const, label: 'Kanji (Hán tự)', icon: Sparkles },
-    { id: 'srs' as const, label: 'Ôn tập SRS', icon: Flame },
     { id: 'quiz' as const, label: 'Luyện tập', icon: Layers },
     { id: 'list' as const, label: `Sổ từ vựng (${activeWords.length})`, icon: List },
     { id: 'add' as const, label: 'Thêm từ mới', icon: Plus },
@@ -895,7 +761,7 @@ export default function Home() {
                   } ${sidebarCollapsed ? 'md:justify-center md:px-0' : ''}`}
                 >
                   <div className="flex items-center gap-3 truncate">
-                    <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : item.id === 'srs' ? 'text-rose-500' : 'text-[var(--indigo)]'}`} />
+                    <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-[var(--indigo)]'}`} />
                     <span className={`${sidebarCollapsed ? 'md:hidden' : 'block'} truncate`}>
                       {item.label}
                     </span>
@@ -979,98 +845,7 @@ export default function Home() {
           </section>
         )}
 
-        {/* TAB 1: SRS REVIEW */}
-        {activeTab === 'srs' && (
-          <section className="space-y-4">
-            <div className="bg-[#FFFDF9] border border-[var(--card-border)] p-5 rounded-2xl shadow-xs space-y-4">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[var(--card-border)] pb-4">
-                <div>
-                  <h2 className="text-xl font-bold text-[var(--indigo-deep)] flex items-center gap-2">
-                    <Flame className="w-6 h-6 text-rose-500 animate-pulse" />
-                    Ôn tập SRS
-                  </h2>
-                </div>
 
-                <div className="px-4 py-2 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 font-bold text-xs flex items-center gap-1.5 shrink-0">
-                  <Clock className="w-4 h-4 text-rose-600" />
-                  {dueSrsWords.length} từ đến hạn
-                </div>
-              </div>
-
-              {/* SRS Level Chips */}
-              <div className="space-y-1.5">
-                <div className="text-xs font-semibold text-[var(--ink-soft)]">Cấp độ ghi nhớ:</div>
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                  {[0, 1, 2, 3, 4, 5].map(lvl => {
-                    const count = activeWords.filter(w => (w.srs_level || 0) === lvl).length;
-                    return (
-                      <div key={lvl} className="bg-white border border-[var(--card-border)] p-2 rounded-xl text-center space-y-1">
-                        <div className="flex justify-center">{renderSrsChip(lvl)}</div>
-                        <div className="text-sm sm:text-base font-bold text-[var(--indigo-deep)]">{count} <span className="text-[10px] font-normal text-gray-500">từ</span></div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Folder Filter Bar */}
-              <FolderFilterBar
-                folders={combinedFolders}
-                wordsCountMap={wordsCountMap}
-                totalWordsCount={activeWords.length}
-                activeFolderId={srsFolderIds}
-                onSelectFolder={toggleSrsFolder}
-                isMultiSelect={true}
-              />
-            </div>
-
-            {/* SRS Review Card View */}
-            {srsCompletedDeck ? (
-              <div className="bg-[#FFFDF9] border border-[var(--card-border)] p-8 rounded-2xl text-center space-y-3 shadow-xs">
-                <div className="inline-flex p-4 bg-emerald-100 text-emerald-700 rounded-full">
-                  <Trophy className="w-8 h-8" />
-                </div>
-                <h3 className="text-xl font-bold text-[var(--indigo-deep)]">Hoàn thành ôn tập hôm nay! 🎉</h3>
-                <p className="text-xs text-[var(--ink-soft)] max-w-sm mx-auto leading-relaxed">
-                  Bạn đã hoàn thành tất cả các từ vựng đến hạn ôn tập. Hẹn gặp lại bạn ở phiên ôn tập tiếp theo!
-                </p>
-                <div className="pt-2">
-                  <button
-                    onClick={() => setActiveTab('quiz')}
-                    className="px-5 py-2.5 bg-[var(--indigo)] hover:bg-[var(--indigo-deep)] text-white text-xs font-bold rounded-xl transition inline-flex items-center gap-2 shadow-xs"
-                  >
-                    <Layers className="w-4 h-4" />
-                    <span>Luyện tập tự do (Flashcard)</span>
-                  </button>
-                </div>
-              </div>
-            ) : currentSrsCard ? (
-              <SrsReviewCard
-                currentCard={currentSrsCard}
-                currentIndex={srsCurrentIndex}
-                totalCount={srsTotalCount}
-                srsQuizMode={srsQuizMode}
-                onModeChange={setSrsQuizMode}
-                srsInput={srsInput}
-                onInputChange={setSrsInput}
-                srsFeedback={srsFeedback}
-                srsMcqOptions={srsMcqOptions}
-                selectedMcqWordId={selectedSrsMcqWordId}
-                onSelectMcqChoice={handleSrsMcqChoiceSelect}
-                onCheckGrade={handleCheckSrsGrade}
-                onAdvanceCard={advanceSrsCard}
-                onOpenReportModal={(w) => { setReportingWord(w); setReportModalOpen(true); }}
-                renderSrsChip={renderSrsChip}
-                autoSpeak={autoSpeak}
-                onToggleAutoSpeak={() => setAutoSpeak(!autoSpeak)}
-              />
-            ) : (
-              <div className="bg-[#FFFDF9] border border-[var(--card-border)] p-8 rounded-xl text-center text-sm text-[var(--ink-soft)]">
-                Chưa có từ vựng nào cần ôn tập hôm nay!
-              </div>
-            )}
-          </section>
-        )}
 
         {/* TAB 2: STANDALONE QUIZ / FLASHCARD */}
         {activeTab === 'quiz' && (

@@ -7,9 +7,10 @@ import { PitchAccentText } from '@/components/ui/PitchAccentText';
 import { 
   ArrowLeft, BookOpen, Volume2, CheckCircle2, Clock, 
   Circle, Eye, EyeOff, Layers, MessageSquare, Sparkles, AlertCircle, ChevronLeft, ChevronRight, Dices,
-  Edit2, Check, X, Save, Plus, Trash2, Shield
+  Edit2, Check, X, Save, Plus, Trash2, Shield, GraduationCap
 } from 'lucide-react';
 import NumberPracticeTool from './NumberPracticeTool';
+import GrammarPracticeTool from './GrammarPracticeTool';
 
 interface LessonDetailProps {
   lesson: Lesson;
@@ -54,7 +55,7 @@ export default function LessonDetail({
   const [showVietnamese, setShowVietnamese] = useState(true);
   const [showRomaji, setShowRomaji] = useState(true);
   // Order: 1. Từ vựng -> 2. Mở rộng -> 3. Ngữ pháp -> (Tuỳ chọn: Luyện gõ số)
-  const [activeSection, setActiveSection] = useState<'vocab' | 'expansion' | 'grammar' | 'number_practice'>('vocab');
+  const [activeSection, setActiveSection] = useState<'vocab' | 'expansion' | 'grammar' | 'grammar_practice' | 'number_practice'>('vocab');
 
   // Vocab editing state (Admin only)
   const [editingVocabIdx, setEditingVocabIdx] = useState<number | null>(null);
@@ -342,8 +343,23 @@ export default function LessonDetail({
               </button>
             )}
 
-            {/* 4. CHỨC NĂNG RIÊNG: LUYỆN GÕ SỐ ĐẾM NGẪU NHIÊN (Chỉ cho bài số đếm) */}
-            {(lesson.id === 2 || lesson.title.toLowerCase().includes('số đếm') || lesson.shortTitle.toLowerCase().includes('số đếm')) && (
+            {/* 4. LUYỆN TẬP NGỮ PHÁP & TỪ VỰNG */}
+            {lesson.grammarPoints && lesson.grammarPoints.length > 0 && (
+              <button
+                onClick={() => setActiveSection('grammar_practice')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                  activeSection === 'grammar_practice'
+                    ? 'bg-[var(--indigo)] text-white shadow-xs'
+                    : 'bg-white text-[var(--ink-soft)] border border-[var(--card-border)] hover:bg-gray-50'
+                }`}
+              >
+                <GraduationCap className="w-3.5 h-3.5" />
+                4. Luyện tập
+              </button>
+            )}
+
+            {/* CHỨC NĂNG RIÊNG: LUYỆN GÕ SỐ ĐẾM NGẪU NHIÊN (Chỉ cho bài số đếm) */}
+            {(lesson.title.toLowerCase().includes('số đếm') || lesson.shortTitle.toLowerCase().includes('số đếm')) && (
               <button
                 onClick={() => setActiveSection('number_practice')}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
@@ -1042,7 +1058,16 @@ export default function LessonDetail({
         </div>
       )}
 
-      {/* SECTION 4: LUYỆN GÕ SỐ ĐẾM NGẪU NHIÊN */}
+      {/* SECTION 4: LUYỆN TẬP NGỮ PHÁP & TỪ VỰNG */}
+      {activeSection === 'grammar_practice' && (
+        <GrammarPracticeTool 
+          lessonId={lesson.id}
+          lessonTitle={lesson.title}
+          onBackToLesson={() => setActiveSection('grammar')}
+        />
+      )}
+
+      {/* SECTION 5: LUYỆN GÕ SỐ ĐẾM NGẪU NHIÊN */}
       {activeSection === 'number_practice' && (
         <NumberPracticeTool />
       )}

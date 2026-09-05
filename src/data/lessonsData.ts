@@ -118,43 +118,27 @@ export const N5_LESSONS: Lesson[] = [
       {
         id: 'b1-exp-3',
         order: 'Mở rộng 3',
-        title: 'Cách giới thiệu bản thân',
-        meaning: 'Trình tự giới thiệu bản thân khi lần đầu gặp gỡ.',
+        title: 'Cách hỏi xuất thân, quê quán',
+        formula: 'ごしゅっしんは？',
+        meaning: 'Quê quán / Nơi xuất thân của bạn ở đâu?',
         notes: [
-          '* 「はじめまして！」 sử dụng trong lần đầu gặp mặt.',
-          '* Có thể lược bỏ 「わたし は」 ở những câu sau.',
-          '* Khi giới thiệu bản thân, người Nhật thường không giới thiệu tuổi.'
+          'Lưu ý: Câu trả lời: [わたし は] [Địa danh] です。',
+          'Tiền tố 「ご」: thêm vào trước danh từ gốc Hán để thể hiện sự trang trọng, lịch sự.'
         ],
         dialogue: [
           {
-            id: 'b1-exp-3-1',
-            jp: 'はじめまして！',
-            romaji: 'Hajimemashite!',
-            vi: 'Rất vui được gặp bạn!'
+            id: 'b1-exp-3-d1',
+            speaker: 'A',
+            jp: 'ごしゅっしんは？',
+            romaji: 'Go-shusshin wa?',
+            vi: 'Bạn xuất thân từ đâu?'
           },
           {
-            id: 'b1-exp-3-2',
-            jp: 'わたし は リキモです。',
-            romaji: 'Watashi wa Rikimo desu.',
-            vi: '(Giới thiệu tên)'
-          },
-          {
-            id: 'b1-exp-3-3',
-            jp: '[わたし は] ベトナムじんです。',
-            romaji: '[Watashi wa] Betonamujin desu.',
-            vi: '(Giới thiệu quốc tịch)'
-          },
-          {
-            id: 'b1-exp-3-4',
-            jp: '[わたし は] きょうしです。',
-            romaji: '[Watashi wa] kyoushi desu.',
-            vi: '(Giới thiệu nghề nghiệp)'
-          },
-          {
-            id: 'b1-exp-3-5',
-            jp: 'よろしく おねがいします。',
-            romaji: 'Yoroshiku onegaishimasu.',
-            vi: 'Rất mong được bạn giúp đỡ!'
+            id: 'b1-exp-3-d2',
+            speaker: 'B',
+            jp: 'ベトナムの ハノイです。',
+            romaji: 'Betonamu no Hanoi desu.',
+            vi: 'Tôi đến từ Hà Nội, Việt Nam.'
           }
         ]
       }
@@ -376,7 +360,7 @@ export const N5_LESSONS: Lesson[] = [
     title: 'Bài 2: Chỉ thị từ, Danh từ chỉ đồ vật & Quyền sở hữu',
     shortTitle: 'Bài 2',
     description: 'Nội dung Bài 2: Từ vựng đồ vật, chỉ thị từ これ/それ/あれ, mẫu câu hỏi cái gì và cấu trúc sở hữu の.',
-    grammarCount: 4,
+    grammarCount: 6,
     vocabulary: [
       // A. Chỉ thị từ chỉ đồ vật
       { jp: 'これ', romaji: 'kore', vi: 'Cái này (chỉ vật ở gần người nói)' },
@@ -430,8 +414,8 @@ export const N5_LESSONS: Lesson[] = [
     expansions: [
       {
         id: 'b2-exp-1',
-        order: 'Mở rộng',
-        title: 'Câu hỏi chứa từ để hỏi (Sở hữu)',
+        order: 'Mở rộng 1',
+        title: 'Câu hỏi chứa từ để hỏi (だれの N ですか)',
         formula: 'だれの N ですか。',
         meaning: 'N là của ai?',
         notes: [
@@ -452,6 +436,34 @@ export const N5_LESSONS: Lesson[] = [
             jp: 'わたしの [スマホ] です。',
             romaji: 'Watashi no [sumaho] desu.',
             vi: '(Điện thoại) của tôi.'
+          }
+        ]
+      },
+      {
+        id: 'b2-exp-2',
+        order: 'Mở rộng 2',
+        title: 'Câu hỏi chứa từ để hỏi (何の N ですか)',
+        formula: 'なんの N ですか。',
+        meaning: 'N (nói) về cái gì?',
+        notes: [
+          'Lưu ý: Câu trả lời: N1 の [N] です。',
+          'N (nói) về N1.',
+          'N1 là danh từ chỉ một chủ đề bất kì.'
+        ],
+        dialogue: [
+          {
+            id: 'b2-exp-2-d1',
+            speaker: 'A',
+            jp: 'これは なんの ざっしですか。',
+            romaji: 'Kore wa nan no zasshi desu ka.',
+            vi: 'Đây là tạp chí về cái gì?'
+          },
+          {
+            id: 'b2-exp-2-d2',
+            speaker: 'B',
+            jp: 'くるまの ざっしです。',
+            romaji: 'Kuruma no zasshi desu.',
+            vi: 'Tạp chí về ô tô.'
           }
         ]
       }
@@ -538,7 +550,7 @@ export const N5_LESSONS: Lesson[] = [
       {
         id: 'b2-g1-2',
         order: '1.2',
-        title: 'これ／それ／あれは 何ですか。',
+        title: 'これ／それ／あれは なんですか。',
         meaning: 'Cái này / Cái đó / Cái kia là cái gì?',
         usage: 'Dùng khi muốn hỏi tên đồ vật.',
         formula: 'これ／それ／あれ は なんですか。',
@@ -580,19 +592,90 @@ export const N5_LESSONS: Lesson[] = [
         id: 'b2-g2',
         order: '2',
         title: 'N1 の N2',
-        meaning: 'N2 của N1 (Sở hữu đồ vật)',
-        usage: 'Dùng khi muốn nói về sở hữu của một đồ vật nào đó.',
+        meaning: 'N2 của N1 (Sở hữu) / N2 về N1 (Nội dung)',
+        usage: 'Dùng khi muốn nói về sở hữu của đồ vật (Cách 1) hoặc nội dung của một đồ vật nào đó (Cách 2).',
         formula: 'N1 の N2',
         notes: [
-          'N2 là đồ vật.',
-          'N1 là chủ sở hữu của đồ vật đó (N1 là danh từ chỉ người).'
+          '• Cách sử dụng 1 (Sở hữu): N2 là đồ vật, N1 là chủ sở hữu của đồ vật đó (danh từ chỉ người). -> N2 của N1.',
+          '• Cách sử dụng 2 (Nội dung): N2 là đồ vật (thường là sách, báo, từ điển,...), N1 là nội dung của đồ vật đó. -> N2 (nói) về N1.'
         ],
         examples: [
           {
             id: 'b2-g2-ex1',
-            jp: 'これは わたしの スマホです。',
+            jp: '① これは わたしの スマホです。',
             romaji: 'Kore wa watashi no sumaho desu.',
-            vi: 'Đây là điện thoại của tôi.'
+            vi: 'Đây là điện thoại của tôi. (Sở hữu)'
+          },
+          {
+            id: 'b2-g2-ex2',
+            jp: '② それは にほんごの じしょです。',
+            romaji: 'Sore wa Nihongo no jisho desu.',
+            vi: 'Cái đó là quyển từ điển về tiếng Nhật. (Nội dung)'
+          },
+          {
+            id: 'b2-g2-ex3',
+            jp: '③ これは くるまの ざっしです。',
+            romaji: 'Kore wa kuruma no zasshi desu.',
+            vi: 'Cái này là tạp chí về ô tô. (Nội dung)'
+          }
+        ]
+      },
+      {
+        id: 'b2-g3',
+        order: '3',
+        title: 'この／その／あの N',
+        meaning: 'N này / N đó / N kia',
+        usage: 'Dùng khi muốn nói về vị trí của một đồ vật cụ thể.',
+        formula: 'この／その／あの N',
+        notes: [
+          '「この～」 sử dụng khi đồ vật ở gần người nói.',
+          '「その～」 sử dụng khi đồ vật ở gần người nghe.',
+          '「あの～」 sử dụng khi đồ vật ở xa cả người nói và người nghe.'
+        ],
+        examples: [
+          {
+            id: 'b2-g3-ex1',
+            jp: 'あのて、このて',
+            romaji: 'Ano te, kono te',
+            vi: 'Tay kia, tay này.'
+          },
+          {
+            id: 'b2-g3-ex2',
+            jp: 'この ほんは わたしのです。',
+            romaji: 'Kono hon wa watashi no desu.',
+            vi: 'Quyển sách này là của tôi.'
+          }
+        ]
+      },
+      {
+        id: 'b2-g4',
+        order: '4',
+        title: '〜 N1 ですか、N2 ですか。',
+        meaning: '... là N1 hay N2?',
+        usage: 'Dùng khi muốn đặt câu hỏi lựa chọn.',
+        formula: '〜 N1 ですか、N2 ですか。',
+        notes: [
+          'Câu trả lời: [これは] N1／N2 です。',
+          'Lưu ý: Không dùng はい hoặc いいえ khi trả lời câu hỏi lựa chọn.'
+        ],
+        examples: [
+          {
+            id: 'b2-g4-ex1',
+            jp: '① これは ボールペンですか、シャープペンですか。',
+            romaji: 'Kore wa boorupen desu ka, shaapupen desu ka.',
+            vi: 'Đây là bút bi hay bút chì?'
+          },
+          {
+            id: 'b2-g4-ex2',
+            jp: '② これは くまですか、いぬですか。',
+            romaji: 'Kore wa kuma desu ka, inu desu ka.',
+            vi: 'Đây là con gấu hay con chó?'
+          },
+          {
+            id: 'b2-g4-ex3',
+            jp: '③ この どらやきは のびたさんのですか、ドラえもんさんのですか。',
+            romaji: 'Kono dorayaki wa Nobita-san no desu ka, Doraemon-san no desu ka.',
+            vi: 'Cái bánh Dorayaki này là của Nobita hay Doraemon?'
           }
         ]
       }
