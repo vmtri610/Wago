@@ -24,6 +24,7 @@ import SrsReviewCard from '@/components/srs/SrsReviewCard';
 import QuizPracticeCard from '@/components/quiz/QuizPracticeCard';
 import WordListSection from '@/components/words/WordListSection';
 import LessonsTab from '@/components/lessons/LessonsTab';
+import KanjiTab from '@/components/kanji/KanjiTab';
 import { N5_LESSONS } from '@/data/lessonsData';
 import { checkWordAnswer } from '@/lib/answerValidator';
 
@@ -81,7 +82,7 @@ export default function Home() {
   const [reportListModalOpen, setReportListModalOpen] = useState(false);
 
   // Core App State
-  const [activeTab, setActiveTab] = useState<'lessons' | 'srs' | 'quiz' | 'list' | 'add'>('lessons');
+  const [activeTab, setActiveTab] = useState<'lessons' | 'kanji' | 'srs' | 'quiz' | 'list' | 'add'>('lessons');
   const [words, setWords] = useState<Word[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [dbLessons, setDbLessons] = useState<any[]>([]);
@@ -771,6 +772,7 @@ export default function Home() {
 
   const navItems = [
     { id: 'lessons' as const, label: 'Bài học N5', icon: BookOpen },
+    { id: 'kanji' as const, label: 'Kanji (Hán tự)', icon: Sparkles },
     { id: 'srs' as const, label: 'Ôn tập SRS', icon: Flame },
     { id: 'quiz' as const, label: 'Luyện tập', icon: Layers },
     { id: 'list' as const, label: `Sổ từ vựng (${activeWords.length})`, icon: List },
@@ -967,6 +969,13 @@ export default function Home() {
               }}
               onWordUpdated={fetchData}
             />
+          </section>
+        )}
+
+        {/* TAB KANJI */}
+        {activeTab === 'kanji' && (
+          <section className="space-y-4">
+            <KanjiTab />
           </section>
         )}
 
