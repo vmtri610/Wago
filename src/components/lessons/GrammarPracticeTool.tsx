@@ -446,29 +446,27 @@ export default function GrammarPracticeTool({
         {isAnswered && (
           <div className="p-3.5 sm:p-4 rounded-xl border border-[var(--card-border)] bg-[#FAF9F5] space-y-2.5 animate-in fade-in duration-150">
             {!isCorrect && (
-              <div className="text-xs font-medium text-rose-800 flex items-center gap-1">
-                <span>👉 Đáp án đúng:</span>
+              <div className="text-xs font-medium text-rose-800 flex items-center gap-1.5">
+                <span>Đáp án đúng:</span>
                 <span className="font-bold font-jp text-emerald-700 bg-emerald-100/70 px-1.5 py-0.5 rounded">
                   {currentQ.correctAnswer}
                 </span>
               </div>
             )}
 
-            {/* Dịch nghĩa tiếng Việt */}
+            {/* Phần dịch nghĩa hiển thị trực tiếp */}
             {currentQ.translation && (
-              <div className="text-xs bg-white/80 border border-[var(--card-border)] p-2.5 rounded-lg flex items-start gap-1.5 leading-relaxed">
-                <span className="font-bold text-[var(--indigo-deep)] shrink-0">Dịch nghĩa:</span>
-                <span className="text-[var(--ink)] italic">{currentQ.translation}</span>
+              <div className="text-xs text-[var(--ink)] bg-white/80 border border-[var(--card-border)] p-2.5 rounded-lg leading-relaxed italic">
+                {currentQ.translation}
               </div>
             )}
 
             {/* Grammar Explanation Box */}
             <div className="text-xs text-gray-700 space-y-1">
-              <div className="font-bold text-gray-800 flex items-center gap-1">
-                <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+              <div className="font-bold text-gray-800">
                 Giải thích:
               </div>
-              <p className="leading-relaxed pl-4 text-xs text-[var(--ink)]">
+              <p className="leading-relaxed pl-2 text-xs text-[var(--ink)]">
                 {currentQ.explanation}
               </p>
             </div>
