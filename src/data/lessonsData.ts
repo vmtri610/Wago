@@ -370,5 +370,232 @@ export const N5_LESSONS: Lesson[] = [
         ]
       }
     ]
+  },
+  {
+    id: 2,
+    title: 'Bài 2: Chỉ thị từ, Danh từ chỉ đồ vật & Quyền sở hữu',
+    shortTitle: 'Bài 2',
+    description: 'Nội dung Bài 2: Từ vựng đồ vật, chỉ thị từ これ/それ/あれ, mẫu câu hỏi cái gì và cấu trúc sở hữu の.',
+    grammarCount: 4,
+    vocabulary: [
+      // A. Chỉ thị từ chỉ đồ vật
+      { jp: 'これ', romaji: 'kore', vi: 'Cái này (chỉ vật ở gần người nói)' },
+      { jp: 'それ', romaji: 'sore', vi: 'Cái đó (chỉ vật ở gần người nghe)' },
+      { jp: 'あれ', romaji: 'are', vi: 'Cái kia (chỉ vật ở xa cả hai người)' },
+      { jp: 'この～', romaji: 'kono ~', vi: '~ này' },
+      { jp: 'その～', romaji: 'sono ~', vi: '~ đó' },
+      { jp: 'あの～', romaji: 'ano ~', vi: '~ kia' },
+
+      // B. Danh từ chỉ đồ vật
+      { jp: 'かさ', romaji: 'kasa', vi: 'Ô, dù (傘)' },
+      { jp: 'かばん', romaji: 'kaban', vi: 'Túi xách, cặp' },
+      { jp: 'ノート', romaji: 'nooto', vi: 'Vở' },
+      { jp: 'ほん', romaji: 'hon', vi: 'Sách (本)' },
+      { jp: 'てちょう', romaji: 'techou', vi: 'Sổ tay (手帳)' },
+      { jp: 'えんぴつ', romaji: 'enpitsu', vi: 'Bút chì' },
+      { jp: 'ボールペン', romaji: 'boorupen', vi: 'Bút bi' },
+      { jp: 'シャープペン', romaji: 'shaapupen', vi: 'Bút chì kim (シャープペンシル)' },
+      { jp: 'カード', romaji: 'kaado', vi: 'Thẻ' },
+      { jp: 'めいし', romaji: 'meishi', vi: 'Danh thiếp (名刺)' },
+      { jp: 'けいたいでんわ', romaji: 'keitaidenwa', vi: 'Điện thoại di động (携帯電話)' },
+      { jp: 'じしょ', romaji: 'jisho', vi: 'Từ điển (辞書)' },
+      { jp: 'ざっし', romaji: 'zasshi', vi: 'Tạp chí (雑誌)' },
+      { jp: 'しんぶん', romaji: 'shinbun', vi: 'Tờ báo, báo (新聞)' },
+      { jp: 'つくえ', romaji: 'tsukue', vi: 'Bàn (机)' },
+      { jp: 'いす', romaji: 'isu', vi: 'Ghế' },
+      { jp: 'テレビ', romaji: 'terebi', vi: 'Ti vi' },
+      { jp: 'コンピューター', romaji: 'konpyuutaa', vi: 'Máy tính' },
+      { jp: 'パソコン', romaji: 'pasokon', vi: 'Laptop, máy tính xách tay' },
+      { jp: 'ふでばこ', romaji: 'fudebako', vi: 'Hộp bút' },
+      { jp: 'けしゴム', romaji: 'keshigomu', vi: 'Cục gôm, cục tẩy (消しゴム)' },
+      { jp: 'かぎ', romaji: 'kagi', vi: 'Chìa khóa' },
+      { jp: 'おかね', romaji: 'okane', vi: 'Tiền (お金)' },
+      { jp: 'カメラ', romaji: 'kamera', vi: 'Máy ảnh' },
+      { jp: 'くるま', romaji: 'kuruma', vi: 'Ô tô, xe hơi (車)' },
+      { jp: 'コーヒー', romaji: 'koohii', vi: 'Cà phê' },
+      { jp: 'とけい', romaji: 'tokei', vi: 'Đồng hồ (時計)' },
+      { jp: 'バイク', romaji: 'baiku', vi: 'Xe máy' },
+      { jp: 'スマホ', romaji: 'sumaho', vi: 'Điện thoại thông minh' },
+      { jp: 'チョコレート', romaji: 'chokoreeto', vi: 'Sô cô la' },
+      { jp: 'おみやげ', romaji: 'omiyage', vi: 'Quà lưu niệm, quà đặc sản (お土産)' },
+
+      // C. Từ để hỏi
+      { jp: 'なん', romaji: 'nan', vi: 'Cái gì? (何)' },
+
+      // D. Từ vựng hội thoại
+      { jp: 'あのう～', romaji: 'anou ~', vi: 'À, ờ,... (biểu thị sự ngại ngùng, do dự)' },
+      { jp: 'どうぞ～', romaji: 'douzo ~', vi: 'Xin mời (mời ai đó ăn gì hoặc làm gì)' },
+      { jp: 'これから おせわに なります', romaji: 'korekara osewani narimasu', vi: 'Từ nay tôi rất mong sự giúp đỡ của anh chị! (これから お世話に なります)' }
+    ],
+    expansions: [
+      {
+        id: 'b2-exp-1',
+        order: 'Mở rộng',
+        title: 'Câu hỏi chứa từ để hỏi (Sở hữu)',
+        formula: 'だれの N ですか。',
+        meaning: 'N là của ai?',
+        notes: [
+          'Lưu ý: Câu trả lời: N1 の [N] です。 (N2 của N1).',
+          'N1 là danh từ chỉ người.'
+        ],
+        dialogue: [
+          {
+            id: 'b2-exp-1-d1',
+            speaker: 'A',
+            jp: 'それは だれの スマホですか。',
+            romaji: 'Sore wa dare no sumaho desu ka.',
+            vi: 'Đó là điện thoại của ai?'
+          },
+          {
+            id: 'b2-exp-1-d2',
+            speaker: 'B',
+            jp: 'わたしの [スマホ] です。',
+            romaji: 'Watashi no [sumaho] desu.',
+            vi: '(Điện thoại) của tôi.'
+          }
+        ]
+      }
+    ],
+    grammarPoints: [
+      {
+        id: 'b2-g1',
+        order: '1',
+        title: 'これ／それ／あれは N です。',
+        meaning: 'Cái này / Cái đó / Cái kia là N',
+        usage: 'Dùng khi muốn miêu tả vị trí của sự vật.',
+        formula: 'これ／それ／あれ は N です。',
+        notes: [
+          '「これ」 chỉ vật ở gần người nói.',
+          '「それ」 chỉ vật ở gần người nghe.',
+          '「あれ」 chỉ vật ở xa cả người nói và người nghe.'
+        ],
+        examples: [
+          {
+            id: 'b2-g1-ex1',
+            jp: '① これは どらやきです。',
+            romaji: 'Kore wa dorayaki desu.',
+            vi: 'Đây là bánh Dorayaki.'
+          },
+          {
+            id: 'b2-g1-ex2',
+            jp: '② それは かさです。',
+            romaji: 'Sore wa kasa desu.',
+            vi: 'Đó là cái ô.'
+          }
+        ]
+      },
+      {
+        id: 'b2-g1-1',
+        order: '1.1',
+        title: 'これ／それ／あれは N ですか。',
+        meaning: 'Cái này / Cái đó / Cái kia là N phải không?',
+        usage: 'Dùng khi muốn xác nhận đồ vật.',
+        formula: 'これ／それ／あれ は N ですか。',
+        responses: {
+          affirmative: ['はい、そうです。', 'はい、N です。'],
+          negative: [
+            'いいえ、ちがいます。N2 です。',
+            'いいえ、N じゃ ありません。N2 です。',
+            'いいえ、N では ありません。N2 です。'
+          ]
+        },
+        notes: [
+          'Câu trả lời:',
+          '• Khẳng định: はい、そうです。 / はい、N です。',
+          '• Phủ định: いいえ、ちがいます。N2 です。 / いいえ、N じゃ ありません。N2 です。 / いいえ、N では ありません。N2 です。'
+        ],
+        examples: [
+          {
+            id: 'b2-g1-1-ex1',
+            speaker: 'A',
+            jp: '① A: それは シャープペンシルですか。',
+            romaji: 'Sore wa shaapupenshiru desu ka.',
+            vi: 'Đó là cái bút chì kim phải không?'
+          },
+          {
+            id: 'b2-g1-1-ex2',
+            speaker: 'B',
+            jp: 'B: はい、そうです。',
+            romaji: 'Hai, sou desu.',
+            vi: 'Vâng, đúng vậy.'
+          },
+          {
+            id: 'b2-g1-1-ex3',
+            speaker: 'A',
+            jp: '② A: あれは ねこですか。',
+            romaji: 'Are wa neko desu ka.',
+            vi: 'Kia là con mèo phải không?'
+          },
+          {
+            id: 'b2-g1-1-ex4',
+            speaker: 'B',
+            jp: 'B: いいえ、ちがいます。ふくろです。',
+            romaji: 'Iie, chigaimasu. Fukuro desu.',
+            vi: 'Không, không phải. Là cái túi.'
+          }
+        ]
+      },
+      {
+        id: 'b2-g1-2',
+        order: '1.2',
+        title: 'これ／それ／あれは 何ですか。',
+        meaning: 'Cái này / Cái đó / Cái kia là cái gì?',
+        usage: 'Dùng khi muốn hỏi tên đồ vật.',
+        formula: 'これ／それ／あれ は なんですか。',
+        notes: [
+          'Câu trả lời: [これ／それ／あれは] N です。'
+        ],
+        examples: [
+          {
+            id: 'b2-g1-2-ex1',
+            speaker: 'A',
+            jp: '① A: それは なんですか。',
+            romaji: 'Sore wa nan desu ka.',
+            vi: 'Cái đó là cái gì?'
+          },
+          {
+            id: 'b2-g1-2-ex2',
+            speaker: 'B',
+            jp: 'B: [これは] スマホです。',
+            romaji: '[Kore wa] sumaho desu.',
+            vi: '(Cái này) là điện thoại thông minh.'
+          },
+          {
+            id: 'b2-g1-2-ex3',
+            speaker: 'A',
+            jp: '② A: これは なんですか。',
+            romaji: 'Kore wa nan desu ka.',
+            vi: 'Cái này là cái gì?'
+          },
+          {
+            id: 'b2-g1-2-ex4',
+            speaker: 'B',
+            jp: 'B: いぬです。',
+            romaji: 'Inu desu.',
+            vi: 'Là con chó.'
+          }
+        ]
+      },
+      {
+        id: 'b2-g2',
+        order: '2',
+        title: 'N1 の N2',
+        meaning: 'N2 của N1 (Sở hữu đồ vật)',
+        usage: 'Dùng khi muốn nói về sở hữu của một đồ vật nào đó.',
+        formula: 'N1 の N2',
+        notes: [
+          'N2 là đồ vật.',
+          'N1 là chủ sở hữu của đồ vật đó (N1 là danh từ chỉ người).'
+        ],
+        examples: [
+          {
+            id: 'b2-g2-ex1',
+            jp: 'これは わたしの スマホです。',
+            romaji: 'Kore wa watashi no sumaho desu.',
+            vi: 'Đây là điện thoại của tôi.'
+          }
+        ]
+      }
+    ]
   }
 ];
