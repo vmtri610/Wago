@@ -6,7 +6,7 @@ import { speakJapanese } from '@/lib/audio';
 import { PitchAccentText } from '@/components/ui/PitchAccentText';
 import { 
   Volume2, VolumeX, Flag, ArrowRight, ArrowLeft, BookOpen, Layers, CheckSquare, 
-  Headphones, RotateCcw, RefreshCw 
+  Headphones, RotateCcw, RefreshCw, ArrowLeftRight 
 } from 'lucide-react';
 
 interface QuizPracticeCardProps {
@@ -63,6 +63,7 @@ export default function QuizPracticeCard({
   onToggleAutoSpeak
 }: QuizPracticeCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [flashcardFront, setFlashcardFront] = useState<'jp' | 'vi'>('jp');
   const nextBtnRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -106,14 +107,61 @@ export default function QuizPracticeCard({
           onAdvanceCard();
         } else if (e.key === ' ') {
           e.preventDefault();
-          setIsFlipped(prev => !prev);
+          handleToggleFlip();
         }
       }
     };
 
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [quizMode, canGoPrev, onPrevCard, onAdvanceCard]);
+  }, [quizMode, canGoPrev, onPrevCard, onAdvanceCard, isFlipped, flashcardFront, autoSpeak, currentCard]);
+
+  const handleToggleFlip = () => {
+    const nextFlipped = !isFlipped;
+    setIsFlipped(nextFlipped);
+    if (nextFlipped && flashcardFront === 'vi' && autoSpeak && currentCard?.jp) {
+      speakJapanese(currentCard.jp);
+    }
+  };
+
+  const renderJapaneseSide = () => {
+    if (!currentCard) return null;
+    return (
+      <div className="space-y-2 text-center my-auto w-full px-2">
+        <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+          <div className="text-base sm:text-lg font-bold font-jp text-[var(--indigo-deep)] leading-relaxed break-words max-w-full">
+            <PitchAccentText text={currentCard.jp} pitch={currentCard.pitch_accent} size="md" />
+          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              speakJapanese(currentCard.jp);
+            }}
+            className="p-1.5 sm:p-2 text-[var(--indigo)] hover:bg-indigo-50 rounded-full transition shrink-0"
+            title="Nghe phát âm"
+          >
+            <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+        </div>
+        {currentCard.romaji && (
+          <div className="text-xs sm:text-sm font-jetbrains font-semibold text-[var(--indigo)] break-words">
+            {currentCard.romaji}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderVietnameseSide = () => {
+    if (!currentCard) return null;
+    return (
+      <div className="text-center my-auto w-full px-2">
+        <div className="text-base sm:text-lg font-bold text-[var(--ink)] leading-snug break-words max-w-full">
+          {currentCard.vi}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -165,18 +213,35 @@ export default function QuizPracticeCard({
           </button>
         </div>
 
-        <button
-          onClick={onToggleAutoSpeak}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1.5 transition shrink-0 ${
-            autoSpeak
-              ? 'bg-indigo-50 border-[var(--indigo)] text-[var(--indigo)]'
-              : 'bg-white border-gray-300 text-gray-400'
-          }`}
-          title="Tự động phát âm"
-        >
-          {autoSpeak ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-          <span className="text-[11px]">Tự động đọc</span>
-        </button>
+        {/* Toolbar: Flashcard front toggle & Auto-speak */}
+        <div className="flex items-center gap-2 self-end sm:self-auto">
+          {quizMode === 'flashcard' && (
+            <button
+              onClick={() => {
+                setFlashcardFront(prev => prev === 'jp' ? 'vi' : 'jp');
+                setIsFlipped(false);
+              }}
+              className="px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-indigo-200 bg-indigo-50/70 text-[var(--indigo)] hover:bg-indigo-100/70 transition flex items-center gap-1.5 shrink-0 shadow-2xs"
+              title="Đổi mặt trước hiển thị: Tiếng Nhật ⇄ Tiếng Việt"
+            >
+              <ArrowLeftRight className="w-3.5 h-3.5" />
+              <span>{flashcardFront === 'jp' ? 'Mặt trước: Nhật' : 'Mặt trước: Việt'}</span>
+            </button>
+          )}
+
+          <button
+            onClick={onToggleAutoSpeak}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1.5 transition shrink-0 ${
+              autoSpeak
+                ? 'bg-indigo-50 border-[var(--indigo)] text-[var(--indigo)]'
+                : 'bg-white border-gray-300 text-gray-400'
+            }`}
+            title="Tự động phát âm"
+          >
+            {autoSpeak ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            <span className="text-[11px]">Tự động đọc</span>
+          </button>
+        </div>
       </div>
 
       {/* Back to Lesson shortcut if opened from a specific lesson */}
@@ -238,41 +303,12 @@ export default function QuizPracticeCard({
             {quizMode === 'flashcard' && (
               <div className="py-2 sm:py-4 space-y-4 sm:space-y-5">
                 <div
-                  onClick={() => setIsFlipped(!isFlipped)}
+                  onClick={handleToggleFlip}
                   className="min-h-[170px] sm:min-h-[220px] border border-[var(--card-border)] hover:border-[var(--indigo)] rounded-2xl p-4 sm:p-6 bg-white flex flex-col items-center justify-center cursor-pointer transition shadow-xs hover:shadow-md relative select-none"
                 >
-                  {!isFlipped ? (
-                    /* FRONT: TIẾNG NHẬT */
-                    <div className="space-y-2 text-center my-auto w-full px-2">
-                      <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
-                        <div className="text-base sm:text-lg font-bold font-jp text-[var(--indigo-deep)] leading-relaxed break-words max-w-full">
-                          <PitchAccentText text={currentCard.jp} pitch={currentCard.pitch_accent} size="md" />
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            speakJapanese(currentCard.jp);
-                          }}
-                          className="p-1.5 sm:p-2 text-[var(--indigo)] hover:bg-indigo-50 rounded-full transition shrink-0"
-                          title="Nghe phát âm"
-                        >
-                          <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </button>
-                      </div>
-                      {currentCard.romaji && (
-                        <div className="text-xs sm:text-sm font-jetbrains font-semibold text-[var(--indigo)] break-words">
-                          {currentCard.romaji}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    /* BACK: TIẾNG VIỆT (Chỉ hiển thị nghĩa Tiếng Việt) */
-                    <div className="text-center my-auto w-full px-2">
-                      <div className="text-base sm:text-lg font-bold text-[var(--ink)] leading-snug break-words max-w-full">
-                        {currentCard.vi}
-                      </div>
-                    </div>
-                  )}
+                  {flashcardFront === 'jp'
+                    ? (!isFlipped ? renderJapaneseSide() : renderVietnameseSide())
+                    : (!isFlipped ? renderVietnameseSide() : renderJapaneseSide())}
                 </div>
 
                 <div className="flex items-center justify-center gap-4 pt-1">
