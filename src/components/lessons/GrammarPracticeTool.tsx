@@ -454,6 +454,14 @@ export default function GrammarPracticeTool({
               </div>
             )}
 
+            {/* Dịch nghĩa tiếng Việt */}
+            {currentQ.translation && (
+              <div className="text-xs bg-white/80 border border-[var(--card-border)] p-2.5 rounded-lg flex items-start gap-1.5 leading-relaxed">
+                <span className="font-bold text-[var(--indigo-deep)] shrink-0">Dịch nghĩa:</span>
+                <span className="text-[var(--ink)] italic">{currentQ.translation}</span>
+              </div>
+            )}
+
             {/* Grammar Explanation Box */}
             <div className="text-xs text-gray-700 space-y-1">
               <div className="font-bold text-gray-800 flex items-center gap-1">
