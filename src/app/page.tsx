@@ -406,27 +406,16 @@ export default function Home() {
     } catch (err) {}
   };
 
-  // In-progress lesson folders (Bài học nào ở chế độ Đang học thì tự động xuất hiện folder)
-  const inProgressLessonFolders: Folder[] = Object.entries(lessonStatuses)
-    .filter(([_, status]) => status === 'in_progress')
-    .map(([lIdStr]) => {
-      const lId = Number(lIdStr);
-      const l = dbLessons.find((item: any) => item.id === lId) || N5_LESSONS.find(item => item.id === lId);
-      return {
-        id: `lesson-${lId}`,
-        name: `${l?.short_title || `Bài ${lId}`}`
-      };
-    });
+  // Luôn hiển thị các thư mục bài học N5 (Bài 1, Bài 2, ...) trong Sổ từ vựng và Luyện tập
+  const lessonFolders: Folder[] = N5_LESSONS.map(l => ({
+    id: `lesson-${l.id}`,
+    name: l.shortTitle || `Bài ${l.id}`
+  }));
 
-  const combinedFolders: Folder[] = [...folders, ...inProgressLessonFolders];
+  const combinedFolders: Folder[] = [...folders, ...lessonFolders];
 
-  // Chỉ bao gồm các từ trong folder tự tạo HOẶC thuộc bài học đang ở trạng thái 'in_progress'
-  const activeWords = words.filter(w => {
-    if (w.lesson_id) {
-      return lessonStatuses[w.lesson_id] === 'in_progress';
-    }
-    return true; // Các từ trong thư mục cá nhân
-  });
+  // Toàn bộ từ vựng hoạt động trong hệ thống (cá nhân + bài học N5)
+  const activeWords = words;
 
   const generateMcqOptions = (targetCard: Word, pool: Word[]) => {
     const distractors = pool.filter(w => w.id !== targetCard.id);
