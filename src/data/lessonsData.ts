@@ -6,7 +6,7 @@ export const N5_LESSONS: Lesson[] = [
     title: 'Bài 1: Danh từ, Trợ từ & Mẫu câu giao tiếp cơ bản',
     shortTitle: 'Bài 1',
     description: 'Nội dung Bài 1: Từ vựng, các phần Mở rộng giao tiếp thực tế và các mẫu Ngữ pháp theo giáo trình.',
-    grammarCount: 6,
+    grammarCount: 7,
     vocabulary: [
       // 1. Đại từ & Danh xưng
       { jp: 'わたし', romaji: 'watashi', vi: 'Tôi (ngôi thứ nhất)' },
@@ -62,6 +62,33 @@ export const N5_LESSONS: Lesson[] = [
       { jp: 'ドイツご', romaji: 'doitsugo', vi: 'Tiếng Đức' }
     ],
     expansions: [
+      {
+        id: 'b1-exp-1',
+        order: 'Mở rộng 1',
+        title: 'Cách hỏi tên',
+        formula: 'お名前は？',
+        meaning: 'Tên của bạn là gì?',
+        notes: [
+          'Lưu ý: Câu trả lời: [ わたし は ] ______ です。',
+          'Tiền tố 「お」: thêm vào trước danh từ để thể hiện sự lịch sự.'
+        ],
+        dialogue: [
+          {
+            id: 'b1-exp-1-d1',
+            speaker: 'A',
+            jp: 'お名前は？',
+            romaji: 'O-namae wa?',
+            vi: 'Tên của bạn là gì?'
+          },
+          {
+            id: 'b1-exp-1-d2',
+            speaker: 'B',
+            jp: 'ハンです。',
+            romaji: 'Han desu.',
+            vi: 'Tên tôi là Hằng.'
+          }
+        ]
+      },
       {
         id: 'b1-exp-2',
         order: 'Mở rộng 2',
@@ -133,6 +160,35 @@ export const N5_LESSONS: Lesson[] = [
       }
     ],
     grammarPoints: [
+      {
+        id: 'b1-g1',
+        order: '1',
+        title: 'N1 は N2 です。',
+        meaning: 'N1 là N2',
+        usage: 'Dùng khi giới thiệu thông tin cá nhân (tên, tuổi, nghề nghiệp,...).',
+        formula: 'N1 は N2 です。',
+        notes: [
+          'N1 là chủ ngữ, chủ đề của câu.',
+          'N2 là vị ngữ (tên, quốc tịch, nghề nghiệp,...).',
+          '「です」 là đuôi câu khẳng định (đứng chung hay riêng vẫn dịch là "là").',
+          '「は」 là trợ từ, đọc là 「わ」.',
+          '「。」 là dấu chấm câu.'
+        ],
+        examples: [
+          {
+            id: 'b1-g1-ex1',
+            jp: '① わたしは かいしゃいんです。',
+            romaji: 'Watashi wa kaishain desu.',
+            vi: 'Tôi là nhân viên công ty.'
+          },
+          {
+            id: 'b1-g1-ex2',
+            jp: '② さとうさんは いしゃです。',
+            romaji: 'Satou-san wa isha desu.',
+            vi: 'Anh Satou là bác sĩ.'
+          }
+        ]
+      },
       {
         id: 'b1-g2',
         order: '2',
