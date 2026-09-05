@@ -1,534 +1,536 @@
 import { GrammarQuizQuestion } from '@/types/grammarQuiz';
 
-export const CURATED_LESSON_QUESTIONS: Record<number, GrammarQuizQuestion[]> = {
-  // ==========================================
-  // BÀI 1: Danh từ, Trợ từ & Mẫu câu cơ bản
-  // ==========================================
-  1: [
-    {
-      id: 'b1-q1',
+// Helper shuffle function
+function shuffleArray<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+const PERSON_NAMES = [
+  'わたし', 'あなた', 'あのひと', 'あのかた', 'かれ', 'かのじょ',
+  'さとうさん', 'ハンさん', 'スミスさん', 'ワンさん', 'キムさん',
+  'たなかさん', 'やまださん', 'ミラーさん', 'コナンくん'
+];
+
+const JOBS = [
+  { jp: 'かいしゃいん', vi: 'nhân viên công ty' },
+  { jp: 'ぎんこういん', vi: 'nhân viên ngân hàng' },
+  { jp: 'きょうし', vi: 'giáo viên' },
+  { jp: 'せんせい', vi: 'giáo viên/bác sĩ' },
+  { jp: 'がくせい', vi: 'học sinh, sinh viên' },
+  { jp: 'いしゃ', vi: 'bác sĩ' },
+  { jp: 'エンジニア', vi: 'kỹ sư' },
+  { jp: 'ナース', vi: 'y tá' },
+  { jp: 'かしゅ', vi: 'ca sĩ' },
+  { jp: 'はいゆう', vi: 'diễn viên' },
+  { jp: 'エディター', vi: 'biên tập viên' }
+];
+
+const COUNTRIES = [
+  { jp: 'ベトナム', person: 'ベトナムじん', lang: 'ベトナムご', vi: 'Việt Nam' },
+  { jp: 'にほん', person: 'にほんじん', lang: 'にほんご', vi: 'Nhật Bản' },
+  { jp: 'アメリカ', person: 'アメリカじん', lang: 'えいご', vi: 'Mỹ' },
+  { jp: 'イギリス', person: 'イギリスじん', lang: 'えいご', vi: 'Anh' },
+  { jp: 'ちゅうごく', person: 'ちゅうごくじん', lang: 'ちゅうごくご', vi: 'Trung Quốc' },
+  { jp: 'かんこく', person: 'かんこくじん', lang: 'かんこくご', vi: 'Hàn Quốc' },
+  { jp: 'ドイツ', person: 'ドイツじん', lang: 'ドイツご', vi: 'Đức' }
+];
+
+const ORGS = [
+  { jp: 'かいしゃ', vi: 'công ty' },
+  { jp: 'だいがく', vi: 'trường đại học' },
+  { jp: 'ぎんこう', vi: 'ngân hàng' },
+  { jp: 'Aクラス', vi: 'lớp A' },
+  { jp: 'Bクラス', vi: 'lớp B' }
+];
+
+const ITEMS = [
+  { jp: 'かさ', vi: 'cái ô' },
+  { jp: 'かばん', vi: 'cái cặp/túi xách' },
+  { jp: 'ノート', vi: 'quyển vở' },
+  { jp: 'ほん', vi: 'quyển sách' },
+  { jp: 'てちょう', vi: 'cuốn sổ tay' },
+  { jp: 'えんぴつ', vi: 'cây bút chì' },
+  { jp: 'ボールペン', vi: 'cây bút bi' },
+  { jp: 'シャープペン', vi: 'cây bút chì kim' },
+  { jp: 'カード', vi: 'thẻ' },
+  { jp: 'めいし', vi: 'danh thiếp' },
+  { jp: 'けいたいでんわ', vi: 'điện thoại di động' },
+  { jp: 'じしょ', vi: 'quyển từ điển' },
+  { jp: 'ざっし', vi: 'cuốn tạp chí' },
+  { jp: 'しんぶん', vi: 'tờ báo' },
+  { jp: 'つくえ', vi: 'cái bàn' },
+  { jp: 'いす', vi: 'cái ghế' },
+  { jp: 'テレビ', vi: 'cái ti vi' },
+  { jp: 'コンピューター', vi: 'máy tính' },
+  { jp: 'パソコン', vi: 'laptop' },
+  { jp: 'ふでばこ', vi: 'hộp bút' },
+  { jp: 'けしゴム', vi: 'cục tẩy' },
+  { jp: 'かぎ', vi: 'chìa khóa' },
+  { jp: 'おかね', vi: 'tiền' },
+  { jp: 'カメラ', vi: 'máy ảnh' },
+  { jp: 'くるま', vi: 'chiếc ô tô' },
+  { jp: 'コーヒー', vi: 'cà phê' },
+  { jp: 'とけい', vi: 'đồng hồ' },
+  { jp: 'バイク', vi: 'xe máy' },
+  { jp: 'スマホ', vi: 'điện thoại' },
+  { jp: 'チョコレート', vi: 'hộp sô cô la' },
+  { jp: 'おみやげ', vi: 'món quà đặc sản' },
+  { jp: 'どらやき', vi: 'bánh Dorayaki' }
+];
+
+const MEDIA_ITEMS = [
+  { jp: 'じしょ', vi: 'từ điển' },
+  { jp: 'ざっし', vi: 'tạp chí' },
+  { jp: 'ほん', vi: 'sách' },
+  { jp: 'しんぶん', vi: 'báo' }
+];
+
+const THEMES = [
+  { jp: 'にほんご', vi: 'tiếng Nhật' },
+  { jp: 'えいご', vi: 'tiếng Anh' },
+  { jp: 'ベトナムご', vi: 'tiếng Việt' },
+  { jp: 'ちゅうごくご', vi: 'tiếng Trung' },
+  { jp: 'くるま', vi: 'ô tô' },
+  { jp: 'カメラ', vi: 'máy ảnh' },
+  { jp: 'コンピューター', vi: 'máy tính' },
+  { jp: 'バイク', vi: 'xe máy' }
+];
+
+/**
+ * GENERATOR BÀI 1:
+ * Cấu trúc:
+ * 1. N1 は N2 です
+ * 2. N1 は N2 じゃ ありません (hoặc では ありません)
+ * 3. N1 は N2 ですか (Trả lời: はい、そうです / いいえ、ちがいます。N3です)
+ * 4. N1 は だれ／どなた ですか
+ * 5. N1 は なんさい／おいくつ ですか
+ * 6. N1 の N2 (Tổ chức / Nơi chốn: だいがくの がくせい, ベトナムの かしゅ, ...)
+ * 7. Mở rộng: おなまえは？, おしごとは？, ごしゅっしんは？
+ * (Đã bỏ Trợ từ も)
+ */
+function generateLesson1Pool(): GrammarQuizQuestion[] {
+  const pool: GrammarQuizQuestion[] = [];
+
+  // Mẫu 1: Trợ từ は
+  for (let i = 0; i < 4; i++) {
+    const p = PERSON_NAMES[Math.floor(Math.random() * PERSON_NAMES.length)];
+    const j = JOBS[Math.floor(Math.random() * JOBS.length)];
+    pool.push({
+      id: `l1-wa-${i}-${Math.random()}`,
       lessonId: 1,
       type: 'fill_in_blank',
-      grammarTopic: 'Trợ từ は & Khẳng định です',
-      question: 'わたし [ ? ] かいしゃいんです。',
-      translation: 'Tôi là nhân viên công ty.',
-      options: ['は', 'の', 'も', 'か'],
+      grammarTopic: 'Trợ từ は (Chủ đề / Chủ ngữ)',
+      question: `${p} [ ? ] ${j.jp}です。`,
+      translation: `${p} là ${j.vi}.`,
+      options: shuffleArray(['は', 'の', 'か', 'と']),
       correctAnswer: 'は',
-      explanation: 'Trợ từ 「は」(đọc là wa) đứng sau chủ ngữ / chủ đề 「わたし」 trong câu khẳng định 「N1 は N2 です」.',
-      audioJp: 'わたしは かいしゃいんです。'
-    },
-    {
-      id: 'b1-q2',
-      lessonId: 1,
-      type: 'fill_in_blank',
-      grammarTopic: 'Phủ định じゃ ありません',
-      question: 'わたしは きょうし [ ? ]。がくせいです。',
-      translation: 'Tôi không phải là giáo viên. Tôi là học sinh.',
-      options: ['じゃ ありません', 'です', 'ですか', 'の です'],
-      correctAnswer: 'じゃ ありません',
-      explanation: 'Để phủ định 「N1 không phải là N2」, ta dùng đuôi câu 「じゃ ありません」(hoặc lịch sự hơn là 「では ありません」).',
-      audioJp: 'わたしは きょうしじゃ ありません。がくせいです。'
-    },
-    {
-      id: 'b1-q3',
-      lessonId: 1,
-      type: 'qa_matching',
-      grammarTopic: 'Câu hỏi xác nhận N1 は N2 ですか',
-      question: 'A: リサさんは かんこくじんですか。',
-      translation: 'A hỏi: "Bạn Lisa là người Hàn Quốc phải không?"',
-      options: [
-        'いいえ、ちがいます。タイじんです。',
-        'はい、かんこくじんは ありません。',
-        'わたしは リサです。',
-        'いいえ、そうです。'
-      ],
-      correctAnswer: 'いいえ、ちがいます。タイじんです。',
-      explanation: 'Khi phủ định câu hỏi xác nhận, dùng: 「いいえ、ちがいます」 hoặc 「いいえ、[N2] じゃ ありません」 kèm thông tin đúng.',
-      audioJp: 'いいえ、ちがいます。タイじんです。'
-    },
-    {
-      id: 'b1-q4',
-      lessonId: 1,
-      type: 'fill_in_blank',
-      grammarTopic: 'Trợ từ の (Thuộc về / Nơi làm việc)',
-      question: 'あの ひとは ベトナム [ ? ] かしゅです。',
-      translation: 'Người kia là ca sĩ của Việt Nam.',
-      options: ['の', 'は', 'も', 'と'],
-      correctAnswer: 'の',
-      explanation: 'Trợ từ 「の」 mang nghĩa "của/thuộc", biểu thị danh từ N2 thuộc tổ chức, quốc gia hoặc nơi chốn N1.',
-      audioJp: 'あのひとは ベトナムの かしゅです。'
-    },
-    {
-      id: 'b1-q5',
+      explanation: `Trợ từ 「は」(đọc là wa) đứng sau chủ ngữ/chủ đề 「${p}」.`,
+      audioJp: `${p}は ${j.jp}です。`
+    });
+  }
+
+  // Mẫu: Trợ từ も (Cũng)
+  for (let i = 0; i < 4; i++) {
+    const p1 = PERSON_NAMES[Math.floor(Math.random() * PERSON_NAMES.length)];
+    const p2 = PERSON_NAMES.filter(p => p !== p1)[Math.floor(Math.random() * (PERSON_NAMES.length - 1))];
+    const j = JOBS[Math.floor(Math.random() * JOBS.length)];
+
+    pool.push({
+      id: `l1-mo-${i}-${Math.random()}`,
       lessonId: 1,
       type: 'fill_in_blank',
       grammarTopic: 'Trợ từ も (Cũng)',
-      question: 'しんいちくんは がくせいです。ランさん [ ? ] がくせいです。',
-      translation: 'Bạn Shinichi là học sinh. Bạn Ran cũng là học sinh.',
-      options: ['も', 'は', 'の', 'か'],
+      question: `${p1}は ${j.jp}です。${p2} [ ? ] ${j.jp}です。`,
+      translation: `${p1} là ${j.vi}. ${p2} cũng là ${j.vi}.`,
+      options: shuffleArray(['も', 'は', 'の', 'か']),
       correctAnswer: 'も',
-      explanation: 'Trợ từ 「も」 mang nghĩa là "cũng", dùng khi thông tin về chủ ngữ tương đồng với thông tin đã nói phía trước.',
-      audioJp: 'しんいちくんは がくせいです。ランさんも がくせいです。'
-    },
-    {
-      id: 'b1-q6',
-      lessonId: 1,
-      type: 'qa_matching',
-      grammarTopic: 'Hỏi người (だれ / どなた)',
-      question: 'A: あの ひとは だれですか。',
-      translation: 'A hỏi: "Người kia là ai vậy?"',
-      options: [
-        'さとうさんです。',
-        'はい、だれです。',
-        'ベトナムじんじゃ ありません。',
-        'かいしゃいんですか。'
-      ],
-      correctAnswer: 'さとうさんです。',
-      explanation: 'Câu hỏi có từ để hỏi 「だれ」(ai?) thì trả lời trực tiếp tên hoặc danh tính 「[Người] です」, không dùng はい/いいえ.',
-      audioJp: 'さとうさんです。'
-    },
-    {
-      id: 'b1-q7',
-      lessonId: 1,
-      type: 'qa_matching',
-      grammarTopic: 'Mở rộng 1: Hỏi tên',
-      question: 'A: おなまえは？',
-      translation: 'A hỏi lịch sự: "Tên của bạn là gì?"',
-      options: [
-        'ハンです。',
-        'ベトナムの ハノイです。',
-        'かいしゃいんです。',
-        '20さいです。'
-      ],
-      correctAnswer: 'ハンです。',
-      explanation: '「おなまえは？」 là cách hỏi tên ngắn gọn, lịch sự. Trả lời: 「[Tên] です。」',
-      audioJp: 'ハンです。'
-    },
-    {
-      id: 'b1-q8',
-      lessonId: 1,
-      type: 'word_scramble',
-      grammarTopic: 'Sắp xếp câu: Giới thiệu bản thân',
-      question: 'Sắp xếp các từ sau thành câu: "Tôi là kỹ sư người Việt Nam."',
-      translation: 'Tôi là kỹ sư người Việt Nam.',
-      scrambleTokens: ['ベトナムの', 'わたしは', 'エンジニアです。'],
-      correctTokens: ['わたしは', 'ベトナムの', 'エンジニアです。'],
-      correctAnswer: 'わたしは ベトナムの エンジニアです。',
-      explanation: 'Cấu trúc câu: Chủ ngữ + は + Bổ ngữ (ベトナムの) + Vị ngữ (エンジニアです).',
-      audioJp: 'わたしは ベトナムの エンジニアです。'
-    },
-    {
-      id: 'b1-q9',
-      lessonId: 1,
-      type: 'qa_matching',
-      grammarTopic: 'Mở rộng 3: Hỏi xuất thân',
-      question: 'A: ごしゅっしんは？',
-      translation: 'A hỏi: "Quê quán / Nơi xuất thân của bạn ở đâu?"',
-      options: [
-        'ベトナムの ハノイです。',
-        'きょうしです。',
-        'いいえ、タイじんです。',
-        'あのかたです。'
-      ],
-      correctAnswer: 'ベトナムの ハノイです。',
-      explanation: '「ごしゅっしんは？」 dùng để hỏi quê quán/nơi sinh sống. Trả lời: 「[Địa danh] です。」',
-      audioJp: 'ベトナムの ハノイです。'
-    },
-    {
-      id: 'b1-q10',
-      lessonId: 1,
-      type: 'fill_in_blank',
-      grammarTopic: 'Từ để hỏi tuổi',
-      question: 'コナンくんは [ ? ] ですか。',
-      translation: 'Bạn Conan bao nhiêu tuổi?',
-      options: ['なんさい', 'だれ', 'どなた', 'なん'],
-      correctAnswer: 'なんさい',
-      explanation: '「なんさい」(hoặc lịch sự là 「おいくつ」) là từ để hỏi tuổi.',
-      audioJp: 'コナンくんは なんさいですか。'
-    }
-  ],
-
-  // ==========================================
-  // BÀI 2: Chỉ thị từ, Đồ vật & Quyền sở hữu
-  // ==========================================
-  2: [
-    {
-      id: 'b2-q1',
-      lessonId: 2,
-      type: 'fill_in_blank',
-      grammarTopic: 'Chỉ thị từ これ / それ / あれ',
-      question: 'Người nói đang cầm quyển sách trên tay và nói: "[ ? ] は ほんです。"',
-      translation: 'Người nói cầm sách trên tay: "(Cái này) là quyển sách."',
-      options: ['これ', 'それ', 'あれ', 'この'],
-      correctAnswer: 'これ',
-      explanation: '「これ」 dùng để chỉ vật ở gần người nói. (Lưu ý: 「この」 phải đi kèm danh từ, không đứng trước trợ từ は).',
-      audioJp: 'これは ほんです。'
-    },
-    {
-      id: 'b2-q2',
-      lessonId: 2,
-      type: 'fill_in_blank',
-      grammarTopic: 'Phân biệt これ/それ/あれ vs この/その/あの',
-      question: '[ ? ] ほんは わたしのです。',
-      translation: 'Quyển sách này là của tôi.',
-      options: ['この', 'これ', 'それ', 'あれ'],
-      correctAnswer: 'この',
-      explanation: 'Cấu trúc 「この／その／あの + Danh từ」 dùng để chỉ định đồ vật cụ thể. Không dùng 「これは ほん」 trong trường hợp này.',
-      audioJp: 'この ほんは わたしのです。'
-    },
-    {
-      id: 'b2-q3',
-      lessonId: 2,
-      type: 'qa_matching',
-      grammarTopic: 'Câu hỏi tên đồ vật: なんですか',
-      question: 'A: これは なんですか。',
-      translation: 'A chỉ vào đồ vật gần mình và hỏi: "Đây là cái gì?"',
-      options: [
-        'それは スマホです。',
-        'はい、スマホです。',
-        'いいえ、ちがいます。',
-        'わたしの スマホですか。'
-      ],
-      correctAnswer: 'それは スマホです。',
-      explanation: 'Khi người A hỏi đồ ở gần A (「これは...」), người B trả lời phải dùng 「それは...」(vì vật đó ở gần người nghe A). Không trả lời はい/いいえ.',
-      audioJp: 'それは スマホです。'
-    },
-    {
-      id: 'b2-q4',
-      lessonId: 2,
-      type: 'fill_in_blank',
-      grammarTopic: 'N1 の N2 (Nội dung sách, báo, từ điển)',
-      question: 'これは にほんご [ ? ] じしょです。',
-      translation: 'Đây là quyển từ điển về tiếng Nhật.',
-      options: ['の', 'は', 'も', 'か'],
-      correctAnswer: 'の',
-      explanation: 'Cấu trúc 「N1 の N2」(Cách 2): N1 là nội dung, N2 là đồ vật (sách, báo, từ điển).',
-      audioJp: 'これは にほんごの じしょです。'
-    },
-    {
-      id: 'b2-q5',
-      lessonId: 2,
-      type: 'qa_matching',
-      grammarTopic: 'Câu hỏi nội dung: なんの N ですか',
-      question: 'A: これは なんの ざっしですか。',
-      translation: 'A hỏi: "Đây là tạp chí về cái gì?"',
-      options: [
-        'くるまの ざっしです。',
-        'わたしの ざっしです。',
-        'はい、くるまです。',
-        'いいえ、ざっしじゃ ありません。'
-      ],
-      correctAnswer: 'くるまの ざっしです。',
-      explanation: '「なんの N ですか」 hỏi về chủ đề/nội dung của đồ vật N. Trả lời: 「[Chủ đề] の [N] です。」 (Tạp chí về ô tô).',
-      audioJp: 'くるまの ざっしです。'
-    },
-    {
-      id: 'b2-q6',
-      lessonId: 2,
-      type: 'qa_matching',
-      grammarTopic: 'Câu hỏi sở hữu: だれの N ですか',
-      question: 'A: それは だれの スマホですか。',
-      translation: 'A hỏi: "Đó là điện thoại của ai?"',
-      options: [
-        'わたしの [スマホ] です。',
-        'にほんごの スマホです。',
-        'はい、スマホです。',
-        'だれの です。'
-      ],
-      correctAnswer: 'わたしの [スマホ] です。',
-      explanation: '「だれの N ですか」 hỏi về người sở hữu đồ vật. Trả lời: 「[Người] の [N] です。」',
-      audioJp: 'わたしの スマホです。'
-    },
-    {
-      id: 'b2-q7',
-      lessonId: 2,
-      type: 'qa_matching',
-      grammarTopic: 'Câu hỏi lựa chọn: N1ですか、N2ですか',
-      question: 'A: これは ボールペンですか、シャープペンですか。',
-      translation: 'A hỏi: "Đây là bút bi hay bút chì kim?"',
-      options: [
-        'ボールペンです。',
-        'はい、ボールペンです。',
-        'いいえ、シャープペンです。',
-        'そうです。'
-      ],
-      correctAnswer: 'ボールペンです。',
-      explanation: 'Câu hỏi lựa chọn 「〜 N1 ですか、N2 ですか」 KHÔNG được dùng はい hoặc いいえ khi trả lời, mà chọn trực tiếp 1 trong 2 đáp án.',
-      audioJp: 'ボールペンです。'
-    },
-    {
-      id: 'b2-q8',
-      lessonId: 2,
-      type: 'word_scramble',
-      grammarTopic: 'Sắp xếp câu: Hỏi lựa chọn sở hữu',
-      question: 'Sắp xếp các từ sau thành câu: "Cái bánh Dorayaki này là của Nobita hay Doraemon?"',
-      translation: 'Cái bánh Dorayaki này là của Nobita hay Doraemon?',
-      scrambleTokens: [
-        'のびたさんのですか、',
-        'この どらやきは',
-        'ドラえもんさんのですか。'
-      ],
-      correctTokens: [
-        'この どらやきは',
-        'のびたさんのですか、',
-        'ドラえもんさんのですか。'
-      ],
-      correctAnswer: 'この どらやきは のびたさんのですか、ドラえもんさんのですか。',
-      explanation: 'Cấu trúc: [Chủ ngữ chỉ định: この どらやきは] + [Lựa chọn 1: のびたさんのですか、] + [Lựa chọn 2: ドラえもんさんのですか。]',
-      audioJp: 'この どらやきは のびたさんのですか、ドラえもんさんのですか。'
-    },
-    {
-      id: 'b2-q9',
-      lessonId: 2,
-      type: 'fill_in_blank',
-      grammarTopic: 'Chỉ thị từ ở xa: あれ / あの',
-      question: 'Vật ở xa cả người nói và người nghe: "[ ? ] は なんですか。"',
-      translation: 'Vật ở xa cả 2 người: "(Cái kia) là cái gì?"',
-      options: ['あれ', 'これ', 'それ', 'あの'],
-      correctAnswer: 'あれ',
-      explanation: '「あれ」 dùng khi đồ vật ở xa cả người nói và người nghe.',
-      audioJp: 'あれは なんですか。'
-    },
-    {
-      id: 'b2-q10',
-      lessonId: 2,
-      type: 'fill_in_blank',
-      grammarTopic: 'Câu hỏi xác nhận đồ vật',
-      question: 'A: あれは ねこですか。\nB: いいえ、ちがいます。[ ? ] です。',
-      translation: 'A: "Kia là con mèo phải không?" - B: "Không, không phải. Là cái túi."',
-      options: ['ふくろ', 'ねこ', 'かさ', 'じしょ'],
-      correctAnswer: 'ふくろ',
-      explanation: '「いいえ、ちがいます。[N2] です。」 dùng khi đính chính lại thông tin đúng (ở đây là cái túi - ふくろ).',
-      audioJp: 'いいえ、ちがいます。ふくろです。'
-    }
-  ]
-};
-
-/**
- * Thuật toán sinh câu hỏi ĐỘNG (Dynamic Generator)
- * Ghép ngẫu nhiên kho từ vựng của bài vào các cấu trúc ngữ pháp
- * để tạo ra vô số biến thể câu hỏi khác nhau mỗi lần làm bài.
- */
-function generateDynamicLesson1Questions(count = 5): GrammarQuizQuestion[] {
-  const people = ['わたし', 'さとうさん', 'ハンさん', 'コナンくん', 'リサさん', 'あのひと'];
-  const jobs = [
-    { jp: 'かいしゃいん', vi: 'nhân viên công ty' },
-    { jp: 'きょうし', vi: 'giáo viên' },
-    { jp: 'がくせい', vi: 'học sinh' },
-    { jp: 'いしゃ', vi: 'bác sĩ' },
-    { jp: 'エンジニア', vi: 'kỹ sư' },
-    { jp: 'かしゅ', vi: 'ca sĩ' }
-  ];
-  const countries = [
-    { jp: 'ベトナム', person: 'ベトナムじん', vi: 'Việt Nam' },
-    { jp: 'にほん', person: 'にほんじん', vi: 'Nhật Bản' },
-    { jp: 'アメリカ', person: 'アメリカじん', vi: 'Mỹ' },
-    { jp: 'かんこく', person: 'かんこくじん', vi: 'Hàn Quốc' },
-    { jp: 'イギリス', person: 'イギリスじん', vi: 'Anh' }
-  ];
-
-  const generated: GrammarQuizQuestion[] = [];
-
-  // 1. Sinh câu hỏi trợ từ は / も
-  const p1 = people[Math.floor(Math.random() * people.length)];
-  const j1 = jobs[Math.floor(Math.random() * jobs.length)];
-  generated.push({
-    id: `dyn-b1-wa-${Math.random().toString(36).substring(2, 7)}`,
-    lessonId: 1,
-    type: 'fill_in_blank',
-    grammarTopic: 'Trợ từ は (Chủ ngữ)',
-    question: `${p1} [ ? ] ${j1.jp}です。`,
-    translation: `${p1} là ${j1.vi}.`,
-    options: ['は', 'の', 'も', 'か'],
-    correctAnswer: 'は',
-    explanation: `Trợ từ 「は」 đứng sau chủ ngữ/chủ đề 「${p1}」 để giới thiệu nghề nghiệp/thông tin.`,
-    audioJp: `${p1}は ${j1.jp}です。`
-  });
-
-  // 2. Sinh câu hỏi phủ định じゃ ありません
-  const p2 = people[Math.floor(Math.random() * people.length)];
-  const c2 = countries[Math.floor(Math.random() * countries.length)];
-  generated.push({
-    id: `dyn-b1-neg-${Math.random().toString(36).substring(2, 7)}`,
-    lessonId: 1,
-    type: 'fill_in_blank',
-    grammarTopic: 'Phủ định じゃ ありません',
-    question: `${p2}は ${c2.person} [ ? ]。`,
-    translation: `${p2} không phải là người ${c2.vi}.`,
-    options: ['じゃ ありません', 'です', 'ですか', 'の です'],
-    correctAnswer: 'じゃ ありません',
-    explanation: `Để phủ định 「không phải là người ${c2.vi}」, dùng đuôi câu 「じゃ ありません」 hoặc 「では ありません」.`,
-    audioJp: `${p2}は ${c2.person}じゃ ありません。`
-  });
-
-  // 3. Sinh câu hỏi xác nhận Q&A
-  const p3 = people[Math.floor(Math.random() * people.length)];
-  const j3 = jobs[Math.floor(Math.random() * jobs.length)];
-  const j3Other = jobs.filter(j => j.jp !== j3.jp)[Math.floor(Math.random() * (jobs.length - 1))];
-  generated.push({
-    id: `dyn-b1-qa-${Math.random().toString(36).substring(2, 7)}`,
-    lessonId: 1,
-    type: 'qa_matching',
-    grammarTopic: 'Câu hỏi xác nhận & Trả lời',
-    question: `A: ${p3}は ${j3.jp}ですか。\nB: [ ? ]`,
-    translation: `A: "${p3} là ${j3.vi} phải không?"`,
-    options: [
-      `いいえ、ちがいます。${j3Other.jp}です。`,
-      `はい、${j3.jp}じゃ ありません。`,
-      `わたしは ${j3.jp}です。`,
-      `いいえ、そうです。`
-    ],
-    correctAnswer: `いいえ、ちがいます。${j3Other.jp}です。`,
-    explanation: `Khi phủ định câu hỏi xác nhận, dùng 「いいえ、ちがいます」 kết hợp với thông tin đúng.`,
-    audioJp: `いいえ、ちがいます。${j3Other.jp}です。`
-  });
-
-  return generated.slice(0, count);
-}
-
-function generateDynamicLesson2Questions(count = 5): GrammarQuizQuestion[] {
-  const items = [
-    { jp: 'ほん', vi: 'quyển sách' },
-    { jp: 'かさ', vi: 'cái ô' },
-    { jp: 'かばん', vi: 'cái túi' },
-    { jp: 'ノート', vi: 'quyển vở' },
-    { jp: 'ボールペン', vi: 'bút bi' },
-    { jp: 'シャープペン', vi: 'bút chì kim' },
-    { jp: 'スマホ', vi: 'điện thoại' },
-    { jp: 'とけい', vi: 'đồng hồ' },
-    { jp: 'くるま', vi: 'ô tô' },
-    { jp: 'じしょ', vi: 'từ điển' },
-    { jp: 'ざっし', vi: 'tạp chí' }
-  ];
-
-  const contentThemes = [
-    { jp: 'にほんご', vi: 'tiếng Nhật' },
-    { jp: 'えいご', vi: 'tiếng Anh' },
-    { jp: 'くるま', vi: 'ô tô' },
-    { jp: 'カメラ', vi: 'máy ảnh' },
-    { jp: 'コンピューター', vi: 'máy tính' }
-  ];
-
-  const owners = [
-    { jp: 'わたし', vi: 'tôi' },
-    { jp: 'さとうさん', vi: 'anh/chị Satou' },
-    { jp: 'のびたさん', vi: 'Nobita' },
-    { jp: 'ドラえもんさん', vi: 'Doraemon' },
-    { jp: 'かのじょ', vi: 'cô ấy' }
-  ];
-
-  const generated: GrammarQuizQuestion[] = [];
-
-  // 1. Phân biệt これ/それ/あれ vs この/その/あの
-  const item1 = items[Math.floor(Math.random() * items.length)];
-  const owner1 = owners[Math.floor(Math.random() * owners.length)];
-  const demonstratives = ['この', 'その', 'あの'];
-  const chosenDemo = demonstratives[Math.floor(Math.random() * demonstratives.length)];
-  const demoVi = chosenDemo === 'この' ? 'này' : chosenDemo === 'その' ? 'đó' : 'kia';
-
-  generated.push({
-    id: `dyn-b2-kono-${Math.random().toString(36).substring(2, 7)}`,
-    lessonId: 2,
-    type: 'fill_in_blank',
-    grammarTopic: 'Cấu trúc この／その／あの + N',
-    question: `[ ? ] ${item1.jp}は ${owner1.jp}のです。`,
-    translation: `${item1.vi[0].toUpperCase() + item1.vi.slice(1)} ${demoVi} là của ${owner1.vi}.`,
-    options: [chosenDemo, 'これ', 'それ', 'あれ'],
-    correctAnswer: chosenDemo,
-    explanation: `Vì phía sau có danh từ 「${item1.jp}」 đứng trực tiếp, ta bắt buộc phải dùng 「${chosenDemo}」 (chứ không dùng これ/それ/あれ đứng trước danh từ).`,
-    audioJp: `${chosenDemo} ${item1.jp}は ${owner1.jp}のです。`
-  });
-
-  // 2. Sinh câu hỏi nội dung sách/báo: なんの N ですか
-  const mediaItems = [
-    { jp: 'じしょ', vi: 'từ điển' },
-    { jp: 'ざっし', vi: 'tạp chí' },
-    { jp: 'ほん', vi: 'sách' }
-  ];
-  const media = mediaItems[Math.floor(Math.random() * mediaItems.length)];
-  const theme = contentThemes[Math.floor(Math.random() * contentThemes.length)];
-
-  generated.push({
-    id: `dyn-b2-content-${Math.random().toString(36).substring(2, 7)}`,
-    lessonId: 2,
-    type: 'qa_matching',
-    grammarTopic: 'Câu hỏi nội dung: なんの N ですか',
-    question: `A: これは なんの ${media.jp}ですか。\nB: [ ? ]`,
-    translation: `A: "Đây là ${media.vi} về cái gì?"`,
-    options: [
-      `${theme.jp}の ${media.jp}です。`,
-      `わたしの ${media.jp}です。`,
-      `はい、そうです。`,
-      `いいえ、${media.jp}じゃ ありません。`
-    ],
-    correctAnswer: `${theme.jp}の ${media.jp}です。`,
-    explanation: `Câu hỏi 「なんの ${media.jp}ですか」 hỏi về chủ đề nội dung, trả lời: 「[Chủ đề: ${theme.jp}] の ${media.jp}です。」 (${media.vi[0].toUpperCase() + media.vi.slice(1)} về ${theme.vi}).`,
-    audioJp: `${theme.jp}の ${media.jp}です。`
-  });
-
-  // 3. Sinh câu hỏi lựa chọn: N1ですか、N2ですか
-  const itemA = items[Math.floor(Math.random() * items.length)];
-  const itemB = items.filter(it => it.jp !== itemA.jp)[Math.floor(Math.random() * (items.length - 1))];
-  const choice = Math.random() > 0.5 ? itemA : itemB;
-
-  generated.push({
-    id: `dyn-b2-choice-${Math.random().toString(36).substring(2, 7)}`,
-    lessonId: 2,
-    type: 'qa_matching',
-    grammarTopic: 'Câu hỏi lựa chọn (〜ですか、〜ですか)',
-    question: `A: これは ${itemA.jp}ですか、${itemB.jp}ですか。\nB: [ ? ]`,
-    translation: `A: "Đây là ${itemA.vi} hay ${itemB.vi}?"`,
-    options: [
-      `${choice.jp}です。`,
-      `はい、${choice.jp}です。`,
-      `いいえ、ちがいます。`,
-      `そうです。`
-    ],
-    correctAnswer: `${choice.jp}です。`,
-    explanation: `Câu hỏi lựa chọn không dùng はい / いいえ mà chọn trực tiếp 1 trong 2 đáp án: 「${choice.jp}です。」`,
-    audioJp: `${choice.jp}です。`
-  });
-
-  // 4. Sinh câu hỏi sở hữu: だれの N ですか
-  const itemPoss = items[Math.floor(Math.random() * items.length)];
-  const ownerPoss = owners[Math.floor(Math.random() * owners.length)];
-
-  generated.push({
-    id: `dyn-b2-dare-${Math.random().toString(36).substring(2, 7)}`,
-    lessonId: 2,
-    type: 'fill_in_blank',
-    grammarTopic: 'Câu hỏi sở hữu (だれの N)',
-    question: `それは [ ? ] の ${itemPoss.jp}ですか。`,
-    translation: `Đó là ${itemPoss.vi} của ai?`,
-    options: ['だれ', 'なん', 'どれ', 'どこ'],
-    correctAnswer: 'だれ',
-    explanation: `Từ để hỏi người sở hữu là 「だれ」(ai) ➔ 「だれの N ですか」(N của ai?).`,
-    audioJp: `それは だれの ${itemPoss.jp}ですか。`
-  });
-
-  return generated.slice(0, count);
-}
-
-/**
- * Trả về danh sách câu hỏi cho một bài học (kết hợp câu hỏi tuyển chọn + sinh ngẫu nhiên)
- */
-export function getQuestionsForLesson(lessonId: number, count = 10): GrammarQuizQuestion[] {
-  const curated = CURATED_LESSON_QUESTIONS[lessonId] || [];
-  
-  // Sinh thêm câu hỏi động
-  let dynamicList: GrammarQuizQuestion[] = [];
-  if (lessonId === 1) {
-    dynamicList = generateDynamicLesson1Questions(5);
-  } else if (lessonId === 2) {
-    dynamicList = generateDynamicLesson2Questions(5);
+      explanation: `Trợ từ 「も」 mang nghĩa là "cũng", dùng khi chủ ngữ thứ hai (${p2}) có thông tin tương đồng với câu phía trước.`,
+      audioJp: `${p1}は ${j.jp}です。${p2}も ${j.jp}です。`
+    });
   }
 
-  // Gộp cả câu hỏi tuyển chọn và câu hỏi động
-  const combined = [...curated, ...dynamicList];
-  if (combined.length === 0) return [];
+  // Mẫu 2: Phủ định じゃ ありません / では ありません
+  for (let i = 0; i < 4; i++) {
+    const p = PERSON_NAMES[Math.floor(Math.random() * PERSON_NAMES.length)];
+    const c = COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
+    const j = JOBS[Math.floor(Math.random() * JOBS.length)];
+    const isCountry = Math.random() > 0.5;
+    const target = isCountry ? c.person : j.jp;
+    const targetVi = isCountry ? `người ${c.vi}` : j.vi;
 
-  // Shuffle ngẫu nhiên
-  const shuffled = combined.sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
+    pool.push({
+      id: `l1-neg-${i}-${Math.random()}`,
+      lessonId: 1,
+      type: 'fill_in_blank',
+      grammarTopic: 'Phủ định じゃ ありません',
+      question: `${p}は ${target} [ ? ]。`,
+      translation: `${p} không phải là ${targetVi}.`,
+      options: shuffleArray(['じゃ ありません', 'です', 'ですか', 'の です']),
+      correctAnswer: 'じゃ ありません',
+      explanation: `Để phủ định 「không phải là ${targetVi}」, dùng đuôi câu 「じゃ ありません」 hoặc 「では ありません」.`,
+      audioJp: `${p}は ${target}じゃ ありません。`
+    });
+  }
+
+  // Mẫu 3: Câu hỏi xác nhận & Trả lời (はい、そうです / いいえ、ちがいます)
+  for (let i = 0; i < 4; i++) {
+    const p = PERSON_NAMES[Math.floor(Math.random() * PERSON_NAMES.length)];
+    const j1 = JOBS[Math.floor(Math.random() * JOBS.length)];
+    const j2 = JOBS.filter(job => job.jp !== j1.jp)[Math.floor(Math.random() * (JOBS.length - 1))];
+
+    pool.push({
+      id: `l1-qa-${i}-${Math.random()}`,
+      lessonId: 1,
+      type: 'qa_matching',
+      grammarTopic: 'Câu hỏi xác nhận N1 は N2 ですか',
+      question: `A: ${p}は ${j1.jp}ですか。\nB: [ ? ]`,
+      translation: `A hỏi: "${p} là ${j1.vi} phải không?"`,
+      options: shuffleArray([
+        `いいえ、ちがいます。${j2.jp}です。`,
+        `はい、${j1.jp}じゃ ありません。`,
+        `わたしは ${j1.jp}です。`,
+        `いいえ、そうです。`
+      ]),
+      correctAnswer: `いいえ、ちがいます。${j2.jp}です。`,
+      explanation: `Khi phủ định câu hỏi xác nhận, dùng 「いいえ、ちがいます」 kết hợp với thông tin đúng.`,
+      audioJp: `いいえ、ちがいます。${j2.jp}です。`
+    });
+  }
+
+  // Mẫu 4: N1 の N2 (Thuộc về tổ chức / quốc gia)
+  for (let i = 0; i < 4; i++) {
+    const p = PERSON_NAMES[Math.floor(Math.random() * PERSON_NAMES.length)];
+    const org = ORGS[Math.floor(Math.random() * ORGS.length)];
+    const c = COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
+    const j = JOBS[Math.floor(Math.random() * JOBS.length)];
+    const firstNoun = Math.random() > 0.5 ? org.jp : c.jp;
+
+    pool.push({
+      id: `l1-no-${i}-${Math.random()}`,
+      lessonId: 1,
+      type: 'fill_in_blank',
+      grammarTopic: 'Trợ từ の (Thuộc về tổ chức / nơi chốn)',
+      question: `${p}は ${firstNoun} [ ? ] ${j.jp}です。`,
+      translation: `${p} là ${j.vi} của ${firstNoun}.`,
+      options: shuffleArray(['の', 'は', 'か', 'と']),
+      correctAnswer: 'の',
+      explanation: `Trợ từ 「の」 nối 2 danh từ biểu thị danh từ đứng sau (${j.jp}) thuộc danh từ đứng trước (${firstNoun}).`,
+      audioJp: `${p}は ${firstNoun}の ${j.jp}です。`
+    });
+  }
+
+  // Mẫu 5: Từ để hỏi người (だれ / どなた)
+  for (let i = 0; i < 3; i++) {
+    const p = PERSON_NAMES[Math.floor(Math.random() * PERSON_NAMES.length)];
+    const isPolite = Math.random() > 0.5;
+    const subject = isPolite ? 'あのかた' : 'あのひと';
+    const questionWord = isPolite ? 'どなた' : 'だれ';
+
+    pool.push({
+      id: `l1-dare-${i}-${Math.random()}`,
+      lessonId: 1,
+      type: 'fill_in_blank',
+      grammarTopic: `Từ để hỏi người (${questionWord})`,
+      question: `${subject}は [ ? ] ですか。`,
+      translation: `${isPolite ? 'Vị kia' : 'Người kia'} là ai?`,
+      options: shuffleArray([questionWord, 'なんさい', 'なん', 'どれ']),
+      correctAnswer: questionWord,
+      explanation: `「${questionWord}」 là từ để hỏi danh tính người (${isPolite ? 'lịch sự của だれ' : 'ai'}).`,
+      audioJp: `${subject}は ${questionWord}ですか。`
+    });
+  }
+
+  // Mẫu 6: Từ để hỏi tuổi (なんさい / おいくつ)
+  for (let i = 0; i < 3; i++) {
+    const p = PERSON_NAMES[Math.floor(Math.random() * PERSON_NAMES.length)];
+    const age = Math.floor(Math.random() * 20) + 10;
+
+    pool.push({
+      id: `l1-age-${i}-${Math.random()}`,
+      lessonId: 1,
+      type: 'qa_matching',
+      grammarTopic: 'Hỏi tuổi (なんさいですか)',
+      question: `A: ${p}は なんさいですか。\nB: [ ? ]`,
+      translation: `A hỏi: "${p} bao nhiêu tuổi?"`,
+      options: shuffleArray([
+        `${age}さいです。`,
+        `かいしゃいんです。`,
+        `はい、${p}です。`,
+        `ベトナムの ハノイです。`
+      ]),
+      correctAnswer: `${age}さいです。`,
+      explanation: `Câu hỏi tuổi 「なんさいですか」 trả lời bằng số tuổi: 「[Số tuổi] さいです。」`,
+      audioJp: `${age}さいです。`
+    });
+  }
+
+  // Mẫu 7: Mở rộng (おなまえは？, おしごとは？, ごしゅっしんは？)
+  pool.push({
+    id: `l1-exp-name-${Math.random()}`,
+    lessonId: 1,
+    type: 'qa_matching',
+    grammarTopic: 'Mở rộng: Cách hỏi tên',
+    question: `A: おなまえは？\nB: [ ? ]`,
+    translation: `A hỏi lịch sự: "Tên của bạn là gì?"`,
+    options: shuffleArray(['ハンです。', '20さいです。', 'がくせいです。', 'ベトナムです。']),
+    correctAnswer: 'ハンです。',
+    explanation: `「おなまえは？」 là cách hỏi tên ngắn gọn, trả lời bằng tên: 「[Tên] です。」`,
+    audioJp: 'ハンです。'
+  });
+
+  pool.push({
+    id: `l1-exp-job-${Math.random()}`,
+    lessonId: 1,
+    type: 'qa_matching',
+    grammarTopic: 'Mở rộng: Cách hỏi nghề nghiệp',
+    question: `A: おしごとは？\nB: [ ? ]`,
+    translation: `A hỏi lịch sự: "Nghề nghiệp của bạn là gì?"`,
+    options: shuffleArray(['エンジニアです。', 'さとうです。', 'ベトナムの ハノイです。', 'はい、そうです。']),
+    correctAnswer: 'エンジニアです。',
+    explanation: `「おしごとは？」 hỏi nghề nghiệp, trả lời: 「[Nghề nghiệp] です。」`,
+    audioJp: 'エンジニアです。'
+  });
+
+  pool.push({
+    id: `l1-exp-shusshin-${Math.random()}`,
+    lessonId: 1,
+    type: 'qa_matching',
+    grammarTopic: 'Mở rộng: Cách hỏi xuất thân',
+    question: `A: ごしゅっしんは？\nB: [ ? ]`,
+    translation: `A hỏi: "Nơi xuất thân / Quê quán của bạn ở đâu?"`,
+    options: shuffleArray(['ベトナムの ハノイです。', 'きょうしです。', 'いいえ、ちがいます。', 'たなかです。']),
+    correctAnswer: 'ベトナムの ハノイです。',
+    explanation: `「ごしゅっしんは？」 hỏi nơi xuất thân/quê quán, trả lời: 「[Địa danh] です。」`,
+    audioJp: 'ベトナムの ハノイです。'
+  });
+
+  return shuffleArray(pool);
 }
 
+/**
+ * GENERATOR BÀI 2:
+ * Cấu trúc:
+ * 1. これ／それ／あれ は N です
+ * 2. これ／それ／あれ は なんですか
+ * 3. これ／それ／あれ は N ですか (Xác nhận đồ vật)
+ * 4. この／その／あの + N
+ * 5. N1 の N2 (Sở hữu: わたし／さとうさん の N)
+ * 6. N1 の N2 (Nội dung: にほんご／くるま の ざっし／じしょ)
+ * 7. だれの N ですか
+ * 8. なんの N ですか
+ * 9. 〜 N1 ですか、N2 ですか (Câu hỏi lựa chọn)
+ */
+function generateLesson2Pool(): GrammarQuizQuestion[] {
+  const pool: GrammarQuizQuestion[] = [];
+
+  // Mẫu 1: Chỉ thị từ これ / それ / あれ (dựa theo vị trí người nói / người nghe / ở xa)
+  for (let i = 0; i < 4; i++) {
+    const item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+    const scenarios = [
+      { demo: 'これ', desc: 'gần người nói', vi: 'Cái này' },
+      { demo: 'それ', desc: 'gần người nghe', vi: 'Cái đó' },
+      { demo: 'あれ', desc: 'xa cả hai người', vi: 'Cái kia' }
+    ];
+    const sc = scenarios[Math.floor(Math.random() * scenarios.length)];
+
+    pool.push({
+      id: `l2-demo-${i}-${Math.random()}`,
+      lessonId: 2,
+      type: 'fill_in_blank',
+      grammarTopic: `Chỉ thị từ (${sc.demo})`,
+      question: `Chỉ đồ vật ở ${sc.desc}: "[ ? ] は ${item.jp}です。"`,
+      translation: `Chỉ vật ở ${sc.desc}: "(${sc.vi}) là ${item.vi}."`,
+      options: shuffleArray(['これ', 'それ', 'あれ', 'この']),
+      correctAnswer: sc.demo,
+      explanation: `「${sc.demo}」 dùng để chỉ đồ vật ở ${sc.desc}. (Lưu ý: 「この」 bắt buộc phải đi kèm danh từ, không đứng trước trợ từ は).`,
+      audioJp: `${sc.demo}は ${item.jp}です。`
+    });
+  }
+
+  // Mẫu 2: Phân biệt これ/それ/あれ vs この/その/あの + N
+  for (let i = 0; i < 4; i++) {
+    const item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+    const owner = PERSON_NAMES[Math.floor(Math.random() * PERSON_NAMES.length)];
+    const demos = [
+      { kono: 'この', vi: 'này' },
+      { kono: 'その', vi: 'đó' },
+      { kono: 'あの', vi: 'kia' }
+    ];
+    const chosen = demos[Math.floor(Math.random() * demos.length)];
+
+    pool.push({
+      id: `l2-kono-${i}-${Math.random()}`,
+      lessonId: 2,
+      type: 'fill_in_blank',
+      grammarTopic: `Cấu trúc ${chosen.kono} + Danh từ`,
+      question: `[ ? ] ${item.jp}は ${owner}のです。`,
+      translation: `${item.vi[0].toUpperCase() + item.vi.slice(1)} ${chosen.vi} là của ${owner}.`,
+      options: shuffleArray([chosen.kono, 'これ', 'それ', 'あれ']),
+      correctAnswer: chosen.kono,
+      explanation: `Vì phía sau có danh từ 「${item.jp}」 đứng trực tiếp, ta bắt buộc phải dùng 「${chosen.kono}」 (chứ không dùng これ/それ/あれ).`,
+      audioJp: `${chosen.kono} ${item.jp}は ${owner}のです。`
+    });
+  }
+
+  // Mẫu 3: Câu hỏi tên đồ vật: これ／それ／あれ は なんですか
+  for (let i = 0; i < 3; i++) {
+    const item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+
+    pool.push({
+      id: `l2-nan-${i}-${Math.random()}`,
+      lessonId: 2,
+      type: 'qa_matching',
+      grammarTopic: 'Hỏi tên đồ vật (なんですか)',
+      question: `A: それは なんですか。\nB: [ ? ]`,
+      translation: `A hỏi về đồ vật gần B: "Đó là cái gì?"`,
+      options: shuffleArray([
+        `[これは] ${item.jp}です。`,
+        `はい、${item.jp}です。`,
+        `いいえ、${item.jp}じゃ ありません。`,
+        `だれの ${item.jp}ですか。`
+      ]),
+      correctAnswer: `[これは] ${item.jp}です。`,
+      explanation: `Khi A hỏi 「それは なんですか」 (vật ở gần B), B trả lời dùng 「[これは] ${item.jp}です。」 Không trả lời bằng はい/いいえ.`,
+      audioJp: `これは ${item.jp}です。`
+    });
+  }
+
+  // Mẫu 4: N1 の N2 (Nội dung: sách, báo, từ điển)
+  for (let i = 0; i < 4; i++) {
+    const media = MEDIA_ITEMS[Math.floor(Math.random() * MEDIA_ITEMS.length)];
+    const theme = THEMES[Math.floor(Math.random() * THEMES.length)];
+
+    pool.push({
+      id: `l2-content-no-${i}-${Math.random()}`,
+      lessonId: 2,
+      type: 'fill_in_blank',
+      grammarTopic: 'N1 の N2 (Nội dung của đồ vật)',
+      question: `これは ${theme.jp} [ ? ] ${media.jp}です。`,
+      translation: `Đây là ${media.vi} về ${theme.vi}.`,
+      options: shuffleArray(['の', 'は', 'か', 'と']),
+      correctAnswer: 'の',
+      explanation: `Cấu trúc 「N1 の N2」(Cách 2): N1 là nội dung chủ đề (${theme.jp}), N2 là ấn phẩm đồ vật (${media.jp}).`,
+      audioJp: `これは ${theme.jp}の ${media.jp}です。`
+    });
+  }
+
+  // Mẫu 5: Câu hỏi nội dung: なんの N ですか
+  for (let i = 0; i < 4; i++) {
+    const media = MEDIA_ITEMS[Math.floor(Math.random() * MEDIA_ITEMS.length)];
+    const theme = THEMES[Math.floor(Math.random() * THEMES.length)];
+
+    pool.push({
+      id: `l2-nan-no-${i}-${Math.random()}`,
+      lessonId: 2,
+      type: 'qa_matching',
+      grammarTopic: 'Hỏi nội dung: なんの N ですか',
+      question: `A: これは なんの ${media.jp}ですか。\nB: [ ? ]`,
+      translation: `A hỏi: "Đây là ${media.vi} về cái gì?"`,
+      options: shuffleArray([
+        `${theme.jp}の ${media.jp}です。`,
+        `わたしの ${media.jp}です。`,
+        `はい、そうです。`,
+        `いいえ、${media.jp}じゃ ありません。`
+      ]),
+      correctAnswer: `${theme.jp}の ${media.jp}です。`,
+      explanation: `「なんの ${media.jp}ですか」 hỏi về chủ đề nội dung, trả lời: 「[Chủ đề: ${theme.jp}] の ${media.jp}です。」`,
+      audioJp: `${theme.jp}の ${media.jp}です。`
+    });
+  }
+
+  // Mẫu 6: Câu hỏi sở hữu: だれの N ですか
+  for (let i = 0; i < 4; i++) {
+    const item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+    const owner = PERSON_NAMES[Math.floor(Math.random() * PERSON_NAMES.length)];
+
+    pool.push({
+      id: `l2-dare-no-${i}-${Math.random()}`,
+      lessonId: 2,
+      type: 'qa_matching',
+      grammarTopic: 'Hỏi sở hữu: だれの N ですか',
+      question: `A: それは だれの ${item.jp}ですか。\nB: [ ? ]`,
+      translation: `A hỏi: "Đó là ${item.vi} của ai?"`,
+      options: shuffleArray([
+        `${owner}の [${item.jp}] です。`,
+        `にほんごの ${item.jp}です。`,
+        `はい、${item.jp}です。`,
+        `だれの です。`
+      ]),
+      correctAnswer: `${owner}の [${item.jp}] です。`,
+      explanation: `「だれの ${item.jp}ですか」 hỏi về chủ sở hữu, trả lời: 「[Người: ${owner}] の [${item.jp}] です。」`,
+      audioJp: `${owner}の ${item.jp}です。`
+    });
+  }
+
+  // Mẫu 7: Câu hỏi lựa chọn: 〜 N1 ですか、N2 ですか
+  for (let i = 0; i < 4; i++) {
+    const itemA = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+    const itemB = ITEMS.filter(it => it.jp !== itemA.jp)[Math.floor(Math.random() * (ITEMS.length - 1))];
+    const choice = Math.random() > 0.5 ? itemA : itemB;
+
+    pool.push({
+      id: `l2-choice-${i}-${Math.random()}`,
+      lessonId: 2,
+      type: 'qa_matching',
+      grammarTopic: 'Câu hỏi lựa chọn (〜ですか、〜ですか)',
+      question: `A: これは ${itemA.jp}ですか、${itemB.jp}ですか。\nB: [ ? ]`,
+      translation: `A hỏi: "Đây là ${itemA.vi} hay ${itemB.vi}?"`,
+      options: shuffleArray([
+        `${choice.jp}です。`,
+        `はい、${choice.jp}です。`,
+        `いいえ、${choice.jp}じゃ ありません。`,
+        `そうです。`
+      ]),
+      correctAnswer: `${choice.jp}です。`,
+      explanation: `Câu hỏi lựa chọn KHÔNG dùng はい / いいえ mà chọn trực tiếp 1 trong 2 đối tượng: 「${choice.jp}です。」`,
+      audioJp: `${choice.jp}です。`
+    });
+  }
+
+  // Mẫu 8: Câu hỏi xác nhận đồ vật: それは N ですか
+  for (let i = 0; i < 3; i++) {
+    const item1 = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+    const item2 = ITEMS.filter(it => it.jp !== item1.jp)[Math.floor(Math.random() * (ITEMS.length - 1))];
+
+    pool.push({
+      id: `l2-confirm-${i}-${Math.random()}`,
+      lessonId: 2,
+      type: 'qa_matching',
+      grammarTopic: 'Xác nhận đồ vật (〜ですか)',
+      question: `A: あれは ${item1.jp}ですか。\nB: いいえ、ちがいます。[ ? ] です。`,
+      translation: `A: "Kia là ${item1.vi} phải không?" - B: "Không, không phải. Là ${item2.vi}."`,
+      options: shuffleArray([item2.jp, item1.jp, 'はい', 'だれ']),
+      correctAnswer: item2.jp,
+      explanation: `Khi phủ định câu hỏi xác nhận, dùng 「いいえ、ちがいます。[Đồ vật đúng: ${item2.jp}] です。」`,
+      audioJp: `いいえ、ちがいます。${item2.jp}です。`
+    });
+  }
+
+  return shuffleArray(pool);
+}
+
+/**
+ * Trả về danh sách câu hỏi phong phú, đa dạng cho một bài học (đã shuffle ngẫu nhiên đáp án)
+ */
+export function getQuestionsForLesson(lessonId: number, count = 10): GrammarQuizQuestion[] {
+  let pool: GrammarQuizQuestion[] = [];
+  if (lessonId === 1) {
+    pool = generateLesson1Pool();
+  } else if (lessonId === 2) {
+    pool = generateLesson2Pool();
+  }
+
+  if (pool.length === 0) return [];
+
+  // Shuffle questions and ensure options inside each question are also shuffled
+  const selected = shuffleArray(pool).slice(0, count);
+  return selected.map(q => ({
+    ...q,
+    options: q.options ? shuffleArray(q.options) : undefined
+  }));
+}
